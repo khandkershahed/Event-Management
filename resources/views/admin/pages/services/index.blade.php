@@ -1,0 +1,88 @@
+<x-admin-app-layout :title="'Service Management'">
+    <div class="card">
+        <div class="card-header bg-dark align-items-center d-flex justify-content-between">
+            <div>
+                <h2 class="mb-0 text-center text-white w-100">Service Management</h2>
+            </div>
+            <div>
+                <a href="{{ route('admin.service.create') }}" class="btn btn-white">
+                    <span class="svg-icon svg-icon-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none">
+                            <rect opacity="0.3" x="2" y="2" width="20" height="20" rx="5"
+                                fill="currentColor" />
+                            <rect x="10.8891" y="17.8033" width="12" height="2" rx="1"
+                                transform="rotate(-90 10.8891 17.8033)" fill="currentColor" />
+                            <rect x="6.01041" y="10.9247" width="12" height="2" rx="1"
+                                fill="currentColor" />
+                        </svg>
+                    </span>
+                    Add Service
+                </a>
+            </div>
+        </div>
+        <div class="py-0 card-body">
+            <table class="table my-datatable table-striped table-row-bordered gy-5 gs-7">
+                <thead>
+                    <tr class="fw-bolder fs-7 gs-0">
+                        <th width="5%">Sl</th>
+                        <th width="15%" class="text-center">Icon</th>
+                        <th width="55%">Service Name</th>
+                        <th width="10%">Status</th>
+                        <th width="15%" class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{-- @if ($services)
+                        @foreach ($services as $service)
+                            <tr class="odd">
+                                <td>
+                                    {{ $loop->iteration }}
+                                </td>
+                                <td class="text-center">
+                                    <img class="img-fluid"
+                                        src="{{ !empty(optional($service)->bg_image) ? asset('storage/' . optional($service)->bg_image) : asset('images/no_image.jpg') }}"
+                                        alt="{{ $service->page_name }}">
+                                </td>
+                                <td class="text-info">
+                                    {{ $service->page_name }}
+                                </td>
+                                <td>
+                                    <span class="badge {{ $service->status == 'active' ? 'bg-success' : 'bg-danger' }}">
+                                        {{ $service->status == 'active' ? 'Active' : 'InActive' }}</span>
+                                </td>
+                                <td class="text-end">
+                                    <a href="#"
+                                        class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1"
+                                        data-bs-toggle="modal" data-bs-target="#faqViewModal_{{ $service->id }}">
+                                        <i class="fa-solid fa-expand"></i>
+                                    </a>
+                                    <a href="{{ route('admin.service.edit', $service->id) }}"
+                                        class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+                                    <a href="{{ route('admin.service.destroy', $service->id) }}"
+                                        class="btn btn-icon btn-bg-light btn-active-color-primary btn-sm me-1 delete"
+                                        data-kt-docs-table-filter="delete_row">
+                                        <i class="fa-solid fa-trash-can-arrow-up"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    @endif --}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                $(document).on('change', '.status-toggle', function() {
+                    const id = $(this).data('id');
+                    const route = "{{ route('admin.service.toggle-status', ':id') }}".replace(':id', id);
+                    toggleStatus(route, id);
+                });
+            });
+        </script>
+    @endpush
+</x-admin-app-layout>
