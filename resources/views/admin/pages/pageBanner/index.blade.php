@@ -18,7 +18,7 @@
                         </svg>
                     </span>
                     Add Banner
-                </a>
+                </a>  
             </div>
         </div>
         <div class="py-0 card-body">
