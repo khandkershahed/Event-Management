@@ -35,6 +35,7 @@ return new class extends Migration
             $table->string('age_restriction')->nullable(); // e.g., "18+", "All Ages"
             $table->string('event_type')->nullable(); // Consider a separate `event_types` table if needed
             $table->text('terms_and_conditions')->nullable();
+            $table->string('status')->nullable();
             $table->string('added_by', 220)->nullable();
             $table->string('updated_by', 220)->nullable();
             $table->timestamps();

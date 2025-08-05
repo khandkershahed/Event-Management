@@ -15,5 +15,10 @@ class EventType extends Model
      *
      * @var array
      */
-    protected $guarded = []; 
+    protected $guarded = [];
+    // events
+    public function events()
+    {
+        return $this->hasMany(Event::class);
+    }
 }

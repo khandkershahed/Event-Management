@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class, // 2nd
             SettingSeeder::class, // 2nd
             EventTypeSeeder::class,
+            EventSeeder::class,
         ]);
         // $this->call(UserSeeder::class);
     }

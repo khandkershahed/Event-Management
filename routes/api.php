@@ -10,13 +10,8 @@ Route::prefix('api/v1')->group(function () {
 
     Route::get('/event-type-events/{slug}', [HomeApiController::class, 'typeWiseEvents']);
 
-    Route::get('/breaking-news', [HomeApiController::class, 'breakingNews']);
-    Route::get('/featured-news', [HomeApiController::class, 'featuredNews']);
-    Route::get('/slider-news', [HomeApiController::class, 'sliderNews']);
-    Route::get('/latest-news', [HomeApiController::class, 'latestNews']);
-    Route::get('/viewed-news', [HomeApiController::class, 'viewedNews']);
-    Route::get('/trending-news', [HomeApiController::class, 'trendingNews']);
-    Route::get('/news-details/{slug}', [HomeApiController::class, 'newsDetails']);
+    Route::get('/events', [HomeApiController::class, 'allEvents']);
+    Route::get('/event-details/{slug}', [HomeApiController::class, 'eventDetails']);
     Route::get('/search', [HomeApiController::class, 'globalSearch']);
     Route::get('/search', [HomeApiController::class, 'globalSearch']);
     Route::get('/search-suggestions', [HomeApiController::class, 'searchSuggestions']);

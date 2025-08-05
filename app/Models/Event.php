@@ -20,4 +20,14 @@ class Event extends Model
     {
         return $this->belongsTo(EventType::class);
     }
+    // images
+    public function images()
+    {
+        return $this->hasMany(EventImage::class);
+    }
+    // eventSeats
+    public function eventSeats()
+    {
+        return $this->hasMany(EventSeat::class);
+    }
 }

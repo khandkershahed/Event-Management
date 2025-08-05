@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend\Api;
 
 
+use App\Models\Event;
 use App\Models\Setting;
 use App\Models\Category;
 use App\Models\EventType;
@@ -242,6 +243,77 @@ class HomeApiController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve events for this type.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // allEvents
+    public function allEvents()
+    {
+        try {
+            $events = Event::where('status', 'active')
+                ->with(['eventType', 'images'])
+                ->latest('id')
+                ->get();
+
+            if ($events->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No events found.',
+                    'data'    => [],
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'All events retrieved successfully.',
+                'data'    => EventResource::collection($events),
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch all events: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve events.',
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function eventDetails($slug)
+    {
+        try {
+            $event = Event::where('slug', $slug)
+                ->with(['images', 'eventType','eventSeats'])
+                ->where('status', 'active')
+                ->first();
+
+            if (!$event) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Event not found.',
+                ], 404);
+            }
+
+            $relatedEvents = Event::where('event_type_id', $event->event_type_id)
+                ->where('slug', '!=', $slug)
+                ->where('status', 'active')
+                ->latest()
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Event details retrieved successfully.',
+                'event_details' => new EventResource($event),
+                'related_events' => EventResource::collection($relatedEvents),
+            ], 200);
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch event details: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve news details.',
                 'error'   => $e->getMessage(),
             ], 500);
         }

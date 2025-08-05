@@ -114,6 +114,7 @@ class EventSeeder extends Seeder
                     'terms_and_conditions'  => 'Tickets are non-refundable. Entry requires valid ID.',
                     'added_by'              => 'admin',
                     'updated_by'            => 'admin',
+                    'status'                => 'active',
                     'created_at'            => now(),
                     'updated_at'            => now(),
                 ];
