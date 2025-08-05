@@ -6,7 +6,6 @@ use App\Http\Controllers\Frontend\Api\UserApiController;
 Route::prefix('api/v1')->group(function () {
     Route::get('/event-types', [HomeApiController::class, 'allEventTypes']);
     Route::get('/site-informations', [HomeApiController::class, 'siteInformations']);
-    Route::get('/event-types/{slug}', [HomeApiController::class, 'eventTypeDetails']);
 
     Route::get('/event-type-events/{slug}', [HomeApiController::class, 'typeWiseEvents']);
 

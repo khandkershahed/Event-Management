@@ -43,8 +43,9 @@ class EventResource extends JsonResource
             'created_at'            => $this->created_at,
             'updated_at'            => $this->updated_at,
 
+
             // Optional: eager loaded relationship
-            // 'event_type_data'       => new EventTypeResource($this->whenLoaded('eventType')),
+            'event_type_data'       => new EventTypeResource($this->whenLoaded('eventType')),
         ];
     }
 }

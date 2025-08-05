@@ -15,6 +15,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\NewsResource;
 use App\Http\Resources\EventResource;
 use Illuminate\Support\Facades\Session;
+use App\Http\Resources\EventTypeResource;
 use Illuminate\Support\Facades\Validator;
 
 class HomeApiController extends Controller
@@ -235,7 +236,8 @@ class HomeApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Events retrieved successfully.',
-                'data'    => EventResource::collection($events),
+                'event_type_details' => new EventTypeResource($eventType),
+                'events'    => EventResource::collection($events),
             ], 200);
         } catch (\Exception $e) {
             Log::error('Failed to fetch events for type: ' . $e->getMessage());
