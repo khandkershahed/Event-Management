@@ -39,6 +39,7 @@ class HomeApiController extends Controller
                 'website_name'              => $setting->website_name,
                 'site_title'                => $setting->site_title,
                 'site_motto'                => $setting->site_motto,
+                'footer_description'        => $setting->footer_description,
                 'site_logo_white'           => $setting->site_logo_white ? URL::to('storage/' . $setting->site_logo_white)       : null,
                 'site_logo_black'           => $setting->site_logo_black ? URL::to('storage/' . $setting->site_logo_black)       : null,
                 'site_favicon'              => $setting->site_favicon ? URL::to('storage/' . $setting->site_favicon)          : null,

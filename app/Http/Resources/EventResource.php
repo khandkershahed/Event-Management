@@ -37,6 +37,7 @@ class EventResource extends JsonResource
             'total_capacity'        => $this->total_capacity,
             'age_restriction'       => $this->age_restriction,
             'event_type'            => $this->event_type,
+            'is_featured'           => $this->is_featured,
             'terms_and_conditions'  => $this->terms_and_conditions,
             'added_by'              => $this->added_by,
             'updated_by'            => $this->updated_by,
