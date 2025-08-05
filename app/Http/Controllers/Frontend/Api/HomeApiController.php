@@ -160,7 +160,7 @@ class HomeApiController extends Controller
     {
         try {
             // Load top-level event types with recursive children
-            $event_types = EventType::where('status', 'active')
+            $event_types = EventType::with('events')->where('status', 'active')
                 ->orderBy('serial')
                 ->get();
 
