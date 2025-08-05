@@ -19,6 +19,7 @@ class SettingSeeder extends Seeder
             'website_name'           => 'Event Tailor',
             'site_title'             => 'My Awesome Platform',
             'site_motto'             => 'Empowering your ideas.',
+            'footer_description'     => 'Join our event management community for exclusive updates, special offers, and the latest news delivered straight to your inbox.',
             'site_logo_white'        => '',
             'site_logo_black'        => '',
             'site_favicon'           => '',

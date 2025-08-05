@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('website_name', 250)->nullable();
             $table->string('site_title', 250)->nullable();
             $table->text('site_motto')->nullable();
+            $table->text('footer_description')->nullable();
             $table->string('site_logo_white', 255)->nullable();
             $table->string('site_logo_black', 255)->nullable();
             $table->string('site_favicon', 255)->nullable();

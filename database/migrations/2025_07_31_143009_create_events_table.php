@@ -28,6 +28,7 @@ return new class extends Migration
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->text('venue')->nullable();
+            $table->boolean('is_featured')->default(false);
             $table->string('organizer_name')->nullable();
             $table->string('organizer_brand')->nullable();
             $table->dateTime('purchase_deadline')->nullable();
