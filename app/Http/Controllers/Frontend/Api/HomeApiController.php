@@ -194,7 +194,30 @@ class HomeApiController extends Controller
             'logo'         => $eventType->logo ? url('storage/' . $eventType->logo) : null,
             'image'        => $eventType->image ? url('storage/' . $eventType->image) : null,
             'banner_image' => $eventType->banner_image ? url('storage/' . $eventType->banner_image) : null,
-
+            'events'       => $eventType->events->map(function ($event) {
+                return [
+                    'id'                   => $event->id,
+                    'name'                 => $event->name,
+                    'slug'                 => $event->slug,
+                    'start_date'           => $event->start_date,
+                    'end_date'             => $event->end_date,
+                    'venue'                => $event->venue,
+                    'total_capacity'       => $event->total_capacity,
+                    'status'               => $event->status,
+                    'logo'                 => $event->logo ? url('storage/' . $event->logo)                : null,
+                    'image'                => $event->image ? url('storage/' . $event->image)              : null,
+                    'banner_image'         => $event->banner_image ? url('storage/' . $event->banner_image): null,
+                    'video_teaser_url'     => $event->video_teaser_url,
+                    'location_map_url'     => $event->location_map_url,
+                    'start_time'           => $event->start_time,
+                    'end_time'             => $event->end_time,
+                    'organizer_name'       => $event->organizer_name,
+                    'organizer_brand'      => $event->organizer_brand,
+                    'purchase_deadline'    => $event->purchase_deadline,
+                    'age_restriction'      => $event->age_restriction,
+                    'terms_and_conditions' => $event->terms_and_conditions,
+                ];
+            }),
         ];
     }
     public function eventTypeDetails($slug)
