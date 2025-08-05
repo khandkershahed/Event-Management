@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NewsResource;
+use App\Http\Resources\EventResource;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 
@@ -233,7 +234,7 @@ class HomeApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Events retrieved successfully.',
-                'data'    => NewsResource::collection($events),
+                'data'    => EventResource::collection($events),
             ], 200);
         } catch (\Exception $e) {
             Log::error('Failed to fetch events for type: ' . $e->getMessage());
@@ -244,5 +245,5 @@ class HomeApiController extends Controller
                 'error'   => $e->getMessage(),
             ], 500);
         }
-    }   
+    }
 }

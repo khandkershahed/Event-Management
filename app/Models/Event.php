@@ -16,4 +16,8 @@ class Event extends Model
      * @var array
      */
     protected $guarded = [];
+    public function eventType()
+    {
+        return $this->belongsTo(EventType::class);
+    }
 }
