@@ -25,10 +25,10 @@ class SettingSeeder extends Seeder
             'login_background_image' => '',
 
             // Contact Information
-            'primary_email'          => 'admin@scholarshub.org',
-            'support_email'          => 'support@scholarshub.org',
-            'info_email'             => 'info@scholarshub.org',
-            'sales_email'            => 'sales@scholarshub.org',
+            'primary_email'          => 'admin@eventstailor.org',
+            'support_email'          => 'support@eventstailor.org',
+            'info_email'             => 'info@eventstailor.org',
+            'sales_email'            => 'sales@eventstailor.org',
             'primary_phone'          => '+1234567890',
             'alternative_phone'      => '+0987654321',
             'whatsapp_number'        => '+1234567890',
@@ -43,7 +43,7 @@ class SettingSeeder extends Seeder
             'system_timezone'        => 'Asia/Dhaka',
 
             // SEO & Analytics
-            'site_url'               => 'https://www.scholarshub.org',
+            'site_url'               => 'https://www.eventstailor.org',
             'meta_title'             => 'Welcome to My Boilerplate App',
             'meta_keyword'           => 'laravel, boilerplate, starter, template',
             'meta_tags'              => 'laravel, php, framework',
@@ -54,11 +54,11 @@ class SettingSeeder extends Seeder
             'og_image'               => 'uploads/settings/og-image.jpg',
             'og_title'               => 'My Boilerplate App',
             'og_description'         => 'Kickstart your Laravel projects with ease.',
-            'canonical_url'          => 'https://www.scholarshub.org',
+            'canonical_url'          => 'https://www.eventstailor.org',
 
             // Copyright
             'copyright_title'        => '© 2025 Event Tailor. All rights reserved.',
-            'copyright_url'          => 'https://www.scholarshub.org',
+            'copyright_url'          => 'https://www.eventstailor.org',
 
             // Social Media URLs
             'facebook_url'          => 'https://facebook.com/mycompany',
@@ -71,7 +71,7 @@ class SettingSeeder extends Seeder
             'reddit_url'            => 'https://reddit.com/u/mycompany',
             'tumblr_url'            => 'https://mycompany.tumblr.com',
             'tiktok_url'            => 'https://tiktok.com/@mycompany',
-            'website_url'           => 'https://www.scholarshub.org',
+            'website_url'           => 'https://www.eventstailor.org',
 
             // Feature Toggles
             'maintenance_mode'          => false,
@@ -112,8 +112,8 @@ class SettingSeeder extends Seeder
             'captcha_secret_key'        => null,
             'cookie_consent_enabled'    => true,
             'cookie_consent_text'       => 'This website uses cookies to ensure you get the best experience.',
-            'privacy_policy_url'        => 'https://www.scholarshub.org/privacy',
-            'terms_conditions_url'      => 'https://www.scholarshub.org/terms',
+            'privacy_policy_url'        => 'https://www.eventstailor.org/privacy',
+            'terms_conditions_url'      => 'https://www.eventstailor.org/terms',
 
             // Advanced Settings
             'theme_color'               => '#3490dc',

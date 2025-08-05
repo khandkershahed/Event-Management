@@ -6,7 +6,7 @@ use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class EventType extends Model
+class EventSeat extends Model
 {
     use HasFactory, HasSlug;
     protected $slugSourceColumn = 'name';
@@ -15,5 +15,5 @@ class EventType extends Model
      *
      * @var array
      */
-    protected $guarded = []; 
+    protected $guarded = [];
 }

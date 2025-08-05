@@ -13,9 +13,7 @@ return new class extends Migration
     {
         Schema::create('event_types', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('parent_id')->nullable()->constrained('categories')->onDelete('set null');
             $table->string('name')->index();
-            $table->string('bangla_name')->index()->nullable();
             $table->string('slug')->unique();
             $table->string('code', 220)->nullable();
             $table->string('serial', 220)->nullable();

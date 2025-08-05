@@ -31,7 +31,15 @@ class AppServiceProvider extends ServiceProvider
         View::share('getOnlineVisitorCount', null);
         View::share('getTodayVisitorCount', null);
         View::share('formattedHours', null);
-        $setting = Setting::first();
+        $setting = null;
+        try {
+            if (Schema::hasTable('settings')) {
+                $setting = Setting::first();
+                View::share('setting', $setting);
+            }
+        } catch (Exception $e) {
+            
+        }
 
 
         Carbon::setLocale('en'); // Optional: Set the locale to English (can be changed if needed)
