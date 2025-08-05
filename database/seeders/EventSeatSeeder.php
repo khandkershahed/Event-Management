@@ -9,7 +9,7 @@ use Carbon\Carbon;
 use App\Models\Event; // Ensure this path matches your project
 use App\Models\EventSeatType; // Ensure this path matches your project
 
-class EventSeatsSeeder extends Seeder
+class EventSeatSeeder extends Seeder
 {
     public function run()
     {

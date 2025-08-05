@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Database\Seeders\AdminSeeder;
+use Database\Seeders\EventSeatSeeder;
 
 class DatabaseSeeder extends Seeder
 {
@@ -18,6 +19,8 @@ class DatabaseSeeder extends Seeder
             SettingSeeder::class, // 2nd
             EventTypeSeeder::class,
             EventSeeder::class,
+            EventSeatTypesSeeder::class,
+            EventSeatSeeder::class,
         ]);
         // $this->call(UserSeeder::class);
     }
