@@ -207,7 +207,7 @@ class HomeApiController extends Controller
                     'status'               => $event->status,
                     'logo'                 => $event->logo ? url('storage/' . $event->logo)                : null,
                     'image'                => $event->image ? url('storage/' . $event->image)              : null,
-                    'banner_image'         => $event->banner_image ? url('storage/' . $event->banner_image): null,
+                    'banner_image'         => $event->banner_image ? url('storage/' . $event->banner_image) : null,
                     'video_teaser_url'     => $event->video_teaser_url,
                     'location_map_url'     => $event->location_map_url,
                     'start_time'           => $event->start_time,
@@ -311,7 +311,7 @@ class HomeApiController extends Controller
     {
         try {
             $event = Event::where('slug', $slug)
-                ->with(['images', 'eventType','eventSeats'])
+                ->with(['images', 'eventType', 'eventSeats.eventSeatType']) // include seat type relation
                 ->where('status', 'active')
                 ->first();
 
@@ -328,10 +328,40 @@ class HomeApiController extends Controller
                 ->latest()
                 ->get();
 
+            // Group seats by seat type
+            $groupedSeats = $event->eventSeats
+                ->groupBy(function ($seat) {
+                    return $seat->eventSeatType->name;
+                })
+                ->map(function ($seats, $seatTypeName) {
+                    return [
+                        'seat_type' => $seatTypeName,
+                        'seat_type_id' => $seats->first()->seat_type_id,
+                        'seats' => $seats->map(function ($seat) {
+                            return [
+                                'id' => $seat->id,
+                                'name' => $seat->name,
+                                'row' => $seat->row,
+                                'column' => $seat->column,
+                                'status' => $seat->status,
+                                'price' => $seat->price,
+                                'code' => $seat->code,
+                            ];
+                        })->values(),
+                    ];
+                })->values();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Event details retrieved successfully.',
                 'event_details' => new EventResource($event),
+                'event_images' => $event->images->map(function ($image) {
+                    return [
+                        'id'    => $image->id,
+                        'image' => $image->image ? url('storage/' . $image->image) : null,
+                    ];
+                }),
+                'event_seats' => $groupedSeats,
                 'related_events' => EventResource::collection($relatedEvents),
             ], 200);
         } catch (\Exception $e) {
@@ -339,7 +369,7 @@ class HomeApiController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve news details.',
+                'message' => 'Failed to retrieve event details.',
                 'error'   => $e->getMessage(),
             ], 500);
         }

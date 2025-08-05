@@ -16,4 +16,9 @@ class EventSeatType extends Model
      * @var array
      */
     protected $guarded = [];
+    // seats
+    public function eventSeats()
+    {
+        return $this->hasMany(EventSeat::class);
+    }
 }

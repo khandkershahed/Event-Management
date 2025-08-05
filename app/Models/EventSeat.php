@@ -16,4 +16,19 @@ class EventSeat extends Model
      * @var array
      */
     protected $guarded = [];
+    // eventType
+    public function eventType()
+    {
+        return $this->belongsTo(EventSeatType::class);
+    }
+    // event
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
+    // eventSeatType
+    public function eventSeatType()
+    {
+        return $this->belongsTo(EventSeatType::class, 'seat_type_id');
+    }
 }
