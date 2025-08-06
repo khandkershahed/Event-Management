@@ -20,22 +20,16 @@
                     </div>
 
                     <div class="card-body pt-6">
-
-
                         <div class="d-flex flex-stack">
-
                             <div class="symbol me-5">
                                 <div class="text-inverse-danger">
                                     <img src="https://ui-avatars.com/api/?name=Job+Offer&size=40" alt="Avatar">
                                 </div>
                             </div>
-
                             <div class="d-flex align-items-center flex-row-fluid flex-wrap">
-
                                 <div class="flex-grow-1 me-2">
                                     <a href="javascript:;"
                                         class="text-gray-800 text-hover-primary fs-6 fw-bold">AAAAA</a>
-
                                     {{-- <span class="text-muted fw-semibold d-block fs-7">
                                         Deadline:
 

@@ -3,6 +3,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\Api\HomeApiController;
 use App\Http\Controllers\Frontend\Api\UserApiController;
 
+
+// Login
+Route::prefix('api/v1')->group(function () {
+    Route::get('/register', [UserApiController::class, 'register']);
+    Route::get('/login', [UserApiController::class, 'login']);
+    Route::post('/register', [UserApiController::class, 'register']);
+    Route::post('/login', [UserApiController::class, 'login']);
+});
+
 Route::prefix('api/v1')->group(function () {
     Route::get('/event-types', [HomeApiController::class, 'allEventTypes']);
     Route::get('/site-informations', [HomeApiController::class, 'siteInformations']);
