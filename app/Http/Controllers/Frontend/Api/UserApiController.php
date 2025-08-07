@@ -298,6 +298,7 @@ class UserApiController extends Controller
             'name'     => $request->name,
             'email'    => $request->email,
             'phone'    => $request->phone,
+            'role'     => 'user',
             'password' => Hash::make($request->password),
         ]);
 
@@ -492,4 +493,3 @@ class UserApiController extends Controller
         ]);
     }
 }
-
