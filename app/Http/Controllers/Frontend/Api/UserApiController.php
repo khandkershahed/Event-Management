@@ -331,13 +331,34 @@ class UserApiController extends Controller
         ]);
     }
 
+    // public function logout(Request $request)
+    // {
+    //     // dd($request->user());
+    //     $request->user()->tokens()->delete();
+
+    //     return response()->json([
+    //         'message' => 'User logged out successfully.',
+    //         'status'  => 'success'
+    //     ]);
+    // }
     public function logout(Request $request)
     {
-        // dd($request->user());
-        $request->user()->tokens()->delete();
-
+        $request->user()->currentAccessToken()->delete();
         return response()->json([
             'message' => 'User logged out successfully.',
+            'status'  => 'success'
+        ]);
+    }
+
+    // public function profile(Request $request)
+    // {
+    //     return response()->json($request->user());
+    // }
+    public function profile(Request $request)
+    {
+        return response()->json([
+            'user'    => $request->user(),
+            'message' => 'User profile retrieved successfully.',
             'status'  => 'success'
         ]);
     }
@@ -464,14 +485,7 @@ class UserApiController extends Controller
         ]);
     }
 
-    public function profile(Request $request)
-    {
-        return response()->json([
-            'user'    => $request->user(),
-            'message' => 'User profile retrieved successfully.',
-            'status'  => 'success'
-        ]);
-    }
+
 
     public function editProfile(Request $request)
     {
@@ -493,16 +507,6 @@ class UserApiController extends Controller
         ]);
     }
 
-    public function logout(Request $request)
-    {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out successfully.']);
-    }
-
-    public function profile(Request $request)
-    {
-        return response()->json($request->user());
-    }
 
     public function updateProfile(Request $request)
     {
