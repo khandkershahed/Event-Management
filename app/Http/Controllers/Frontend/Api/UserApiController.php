@@ -492,4 +492,45 @@ class UserApiController extends Controller
             'status'  => 'success'
         ]);
     }
+
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+        return response()->json(['message' => 'Logged out successfully.']);
+    }
+
+    public function profile(Request $request)
+    {
+        return response()->json($request->user());
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        $user->update($request->only(['name', 'email', 'phone']));
+        return response()->json(['message' => 'Profile updated.', 'user' => $user]);
+    }
+
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password'     => 'required|min:8|confirmed',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json(['message' => 'Current password is incorrect.'], 403);
+        }
+
+        $user->update(['password' => Hash::make($request->new_password)]);
+        return response()->json(['message' => 'Password updated successfully.']);
+    }
+
+    public function deleteAccount(Request $request)
+    {
+        $request->user()->delete();
+        return response()->json(['message' => 'Account deleted successfully.']);
+    }
 }

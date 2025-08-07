@@ -31,7 +31,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             // 'auth' => Authenticate::class,
             'guest' => RedirectIfAuthenticated::class,
-
+            'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             // 'check_role' => CheckRoleMiddleware::class,
             'localize'                => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRoutes::class,
             'localizationRedirect'    => \Mcamara\LaravelLocalization\Middleware\LaravelLocalizationRedirectFilter::class,
