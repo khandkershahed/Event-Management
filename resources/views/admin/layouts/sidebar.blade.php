@@ -77,6 +77,12 @@
                             'route' => 'admin.event.index',
                         ],
                         [
+                            'title' => 'Contact Messages',
+                            'icon' => 'fas fa-desktop',
+                            'routes' => ['admin.contact.index', 'admin.contact.create', 'admin.contact.edit'],
+                            'route' => 'admin.contact.index',
+                        ],
+                        [
                             'title' => 'Event Management',
                             'icon' => 'fas fa-desktop',
 

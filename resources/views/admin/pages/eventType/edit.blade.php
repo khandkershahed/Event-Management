@@ -78,12 +78,7 @@
                         <x-metronic.label for="logo" class="col-form-label fw-bold fs-6">
                             {{ __('Icon (Logo)') }}
                         </x-metronic.label>
-                        <x-metronic.file-input id="logo" name="logo" :value="old('logo')" />
-                        @if($event_type->logo)
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $event_type->logo) }}" alt="Logo" class="img-thumbnail" width="80">
-                            </div>
-                        @endif
+                        <x-metronic.file-input id="logo" name="logo" :source="asset('storage/' . $event_type->logo)"/>
                     </div>
 
                     {{-- Image --}}
@@ -91,12 +86,7 @@
                         <x-metronic.label for="image" class="col-form-label fw-bold fs-6">
                             {{ __('Thumbnail Image') }}
                         </x-metronic.label>
-                        <x-metronic.file-input id="image" name="image" :value="old('image')" />
-                        @if($event_type->image)
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $event_type->image) }}" alt="Thumbnail" class="img-thumbnail" width="80">
-                            </div>
-                        @endif
+                        <x-metronic.file-input id="image" name="image" :value="old('image')" :source="asset('storage/' . $event_type->image)"/>
                     </div>
 
                     {{-- Banner Image --}}
@@ -104,12 +94,7 @@
                         <x-metronic.label for="banner_image" class="col-form-label fw-bold fs-6">
                             {{ __('Banner Image') }}
                         </x-metronic.label>
-                        <x-metronic.file-input id="banner_image" name="banner_image" :value="old('banner_image')" />
-                        @if($event_type->banner_image)
-                            <div class="mt-2">
-                                <img src="{{ asset('storage/' . $event_type->banner_image) }}" alt="Banner" class="img-thumbnail" width="80">
-                            </div>
-                        @endif
+                        <x-metronic.file-input id="banner_image" name="banner_image" :source="asset('storage/' . $event_type->banner_image)"/>
                     </div>
 
                 </div>
