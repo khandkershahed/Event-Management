@@ -1,7 +1,27 @@
 <?php
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Frontend\Api\HomeApiController;
 use App\Http\Controllers\Frontend\Api\UserApiController;
+
+
+// Login
+Route::prefix('api/v1')->group(function () {
+    // 🚪 Public routes
+    Route::post('/register', [UserApiController::class, 'register']);
+    Route::post('/login', [UserApiController::class, 'login']);
+    // 🔒 Protected routes (requires auth:sanctum)
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [UserApiController::class, 'logout']);
+        // 👤 User profile
+        Route::get('/profile', [UserApiController::class, 'profile']);
+        Route::put('/profile', [UserApiController::class, 'updateProfile']);
+        // 🔑 Change password
+        Route::post('/change-password', [UserApiController::class, 'changePassword']);
+        // 🗑️ Optional: delete account
+        Route::delete('/delete-account', [UserApiController::class, 'deleteAccount']);
+    });
+});
 
 Route::prefix('api/v1')->group(function () {
     Route::get('/event-types', [HomeApiController::class, 'allEventTypes']);
@@ -70,7 +90,7 @@ Route::prefix('api/v1')->group(function () {
     Route::get('/about', [HomeApiController::class, 'aboutUs']);
 
     // Contact
-    Route::get('/contact', [HomeApiController::class, 'contactUs']);
+    Route::post('/contact', [HomeApiController::class, 'contactStore']);
     // Route::post('/contact', [ContactApiController::class, 'store']);
 
     // Wishlist
@@ -80,36 +100,9 @@ Route::prefix('api/v1')->group(function () {
     Route::get('/wishlist/get', [HomeApiController::class, 'GetWishlist']);
     Route::delete('/wishlist/{rowId}', [HomeApiController::class, 'remove']);
 
-
     // Product Search
     Route::post('/search', [HomeApiController::class, 'productSearch']);
     Route::post('/search/suggestions', [HomeApiController::class, 'searchSuggestions']);
-
-    // Deal Search
-    Route::get('/deal/search', [HomeApiController::class, 'searchDeal']);
-
-    // Brands
-    Route::get('/brands/search', [HomeApiController::class, 'searchAllBrands']);
-
-    // Map Search
-    Route::get('/map/divisions', [HomeApiController::class, 'mapDivision']);
-    Route::get('/map/cities', [HomeApiController::class, 'mapCity']);
-
-    // Coupons
-    Route::get('/coupons', [HomeApiController::class, 'allCoupon']);
-    Route::get('/coupons/{slug}', [HomeApiController::class, 'couponDetails']);
-    Route::get('/coupons/search', [HomeApiController::class, 'searchCouponName']);
-
-
-    Route::get('/divisions', [HomeApiController::class, 'allDivision']);
-    Route::get('/division/{slug}/cities', [HomeApiController::class, 'getCitiesByDivision']);
-    Route::get('/city/{slug}/areas', [HomeApiController::class, 'getAreasByCity']);
-
-    // Store
-    Route::get('/stores', [HomeApiController::class, 'allStore']);
-    Route::get('/stores/{id}', [HomeApiController::class, 'storeDetails']);
-    Route::get('/stores/search', [HomeApiController::class, 'searchStoreName']);
-    Route::get('/stores/area/{area_id}', [HomeApiController::class, 'filterByArea']);
 
     // Terms and Privacy
     Route::get('/terms-and-conditions', [HomeApiController::class, 'termsCondition']);
@@ -119,9 +112,4 @@ Route::prefix('api/v1')->group(function () {
     Route::get('/wallet', [HomeApiController::class, 'wallet']);
     Route::get('/faq', [HomeApiController::class, 'frequentlyAsked']);
 
-
-    Route::get('/brand/{slug}', [HomeApiController::class, 'brandOverview']);
-    Route::get('/brand/{slug}/stores', [HomeApiController::class, 'brandStores']);
-    Route::get('/brand/{slug}/offers', [HomeApiController::class, 'brandOffers']);
-    Route::get('/offer-details/{slug}', [HomeApiController::class, 'offerDetails']);
 });
