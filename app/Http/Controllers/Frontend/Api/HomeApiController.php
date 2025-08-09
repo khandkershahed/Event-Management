@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend\Api;
 
 
 use App\Models\Event;
+use App\Models\Contact;
 use App\Models\Setting;
 use App\Models\Category;
 use App\Models\EventType;
@@ -373,5 +374,71 @@ class HomeApiController extends Controller
                 'error'   => $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function contactStore(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'       => 'required|string|max:150',
+            'email'      => 'required|email|max:150',
+            'phone'      => 'nullable|string|max:20',
+            'subject'    => 'nullable|string',
+            'message'    => 'nullable|string',
+            'ip_address' => 'nullable|ip|max:100',
+        ], [
+            'name.required'  => 'The name field is required.',
+            'name.string'    => 'The name must be a string.',
+            'name.max'       => 'The name may not be greater than :max characters.',
+            'email.required' => 'The email field is required.',
+            'email.email'    => 'Please enter a valid email address.',
+            'email.max'      => 'The email may not be greater than :max characters.',
+            'phone.string'   => 'The phone must be a string.',
+            'phone.max'      => 'The phone may not be greater than :max characters.',
+            'phone.regex'    => 'The phone field must contain only numeric characters and must be a proper number.',
+            'subject.string' => 'The subject must be a string.',
+            'message.string' => 'The message must be a string.',
+            'ip_address.ip'  => 'Please enter a valid IP address.',
+            'ip_address.max' => 'The IP address may not be greater than :max characters.',
+        ]);
+
+        if ($request->filled('phone')) {
+            $validator->sometimes('phone', 'regex:/^[0-9]+$/i', function ($input) {
+                return $input->phone;
+            });
+        }
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $typePrefix = 'MSG';
+        $today      = date('dmy');
+        $lastCode   = Contact::where('code', 'like', $typePrefix . '-' . $today . '%')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $newNumber = $lastCode ? (int) explode('-', $lastCode->code)[2] + 1 : 1;
+        $code      = $typePrefix . '-' . $today . '-' . $newNumber;
+
+        $contact = Contact::create([
+            'code'       => $code,
+            'name'       => $request->name,
+            'email'      => $request->email,
+            'phone'      => $request->phone,
+            'subject'    => $request->subject,
+            'message'    => $request->message,
+            'ip_address' => $request->ip(),
+            'status'     => 'pending',
+            'call'       => $request->call,
+        ]);
+
+        return response()->json([
+            'status'  => 'success',
+            'message' => 'Thank You. We have received your message. We will contact you very soon.',
+            'data'    => $contact
+        ], 201);
     }
 }

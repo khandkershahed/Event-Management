@@ -64,6 +64,19 @@
                     $menuItems = [
                         //====================== Event Management Start ============
                         [
+                            'title' => 'Event Type',
+                            'icon' => 'fas fa-desktop',
+                            'routes' => ['admin.event-type.index', 'admin.event-type.create', 'admin.event-type.edit'],
+                            'route' => 'admin.event-type.index',
+                        ],
+
+                        [
+                            'title' => 'Events',
+                            'icon' => 'fas fa-desktop',
+                            'routes' => ['admin.event.index', 'admin.event.create', 'admin.event.edit'],
+                            'route' => 'admin.event.index',
+                        ],
+                        [
                             'title' => 'Event Management',
                             'icon' => 'fas fa-desktop',
 
@@ -80,7 +93,11 @@
                             'subMenu' => [
                                 [
                                     'title' => 'Event Type',
-                                    'routes' => ['admin.event-type.index', 'admin.event-type.create', 'admin.event-type.edit'],
+                                    'routes' => [
+                                        'admin.event-type.index',
+                                        'admin.event-type.create',
+                                        'admin.event-type.edit',
+                                    ],
                                     'route' => 'admin.event-type.index',
                                 ],
 
@@ -149,7 +166,11 @@
 
                                 [
                                     'title' => 'Blog',
-                                    'routes' => ['admin.blog-post.index', 'admin.blog-post.create', 'admin.blog-post.edit'],
+                                    'routes' => [
+                                        'admin.blog-post.index',
+                                        'admin.blog-post.create',
+                                        'admin.blog-post.edit',
+                                    ],
                                     'route' => 'admin.blog-post.index',
                                 ],
 
@@ -291,23 +312,35 @@
                 {{-- @if (Auth::guard('admin')->user()->can('brand.menu') || Auth::guard('admin')->user()->can('permission.menu') || Auth::guard('admin')->user()->can('role.menu') || Auth::guard('admin')->user()->can('admin.menu') || Auth::guard('admin')->user()->can('web_setting.menu')) --}}
 
                 @foreach ($menuItems as $item)
-                    <div data-kt-menu-trigger="click"
-                        class="menu-item menu-accordion {{ Route::is(...$item['routes'] ?? []) ? 'here show' : '' }}">
-                        <span class="menu-link">
-                            <span class="menu-icon">
-                                <span class="svg-icon svg-icon-2">
+                    @if (empty($item['subMenu']))
+                        {{-- Single menu item --}}
+                        <div class="menu-item">
+                            <a class="menu-link {{ Route::is(...$item['routes']) ? 'active' : '' }}"
+                                href="{{ route($item['route']) }}">
+                                <span class="menu-icon">
                                     <i class="{{ $item['icon'] }}"></i>
                                 </span>
+                                <span class="menu-title">{{ $item['title'] }}</span>
+                            </a>
+                        </div>
+                    @else
+                        {{-- Menu item with submenus --}}
+                        <div data-kt-menu-trigger="click"
+                            class="menu-item menu-accordion {{ Route::is(...$item['routes']) ? 'here show' : '' }}">
+                            <span class="menu-link">
+                                <span class="menu-icon">
+                                    <i class="{{ $item['icon'] }}"></i>
+                                </span>
+                                <span class="menu-title">{{ $item['title'] }}</span>
+                                <span class="menu-arrow"></span>
                             </span>
-                            <span class="menu-title">{{ $item['title'] }}</span>
-                            <span class="menu-arrow"></span>
-                        </span>
-                        @if (!empty($item['subMenu']))
+
                             <div
-                                class="menu-sub menu-sub-accordion {{ Route::is(...$item['routes'] ?? []) ? 'menu-active-bg' : '' }}">
+                                class="menu-sub menu-sub-accordion {{ Route::is(...$item['routes']) ? 'menu-active-bg' : '' }}">
                                 @foreach ($item['subMenu'] as $subItem)
                                     @if (isset($subItem['subMenu']))
-                                        <div data-kt-menu-trigger="click" class="menu-item menu-accordion mb-1">
+                                        {{-- Handle 3rd level submenu if exists --}}
+                                        <div data-kt-menu-trigger="click" class="menu-item menu-accordion">
                                             <span class="menu-link">
                                                 <span class="menu-bullet">
                                                     <span class="bullet bullet-dot"></span>
@@ -316,45 +349,38 @@
                                                 <span class="menu-arrow"></span>
                                             </span>
                                             <div
-                                                class="menu-sub menu-sub-accordion {{ Route::is(...array_column($subItem['subMenu'], 'route') ?? []) ? 'here show' : '' }}">
+                                                class="menu-sub menu-sub-accordion {{ Route::is(...array_column($subItem['subMenu'], 'route')) ? 'here show' : '' }}">
                                                 @foreach ($subItem['subMenu'] as $subSubItem)
                                                     <div class="menu-item">
-                                                        @if (isset($subSubItem['route']))
-                                                            <a class="menu-link {{ Route::is($subSubItem['route']) ? 'active' : '' }}"
-                                                                href="{{ route($subSubItem['route']) }}">
-                                                                <span class="menu-bullet">
-                                                                    <span class="bullet bullet-dot"></span>
-                                                                </span>
-                                                                <span
-                                                                    class="menu-title">{{ $subSubItem['title'] }}</span>
-                                                            </a>
-                                                        @else
+                                                        <a class="menu-link {{ Route::is($subSubItem['route']) ? 'active' : '' }}"
+                                                            href="{{ route($subSubItem['route']) }}">
+                                                            <span class="menu-bullet">
+                                                                <span class="bullet bullet-dot"></span>
+                                                            </span>
                                                             <span class="menu-title">{{ $subSubItem['title'] }}</span>
-                                                        @endif
+                                                        </a>
                                                     </div>
                                                 @endforeach
                                             </div>
                                         </div>
                                     @else
+                                        {{-- Normal submenu item --}}
                                         <div class="menu-item">
-                                            @if (isset($subItem['route']))
-                                                <a class="menu-link {{ Route::is($subItem['routes']) ? 'active' : '' }}"
-                                                    href="{{ route($subItem['route']) }}">
-                                                    <span class="menu-bullet">
-                                                        <span class="bullet bullet-dot"></span>
-                                                    </span>
-                                                    <span class="menu-title">{{ $subItem['title'] }}</span>
-                                                </a>
-                                            @else
+                                            <a class="menu-link {{ Route::is(...$subItem['routes']) ? 'active' : '' }}"
+                                                href="{{ route($subItem['route']) }}">
+                                                <span class="menu-bullet">
+                                                    <span class="bullet bullet-dot"></span>
+                                                </span>
                                                 <span class="menu-title">{{ $subItem['title'] }}</span>
-                                            @endif
+                                            </a>
                                         </div>
                                     @endif
                                 @endforeach
                             </div>
-                        @endif
-                    </div>
+                        </div>
+                    @endif
                 @endforeach
+
 
                 {{-- @endif --}}
 
