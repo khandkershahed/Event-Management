@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Frontend\BookingController;
+use App\Http\Controllers\Frontend\PaymentController;
 use App\Http\Controllers\Frontend\Api\HomeApiController;
 use App\Http\Controllers\Frontend\Api\UserApiController;
 
@@ -112,4 +114,9 @@ Route::prefix('api/v1')->group(function () {
     Route::get('/wallet', [HomeApiController::class, 'wallet']);
     Route::get('/faq', [HomeApiController::class, 'frequentlyAsked']);
 
+    // initiate booking
+    // routes/api.php
+    Route::post('/booking/initiate', [BookingController::class, 'initiateBooking']);
+    // routes/web.php
+    
 });

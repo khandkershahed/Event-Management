@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\Frontend\HomeController;
-use App\Http\Controllers\Frontend\ModeratorDashboardController;
-use App\Http\Controllers\Frontend\UserDashboardController;
-// use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\PaymentController;
+// use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Frontend\UserDashboardController;
+use App\Http\Controllers\Frontend\ModeratorDashboardController;
 
 
 Route::get('/', [HomeController::class, 'home'])->name('homepage');
@@ -22,6 +23,7 @@ Route::get('/', [HomeController::class, 'home'])->name('homepage');
 // Route::get('/admin/dashboard', function () {
 //     return view('admin.dashboard');
 // })->middleware(['auth:admin', 'verified'])->name('admin.dashboard');
+Route::get('/payment/{id}', [PaymentController::class, 'showPaymentPage']);
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
