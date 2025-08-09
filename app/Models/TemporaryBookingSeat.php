@@ -15,8 +15,13 @@ class TemporaryBookingSeat extends Model
      * @var array
      */
     protected $guarded = [];
-    public function temporaryBooking()
+    public function booking()
     {
-        return $this->belongsTo(TemporaryBooking::class);
+        return $this->belongsTo(TemporaryBooking::class, 'temporary_booking_id');
+    }
+
+    public function seat()
+    {
+        return $this->belongsTo(EventSeat::class);
     }
 }

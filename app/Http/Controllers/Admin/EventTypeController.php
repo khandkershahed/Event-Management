@@ -149,7 +149,6 @@ class EventTypeController extends Controller
                 if (! empty($file)) {
                     $filePath = 'event-type/' . $key;
                     $oldFile  = $event_type->$key ?? null;
-                    // Delete old file from public storage
                     if ($oldFile && Storage::disk('public')->exists($oldFile)) {
                         Storage::disk('public')->delete($oldFile);
                     }
@@ -176,12 +175,12 @@ class EventTypeController extends Controller
             ]);
 
             DB::commit();
-
-            return redirect()->back()->with('success', 'Event Type updated successfully');
+            Session::flash('success', 'Event Type updated successfully!', ['timeOut' => 30000]);
+            return redirect()->back();
         } catch (\Exception $e) {
             DB::rollback();
             Session::flash('error', 'An error occurred while updating the Event Type: ' . $e->getMessage(), ['timeOut' => 30000]);
-            return redirect()->back()->withInput()->with('error', 'An error occurred while updating the Event Type: ' . $e->getMessage());
+            return redirect()->back()->withInput();
         }
     }
 

@@ -39,7 +39,7 @@
     <title>{{ $title ?? config('app.name', 'NewSite') }}</title>
     <style>
         .fl-wrapper {
-            z-index: 9999 important;
+            z-index: 9999 !important;
         }
     </style>
 </head>

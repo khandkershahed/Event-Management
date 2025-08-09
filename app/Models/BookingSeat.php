@@ -15,8 +15,14 @@ class BookingSeat extends Model
      * @var array
      */
     protected $guarded = [];
+
     public function booking()
     {
         return $this->belongsTo(Booking::class);
+    }
+
+    public function seat()
+    {
+        return $this->belongsTo(EventSeat::class);
     }
 }
