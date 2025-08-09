@@ -77,42 +77,22 @@
                             'route' => 'admin.event.index',
                         ],
                         [
+                            'title' => 'Events Seat Type',
+                            'icon' => 'fas fa-desktop',
+                            'routes' => ['admin.event-seat-type.index', 'admin.event-seat-type.create', 'admin.event-seat-type.edit'],
+                            'route' => 'admin.event-seat-type.index',
+                        ],
+                        [
+                            'title' => 'Events Seat',
+                            'icon' => 'fas fa-desktop',
+                            'routes' => ['admin.event-seat.index', 'admin.event-seat.create', 'admin.event-seat.edit'],
+                            'route' => 'admin.event-seat.index',
+                        ],
+                        [
                             'title' => 'Contact Messages',
                             'icon' => 'fas fa-desktop',
                             'routes' => ['admin.contact.index', 'admin.contact.create', 'admin.contact.edit'],
                             'route' => 'admin.contact.index',
-                        ],
-                        [
-                            'title' => 'Event Management',
-                            'icon' => 'fas fa-desktop',
-
-                            'routes' => [
-                                'admin.event-type.index',
-                                'admin.event-type.create',
-                                'admin.event-type.edit',
-
-                                'admin.event.index',
-                                'admin.event.create',
-                                'admin.event.edit',
-                            ],
-
-                            'subMenu' => [
-                                [
-                                    'title' => 'Event Type',
-                                    'routes' => [
-                                        'admin.event-type.index',
-                                        'admin.event-type.create',
-                                        'admin.event-type.edit',
-                                    ],
-                                    'route' => 'admin.event-type.index',
-                                ],
-
-                                [
-                                    'title' => 'Events',
-                                    'routes' => ['admin.event.index', 'admin.event.create', 'admin.event.edit'],
-                                    'route' => 'admin.event.index',
-                                ],
-                            ],
                         ],
                         //====================== Event Management End ==============
 

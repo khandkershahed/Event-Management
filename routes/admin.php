@@ -3,26 +3,28 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Admin\EventController;
 use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\TermsController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\PrivacyController;
+use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\BlogPostController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\EventTypeController;
 use App\Http\Controllers\Admin\PageBannerController;
 use App\Http\Controllers\Admin\AdminProfileController;
 use App\Http\Controllers\Admin\BlogCategoryController;
 use App\Http\Controllers\Admin\SubscriptionController;
 use App\Http\Controllers\Admin\Auth\PasswordController;
+use App\Http\Controllers\Admin\EventSeatTypeController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\Auth\NewPasswordController;
 use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Admin\EventController;
-use App\Http\Controllers\Admin\EventTypeController;
-use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\EventSeatController;
 
 Route::group(['middleware' => 'guest:admin', 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
@@ -68,6 +70,8 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
             'banner'         => PageBannerController::class,
             'event-type'     => EventTypeController::class,
             'event'          => EventController::class,
+            'event-seat-type'=> EventSeatTypeController::class,
+            'event-seat'     => EventSeatController::class,
 
             'blog-category'  => BlogCategoryController::class,
             'blog-post'      => BlogPostController::class,

@@ -62,9 +62,9 @@
 
                             <td>
                                 {{-- @if (Auth::guard('admin')->user()->can('edit.contact')) --}}
-                                <a href="{{ route('admin.contact.edit', $contact->id) }}" class="text-primary">
+                                {{-- <a href="{{ route('admin.contact.edit', $contact->id) }}" class="text-primary">
                                     <i class="fa-solid fa-edit text-primary me-1 fs-4"></i>
-                                </a>
+                                </a> --}}
                                 {{-- @endif
 
                                 @if (Auth::guard('admin')->user()->can('delete.contact')) --}}

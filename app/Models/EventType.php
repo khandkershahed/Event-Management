@@ -21,4 +21,9 @@ class EventType extends Model
     {
         return $this->hasMany(Event::class);
     }
+    // scopeactive
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
 }
