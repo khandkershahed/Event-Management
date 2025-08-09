@@ -6,7 +6,7 @@ use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Booking extends Model
+class TemporaryBookingSeat extends Model
 {
     use HasFactory;
     /**
@@ -15,8 +15,8 @@ class Booking extends Model
      * @var array
      */
     protected $guarded = [];
-    public function seats()
+    public function temporaryBooking()
     {
-        return $this->hasMany(BookingSeat::class);
+        return $this->belongsTo(TemporaryBooking::class);
     }
 }

@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('temporary_bookings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
+            $table->foreignId('event_id')->nullable()->constrained('events')->onDelete('cascade');
             $table->string('user_name');
             $table->string('user_email');
-            $table->unsignedBigInteger('seat_id');
-            $table->unsignedBigInteger('event_id');
             $table->string('status')->default('pending'); // pending, paid, failed
             $table->timestamp('reserved_until')->nullable();
             $table->timestamps();

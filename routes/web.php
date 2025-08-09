@@ -23,7 +23,7 @@ Route::get('/', [HomeController::class, 'home'])->name('homepage');
 // Route::get('/admin/dashboard', function () {
 //     return view('admin.dashboard');
 // })->middleware(['auth:admin', 'verified'])->name('admin.dashboard');
-Route::get('/payment/{id}', [PaymentController::class, 'showPaymentPage']);
+Route::get('/payment/{id}', [PaymentController::class, 'showPaymentPage'])->name('payment.page');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';

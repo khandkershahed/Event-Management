@@ -8,12 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class TemporaryBooking extends Model
 {
-    use HasFactory, HasSlug;
-    protected $slugSourceColumn = 'name';
+    use HasFactory;
     /**
      * The attributes that aren't mass assignable.
      *
      * @var array
      */
     protected $guarded = [];
+    public function seats()
+    {
+        return $this->hasMany(TemporaryBookingSeat::class);
+    }
 }

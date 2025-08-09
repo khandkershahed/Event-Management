@@ -117,6 +117,5 @@ Route::prefix('api/v1')->group(function () {
     // initiate booking
     // routes/api.php
     Route::post('/booking/initiate', [BookingController::class, 'initiateBooking']);
-    // routes/web.php
-    
+
 });
