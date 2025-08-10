@@ -72,7 +72,7 @@ class BookingController extends Controller
                 'user.email' => 'required|email',
                 'event_id' => 'required|integer|exists:events,id',
                 'seat_ids' => 'required|array|min:1',
-                'seat_ids.*' => 'integer|exists:seats,id',
+                'seat_ids.*' => 'integer|exists:event_seats,id',
             ],
             [
                 'user.name.required'   => 'The user name is required.',
