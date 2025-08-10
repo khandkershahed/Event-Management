@@ -117,6 +117,6 @@ Route::prefix('api/v1')->group(function () {
 
     // initiate booking
     // routes/api.php
-    
+
 
 });
