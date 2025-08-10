@@ -7,6 +7,8 @@ use App\Models\Booking;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
 use App\Models\TemporaryBooking;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class PaymentController extends Controller
@@ -51,6 +53,51 @@ class PaymentController extends Controller
         return redirect($session->url);
     }
 
+    // public function handleStripeWebhook(Request $request)
+    // {
+    //     $payload = $request->getContent();
+    //     $sigHeader = $request->header('Stripe-Signature');
+    //     $endpointSecret = env('STRIPE_WEBHOOK_SECRET');
+
+    //     try {
+    //         $event = \Stripe\Webhook::constructEvent($payload, $sigHeader, $endpointSecret);
+    //     } catch (\Exception $e) {
+    //         Log::error('Stripe Webhook Error: ' . $e->getMessage());
+    //         return response('Invalid payload', 400);
+    //     }
+
+    //     if ($event->type === 'checkout.session.completed') {
+    //         $session = $event->data->object;
+    //         $bookingId = $session->metadata->temporary_booking_id ?? null;
+
+    //         if ($bookingId) {
+    //             $booking = TemporaryBooking::with('seats')->find($bookingId);
+
+    //             if ($booking && $booking->status === 'pending') {
+    //                 // Mark temporary booking paid
+    //                 $booking->status = 'paid';
+    //                 $booking->save();
+
+    //                 // Create confirmed bookings for each seat
+    //                 foreach ($booking->seats as $seat) {
+    //                     Booking::create([
+    //                         'user_name' => $booking->user_name,
+    //                         'user_email' => $booking->user_email,
+    //                         'event_id' => $booking->event_id,
+    //                         'seat_id' => $seat->seat_id,
+    //                         'status' => 'confirmed',
+    //                     ]);
+    //                 }
+
+    //                 // Delete temporary booking and seats
+    //                 $booking->delete();
+    //             }
+    //         }
+    //     }
+
+    //     return response('Webhook handled', 200);
+    // }
+
     public function handleStripeWebhook(Request $request)
     {
         $payload = $request->getContent();
@@ -72,13 +119,17 @@ class PaymentController extends Controller
                 $booking = TemporaryBooking::with('seats')->find($bookingId);
 
                 if ($booking && $booking->status === 'pending') {
-                    // Mark temporary booking paid
+                    // Mark temporary booking as paid
                     $booking->status = 'paid';
                     $booking->save();
 
-                    // Create confirmed bookings for each seat
+                    $seatIds = [];
+
                     foreach ($booking->seats as $seat) {
-                        Booking::create([
+                        $seatIds[] = $seat->seat_id;
+
+                        // Create confirmed bookings
+                        \App\Models\Booking::create([
                             'user_name' => $booking->user_name,
                             'user_email' => $booking->user_email,
                             'event_id' => $booking->event_id,
@@ -87,7 +138,12 @@ class PaymentController extends Controller
                         ]);
                     }
 
-                    // Delete temporary booking and seats
+                    // 🔁 Update seat statuses to 'sold'
+                    DB::table('event_seats')
+                        ->whereIn('id', $seatIds)
+                        ->update(['status' => 'sold']);
+
+                    // Delete the temporary booking
                     $booking->delete();
                 }
             }
@@ -95,6 +151,7 @@ class PaymentController extends Controller
 
         return response('Webhook handled', 200);
     }
+
 
     public function paymentSuccess(Request $request)
     {

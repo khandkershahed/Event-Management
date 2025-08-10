@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\TemporaryBooking;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\TemporaryBookingSeat;
 use Illuminate\Support\Facades\Validator;
@@ -130,6 +131,9 @@ class BookingController extends Controller
                 'temporary_booking_id' => $booking->id,
                 'seat_id' => $seatId,
             ]);
+            DB::table('event_seats')
+                ->where('id', $seatId)
+                ->update(['status' => 'reserved']);
         }
 
         // Return URL to redirect user to payment page
