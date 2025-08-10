@@ -69,6 +69,7 @@ Route::prefix('api/v1')->group(function () {
         Route::post('/change-password', [UserApiController::class, 'updatePassword']);
         Route::get('/profile', [UserApiController::class, 'profile']);
         Route::put('/profile', [UserApiController::class, 'editProfile']);
+        Route::post('/booking/initiate', [BookingController::class, 'initiateBooking']);
     });
 
     // Home
@@ -116,6 +117,6 @@ Route::prefix('api/v1')->group(function () {
 
     // initiate booking
     // routes/api.php
-    Route::post('/booking/initiate', [BookingController::class, 'initiateBooking']);
+    
 
 });
