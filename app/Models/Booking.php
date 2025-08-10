@@ -15,7 +15,7 @@ class Booking extends Model
      * @var array
      */
     protected $guarded = [];
-    public function seats()
+    public function bookingSeats()
     {
         return $this->hasMany(BookingSeat::class);
     }

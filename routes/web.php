@@ -23,7 +23,16 @@ Route::get('/', [HomeController::class, 'home'])->name('homepage');
 // Route::get('/admin/dashboard', function () {
 //     return view('admin.dashboard');
 // })->middleware(['auth:admin', 'verified'])->name('admin.dashboard');
-Route::get('/payment/{id}', [PaymentController::class, 'showPaymentPage'])->name('payment.page');
+// Route::get('/payment/{id}', [PaymentController::class, 'showPaymentPage'])->name('payment.page');
+
+// web routes (Laravel Blade)
+Route::get('/payment/{booking}', [PaymentController::class, 'showPaymentPage'])
+    ->name('payment.page')
+    ->middleware('signed'); // ensure secure signed URL
+
+Route::post('/stripe/webhook', [PaymentController::class, 'handleStripeWebhook']);
+Route::get('/payment/success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
+Route::get('/payment/cancel', [PaymentController::class, 'paymentCancel'])->name('payment.cancel');
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';

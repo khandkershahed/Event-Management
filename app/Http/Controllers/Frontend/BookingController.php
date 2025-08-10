@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\TemporaryBooking;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use App\Models\TemporaryBookingSeat;
 use Illuminate\Support\Facades\Validator;
@@ -135,11 +136,15 @@ class BookingController extends Controller
                 ->where('id', $seatId)
                 ->update(['status' => 'reserved']);
         }
-
+        $redirectUrl = URL::temporarySignedRoute(
+            'payment.page',
+            now()->addMinutes(10),
+            ['booking' => $booking->id]
+        );
         // Return URL to redirect user to payment page
         return response()->json([
             'status' => 'success',
-            'redirect_url' => route('payment.page', ['id' => $booking->id]),
+            'redirect_url' => $redirectUrl,
         ]);
     }
 }

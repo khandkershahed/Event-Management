@@ -73,35 +73,12 @@ Route::prefix('api/v1')->group(function () {
     });
 
     // Home
-    Route::get('/homepage', [HomeApiController::class, 'homePage']);
-    Route::get('/home-sliders', [HomeApiController::class, 'homeSliders']);
-    Route::get('/home-banners', [HomeApiController::class, 'homeBanners']);
-    Route::get('/coupons-all', [HomeApiController::class, 'allCoupons']);
-    Route::get('/brands-all', [HomeApiController::class, 'allBrands']);
 
-
-    // Offers
-    Route::get('/offers-all', [HomeApiController::class, 'allOffers']);
-    Route::get('/offers/search', [HomeApiController::class, 'searchOfferName']);
-    Route::get('/offers/search/mobile', [HomeApiController::class, 'searchOfferNameMobile']);
-
-    // Brand
-
-
-    // About
-    Route::get('/website-informations', [HomeApiController::class, 'websiteInformations']);
-    Route::get('/about', [HomeApiController::class, 'aboutUs']);
 
     // Contact
     Route::post('/contact', [HomeApiController::class, 'contactStore']);
     // Route::post('/contact', [ContactApiController::class, 'store']);
 
-    // Wishlist
-    Route::get('/wishlist', [HomeApiController::class, 'wishlist']);
-    Route::post('/wishlist', [HomeApiController::class, 'AddToWishlist']);
-    Route::get('/wishlist/products', [HomeApiController::class, 'WishlistProduct']);
-    Route::get('/wishlist/get', [HomeApiController::class, 'GetWishlist']);
-    Route::delete('/wishlist/{rowId}', [HomeApiController::class, 'remove']);
 
     // Product Search
     Route::post('/search', [HomeApiController::class, 'productSearch']);

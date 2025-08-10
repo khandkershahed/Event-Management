@@ -36,11 +36,7 @@ class ClearExpiredTemporaryBookings extends Command
                 ->update(['status' => 'active']);
 
             $releasedSeatsCount += count($seatIds);
-
-            // Delete the TemporaryBookingSeat records
             TemporaryBookingSeat::where('temporary_booking_id', $booking->id)->delete();
-
-            // Delete the booking itself
             $booking->delete();
         }
 
