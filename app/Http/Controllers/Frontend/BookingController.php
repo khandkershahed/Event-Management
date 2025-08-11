@@ -122,6 +122,7 @@ class BookingController extends Controller
             'user_name'      => $request->user['name'],
             'user_email'     => $request->user['email'],
             'event_id'       => $request->event_id,
+            'total_amount'   => $request->total_amount,
             'status'         => 'pending',
             'reserved_until' => Carbon::now()->addMinutes(10),
         ]);

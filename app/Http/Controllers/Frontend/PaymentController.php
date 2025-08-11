@@ -29,8 +29,7 @@ class PaymentController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $seatCount = $booking->seats->count();
-        $amountCents = $seatCount * 5000; // $50 per seat
+        $amountCents = $booking->total_amount; 
 
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -89,16 +88,16 @@ class PaymentController extends Controller
 
                         // Create one booking record
                         $booking = Booking::create([
-                            'user_id' => $tempBooking->user_id,
-                            'event_id' => $tempBooking->event_id,
-                            'user_name' => $tempBooking->user_name,
-                            'user_email' => $tempBooking->user_email,
-                            'invoice_number' => strtoupper(Str::random(10)),
-                            'event_datetime' => now(), // Adjust if you have event datetime stored elsewhere
-                            'status' => 'confirmed',
-                            'total_amount' => $session->amount_total / 100, // amount in dollars
-                            'payment_status' => 'paid',
-                            'paid_at' => now(),
+                            'user_id'                => $tempBooking->user_id,
+                            'event_id'               => $tempBooking->event_id,
+                            'user_name'              => $tempBooking->user_name,
+                            'user_email'             => $tempBooking->user_email,
+                            'invoice_number'         => strtoupper(Str::random(10)),
+                            'event_datetime'         => now(), // Adjust if you have event datetime stored elsewhere
+                            'status'                 => 'confirmed',
+                            'total_amount'           => $tempBooking->total_amount, // amount in dollars
+                            'payment_status'         => 'paid',
+                            'paid_at'                => now(),
                             'payment_transaction_id' => $session->payment_intent ?? null,
                         ]);
 
@@ -130,7 +129,7 @@ class PaymentController extends Controller
      */
     public function paymentSuccess(Request $request)
     {
-        return response()->view('payment.success');
+        return response()->view('frontend.paymentSuccess');
     }
 
     /**
@@ -138,6 +137,6 @@ class PaymentController extends Controller
      */
     public function paymentCancel()
     {
-        return response()->view('payment.cancel');
+        return response()->view('frontend.paymentCancel');
     }
 }
