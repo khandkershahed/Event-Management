@@ -12,6 +12,7 @@ use App\Mail\EmailVerificationMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserApiController extends Controller
@@ -504,13 +505,35 @@ class UserApiController extends Controller
         ]);
 
         // Handle image upload if present
-        if ($request->hasFile('profile_image')) {
-            $image = $request->file('profile_image');
-            $path = $image->store('profile_images', 'public');
-            $validatedData['profile_image'] = $path;
+        $files = [
+            'profile_image' => $request->file('profile_image'),
+        ];
+
+        $uploadedFiles = [];
+
+        foreach ($files as $key => $file) {
+            if (!empty($file)) {
+                $filePath = 'user/' . $key;
+                $oldFile  = $event->$key ?? null;
+
+                if ($oldFile && Storage::disk('public')->exists($oldFile)) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+
+                $uploadedFiles[$key] = customUpload($file, $filePath);
+                if ($uploadedFiles[$key]['status'] === 0) {
+                    return redirect()->back()->with('error', $uploadedFiles[$key]['error_message']);
+                }
+            } else {
+                $uploadedFiles[$key] = ['status' => 0];
+            }
         }
 
-        $user->update($validatedData);
+
+        $user->update([
+            $validatedData,
+            'profile_image' => $uploadedFiles['profile_image']['status'] == 1 ? $uploadedFiles['profile_image']['file_path'] : null,
+        ]);
 
         return response()->json([
             'status'  => 'success',
