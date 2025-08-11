@@ -489,29 +489,42 @@ class UserApiController extends Controller
 
     public function editProfile(Request $request)
     {
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $request->user()->id,
+        $user = $request->user();
+
+        $validatedData = $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'username'      => 'nullable|string|max:255|unique:users,username,' . $user->id,
+            'phone'         => 'nullable|string|max:20',
+            'address'       => 'nullable|string|max:500',
+            'city'          => 'nullable|string|max:255',
+            'country'       => 'nullable|string|max:255',
+            'zipcode'       => 'nullable|string|max:20',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $user = $request->user();
-        $user->update([
-            'name'  => $request->name,
-            'email' => $request->email,
-        ]);
+        // Handle image upload if present
+        if ($request->hasFile('profile_image')) {
+            $image = $request->file('profile_image');
+            $path = $image->store('profile_images', 'public');
+            $validatedData['profile_image'] = $path;
+        }
+
+        $user->update($validatedData);
 
         return response()->json([
-            'user'    => $user,
+            'status'  => 'success',
             'message' => 'Profile updated successfully.',
-            'status'  => 'success'
+            'user'    => $user,
         ]);
     }
+
 
 
     public function updateProfile(Request $request)
     {
         $user = $request->user();
-        $user->update($request->only(['name', 'email', 'username','phone', 'address', 'profile_image','country', 'city', 'zipcode']));
+        $user->update($request->only(['name', 'email', 'username', 'phone', 'address', 'profile_image', 'country', 'city', 'zipcode']));
         return response()->json(['message' => 'Profile updated.', 'user' => $user]);
     }
 
