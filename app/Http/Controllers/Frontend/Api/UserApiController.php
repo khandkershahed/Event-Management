@@ -511,7 +511,7 @@ class UserApiController extends Controller
     public function updateProfile(Request $request)
     {
         $user = $request->user();
-        $user->update($request->only(['name', 'email', 'phone']));
+        $user->update($request->only(['name', 'email', 'username','phone', 'address', 'profile_image','country', 'city', 'zipcode']));
         return response()->json(['message' => 'Profile updated.', 'user' => $user]);
     }
 

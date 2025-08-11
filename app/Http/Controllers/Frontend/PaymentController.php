@@ -29,7 +29,7 @@ class PaymentController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $amountCents = $booking->total_amount; 
+        $amountCents = $booking->total_amount;
 
         $session = Session::create([
             'payment_method_types' => ['card'],
