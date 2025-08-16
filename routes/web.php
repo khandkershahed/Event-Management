@@ -33,7 +33,7 @@ Route::get('/payment/{booking}', [PaymentController::class, 'showPaymentPage'])
 Route::post('/stripe/webhook', [PaymentController::class, 'handleStripeWebhook']);
 Route::get('/payment/success', [PaymentController::class, 'paymentSuccess'])->name('payment.success');
 Route::get('/payment/cancel', [PaymentController::class, 'paymentCancel'])->name('payment.cancel');
-Route::get('/payment/status', [PaymentController::class, 'paymentStatus']);
+Route::get('api/v1/payment/status', [PaymentController::class, 'paymentStatus']);
 
 require __DIR__ . '/auth.php';
 require __DIR__ . '/admin.php';
