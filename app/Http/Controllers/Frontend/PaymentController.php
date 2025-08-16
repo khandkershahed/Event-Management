@@ -95,7 +95,7 @@ class PaymentController extends Controller
                 DB::transaction(function () use ($bookingId, $session) {
                     Log::info("🔄 Fetching TemporaryBooking ID: $bookingId");
 
-                    $tempBooking = TemporaryBooking::with('seats.seat')->find($bookingId);
+                    $tempBooking = TemporaryBooking::with('seats')->find($bookingId);
 
                     if (!$tempBooking) {
                         Log::error("❌ TemporaryBooking ID $bookingId not found.");
@@ -170,7 +170,7 @@ class PaymentController extends Controller
                 ], 400);
             }
 
-            $tempBooking = TemporaryBooking::with('seats.seat')->find($bookingId);
+            $tempBooking = TemporaryBooking::with('seats')->find($bookingId);
 
             if (!$tempBooking || $tempBooking->status !== 'pending') {
                 return response()->json([
