@@ -12,7 +12,7 @@ class TemporaryBooking extends Model
     /**
      * The attributes that aren't mass assignable.
      *
-     * @var array
+     * @var array 
      */
     protected $guarded = [];
     public function seats()
