@@ -31,7 +31,7 @@ class PaymentController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $seatCount   = $booking->seats->count();
-        $amountCents = $seatCount * 5000; // $50 per seat
+        $amountCents = $booking->total_amount; // $50 per seat
 
         $session = Session::create([
             'payment_method_types' => ['card'],
