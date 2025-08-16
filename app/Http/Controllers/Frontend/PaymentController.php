@@ -16,7 +16,7 @@ use App\Models\TemporaryBooking;
 class PaymentController extends Controller
 {
     /**
-     * Redirect to Stripe Checkout
+     * Redirect user to Stripe Checkout
      */
     public function showPaymentPage(Request $request, TemporaryBooking $booking)
     {
@@ -30,8 +30,7 @@ class PaymentController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $amountCents = (int) ($booking->total_amount * 100); // convert dollars to cents
-
+        $amountCents = (int) ($booking->total_amount * 100); // dollars to cents
 
         $session = Session::create([
             'payment_method_types' => ['card'],
@@ -58,7 +57,7 @@ class PaymentController extends Controller
     }
 
     /**
-     * Handle Stripe webhook events.
+     * Stripe webhook (production use)
      */
     public function handleStripeWebhook(Request $request)
     {
@@ -78,48 +77,7 @@ class PaymentController extends Controller
             $bookingId = $session->metadata->temporary_booking_id ?? null;
 
             if ($bookingId) {
-                DB::transaction(function () use ($bookingId, $session) {
-                    $tempBooking = TemporaryBooking::with('seats')->find($bookingId);
-
-                    if ($tempBooking && $tempBooking->status === 'pending') {
-                        // Mark temporary booking as paid
-                        $tempBooking->status = 'paid';
-                        $tempBooking->save();
-
-                        $seatIds = $tempBooking->seats->pluck('seat_id')->toArray();
-
-                        // Create final booking
-                        $booking = Booking::create([
-                            'user_id'    => $tempBooking->user_id,
-                            'event_id'   => $tempBooking->event_id,
-                            'user_name'  => $tempBooking->user_name,
-                            'user_email' => $tempBooking->user_email,
-                            'invoice_number' => strtoupper(Str::random(10)),
-                            'event_datetime' => now(), // replace with event datetime if stored
-                            'status'     => 'confirmed',
-                            'total_amount' => $session->amount_total / 100,
-                            'payment_status' => 'paid',
-                            'paid_at'   => now(),
-                            'payment_transaction_id' => $session->payment_intent ?? null,
-                        ]);
-
-                        // Create booking_seats records
-                        foreach ($seatIds as $seatId) {
-                            $booking->bookingSeats()->create([
-                                'seat_id' => $seatId,
-                            ]);
-                        }
-
-                        // Update seats
-                        DB::table('event_seats')
-                            ->whereIn('id', $seatIds)
-                            ->update(['status' => 'booked']);
-
-                        // Cleanup
-                        $tempBooking->seats()->delete();
-                        $tempBooking->delete();
-                    }
-                });
+                $this->finalizeBooking($bookingId, $session);
             }
         }
 
@@ -128,6 +86,7 @@ class PaymentController extends Controller
 
     /**
      * API for Next.js frontend to check payment & fetch tickets
+     * (also finalizes booking if webhook hasn’t fired yet — useful for dev/local)
      */
     public function paymentStatus(Request $request)
     {
@@ -142,15 +101,23 @@ class PaymentController extends Controller
 
         $transactionId = $session->payment_intent ?? null;
 
-        // Find booking by transaction ID
-        $booking = Booking::with(['bookingSeats', 'event'])
+        // Try to find booking
+        $booking = Booking::with(['bookingSeats.seat', 'event'])
             ->where('payment_transaction_id', $transactionId)
             ->first();
+
+        // If booking not found, finalize it here (fallback for local/dev)
+        if (!$booking) {
+            $bookingId = $session->metadata->temporary_booking_id ?? null;
+            if ($bookingId) {
+                $booking = $this->finalizeBooking($bookingId, $session);
+            }
+        }
 
         if (!$booking) {
             return response()->json([
                 'status' => 'pending',
-                'message' => 'Booking not found yet, please wait for confirmation.'
+                'message' => 'Booking not confirmed yet, please wait.'
             ], 202);
         }
 
@@ -170,5 +137,58 @@ class PaymentController extends Controller
                 }),
             ],
         ]);
+    }
+
+    /**
+     * Shared function to move temporary booking → final booking
+     */
+    protected function finalizeBooking($bookingId, $session)
+    {
+        return DB::transaction(function () use ($bookingId, $session) {
+            $tempBooking = TemporaryBooking::with('seats')->find($bookingId);
+
+            if (!$tempBooking || $tempBooking->status !== 'pending') {
+                return null;
+            }
+
+            // Mark temporary booking as paid
+            $tempBooking->status = 'paid';
+            $tempBooking->save();
+
+            $seatIds = $tempBooking->seats->pluck('seat_id')->toArray();
+
+            // Create final booking
+            $booking = Booking::create([
+                'user_id'    => $tempBooking->user_id,
+                'event_id'   => $tempBooking->event_id,
+                'user_name'  => $tempBooking->user_name,
+                'user_email' => $tempBooking->user_email,
+                'invoice_number' => strtoupper(Str::random(10)),
+                'event_datetime' => now(), // replace with actual event datetime if stored
+                'status'     => 'confirmed',
+                'total_amount' => $session->amount_total / 100,
+                'payment_status' => 'paid',
+                'paid_at'   => now(),
+                'payment_transaction_id' => $session->payment_intent ?? null,
+            ]);
+
+            // Assign seats
+            foreach ($seatIds as $seatId) {
+                $booking->bookingSeats()->create([
+                    'seat_id' => $seatId,
+                ]);
+            }
+
+            // Update seat status
+            DB::table('event_seats')
+                ->whereIn('id', $seatIds)
+                ->update(['status' => 'booked']);
+
+            // Cleanup
+            $tempBooking->seats()->delete();
+            $tempBooking->delete();
+
+            return $booking;
+        });
     }
 }
