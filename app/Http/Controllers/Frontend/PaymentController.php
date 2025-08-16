@@ -143,7 +143,7 @@ class PaymentController extends Controller
         $transactionId = $session->payment_intent ?? null;
 
         // Find booking by transaction ID
-        $booking = Booking::with(['bookingSeats.seat', 'event'])
+        $booking = Booking::with(['bookingSeats', 'event'])
             ->where('payment_transaction_id', $transactionId)
             ->first();
 
