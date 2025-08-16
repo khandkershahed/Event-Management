@@ -1,4 +1,4 @@
-<div id="kt_header" class="header align-items-stretch">
+<div id="kt_header" class="header align-items-stretch" style="box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px !important;">
     <div class="container-fluid d-flex align-items-stretch justify-content-between">
 
         <div class="d-flex align-items-center d-lg-none ms-n2 me-2" title="Show aside menu">
@@ -21,22 +21,22 @@
 
         <div class="d-flex align-items-center flex-grow-1 flex-lg-grow-0">
             @if ($title ?? null)
-                <h1 class="my-1 d-flex text-dark fw-bolder fs-3 align-items-center">{{ $title }}</h1>
-                <span class="mx-4 border-gray-300 h-20px border-start"></span>
+            <h1 class="my-1 d-flex text-dark fw-bolder fs-3 align-items-center">{{ $title }}</h1>
+            <span class="mx-4 border-gray-300 h-20px border-start"></span>
             @endif
             @if (isset($breadcrumbs))
-                <ul class="my-1 breadcrumb breadcrumb-separatorless fw-bold fs-5">
-                    @foreach ($breadcrumbs as $breadcrumb)
-                        <li class="breadcrumb-item">
-                            <a href="{{ $breadcrumb['url'] }}" class= "text-hover-primary">{{ $breadcrumb['name'] }}</a>
-                        </li>
-                        @unless ($loop->last)
-                            <li class="breadcrumb-item">
-                                <span class="bg-gray-300 bullet w-5px h-2px"></span>
-                            </li>
-                        @endunless
-                    @endforeach
-                </ul>
+            <ul class="my-1 breadcrumb breadcrumb-separatorless fw-bold fs-5">
+                @foreach ($breadcrumbs as $breadcrumb)
+                <li class="breadcrumb-item">
+                    <a href="{{ $breadcrumb['url'] }}" class="text-hover-primary">{{ $breadcrumb['name'] }}</a>
+                </li>
+                @unless ($loop->last)
+                <li class="breadcrumb-item">
+                    <span class="bg-gray-300 bullet w-5px h-2px"></span>
+                </li>
+                @endunless
+                @endforeach
+            </ul>
             @endif
         </div>
 
@@ -53,9 +53,9 @@
 
                 {{-- Notification Start  --}}
                 @php
-                    $alladminNots = Auth::guard('admin')->user();
-                    $ncount = Auth::guard('admin')->user()->unreadNotifications->count();
-                    $latestNotifications = $alladminNots->notifications->take(7);
+                $alladminNots = Auth::guard('admin')->user();
+                $ncount = Auth::guard('admin')->user()->unreadNotifications->count();
+                $latestNotifications = $alladminNots->notifications->take(7);
                 @endphp
 
                 <div class="d-flex align-items-center ms-1 ms-lg-3">
@@ -66,7 +66,7 @@
                         <div class="position-relative">
                             <i class="fa-solid fa-bell fs-3"></i>
                             <span
-                                class="position-absolute top-0 start-100 translate-middle badge badge-sm rounded-pill bg-danger">
+                                class="top-0 position-absolute start-100 translate-middle badge badge-sm rounded-pill bg-danger">
                                 {{ $ncount }}
                             </span>
                         </div>
@@ -103,157 +103,157 @@
 
                                                 <div class="mb-0 me-2">
                                                     <a href="{{ route('admin.notifications.read', $notification->id) }}"
-                                                        class="fs-6 text-hover-primary fw-bolder
-                                                        {{ is_null($notification->read_at) ? 'text-danger' : 'text-gray-800' }}">
-                                                        {{ $notification->data['message'] }}
-                                                    </a>
-                                                </div>
-
-
-                                            </div>
-
-                                            <span
-                                                class="badge badge-light fs-8">{{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</span>
-                                        </div>
-                                    @endforeach --}}
-
-                                    @forelse ($latestNotifications as $notification)
-                                        <div class="py-4 d-flex flex-stack">
-                                            <div class="d-flex align-items-center">
-
-                                                <div class="symbol symbol-35px me-4">
-                                                    <span class="symbol-label">
-
-                                                        <span class="svg-icon svg-icon-2 svg-icon-primary">
-                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                viewBox="0 0 512 512">
-                                                                <path
-                                                                    d="M64 0C28.7 0 0 28.7 0 64L0 352c0 35.3 28.7 64 64 64l96 0 0 80c0 6.1 3.4 11.6 8.8 14.3s11.9 2.1 16.8-1.5L309.3 416 448 416c35.3 0 64-28.7 64-64l0-288c0-35.3-28.7-64-64-64L64 0z" />
-                                                            </svg>
-                                                        </span>
-
-                                                    </span>
-                                                </div>
-
-                                                <div class="mb-0 me-2">
-                                                    <a href="{{ route('admin.notifications.read', $notification->id) }}"
-                                                        class="fs-6 text-hover-primary fw-bolder
-                                                    {{ is_null($notification->read_at) ? 'text-danger' : 'text-gray-800' }}">
-                                                        {{ $notification->data['message'] }}
-                                                    </a>
-                                                </div>
-
-
-                                            </div>
-
-                                            <span
-                                                class="badge badge-light fs-8">{{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</span>
-                                        </div>
-                                    @empty
-                                        <p>No Notification Avaiable</p>
-                                    @endforelse
-
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                </div>
-                {{-- Notification End  --}}
-
-                @php
-                    $id = Auth::guard('admin')->user()->id;
-                    $profileData = App\Models\Admin::find($id);
-
-                    $roles = Spatie\Permission\Models\Role::latest()->get();
-
-                    $routes = Route::current()->getName();
-                @endphp
-
-                <div class="d-flex align-items-center ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
-                    <div class="cursor-pointer symbol symbol-30px symbol-md-40px" data-kt-menu-trigger="click"
-                        data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
-                        <img src="{{ !empty($profileData->photo) ? asset('storage/admin_images/' . $profileData->photo) : asset('upload/no_image.jpg') }}"
-                            alt="Admin Image">
-                    </div>
-                    <div class="py-4 menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-primary fw-bold fs-6 w-275px"
-                        data-kt-menu="true">
-                        <div class="px-3 menu-item">
-                            <div class="px-3 menu-content d-flex align-items-center">
-                                <div class="symbol symbol-50px me-5">
-
-                                    <img src="{{ !empty($profileData->photo) ? asset('storage/admin_images/' . $profileData->photo) : asset('upload/no_image.jpg') }}"
-                                        alt="Admin Image">
-
-                                </div>
-                                <div class="d-flex flex-column">
-                                    <div class="fw-bolder d-flex align-items-center fs-5">
-                                        {{ Auth::guard('admin')->user()->name }}
-                                    </div>
-                                    <a href="mailto:{{ Auth::guard('admin')->user()->email }}"
-                                        class="fw-bold text-muted text-hover-primary fs-7"
-                                        style="overflow-wrap: anywhere;">
-                                        {{ Auth::guard('admin')->user()->email }}
+                                    class="fs-6 text-hover-primary fw-bolder
+                                    {{ is_null($notification->read_at) ? 'text-danger' : 'text-gray-800' }}">
+                                    {{ $notification->data['message'] }}
                                     </a>
                                 </div>
+
+
                             </div>
+
+                            <span
+                                class="badge badge-light fs-8">{{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</span>
                         </div>
-                        <div class="my-2 separator"></div>
+                        @endforeach --}}
 
-                        <div class="px-5 menu-item">
-                            <a href="{{ route('admin.profile.edit') }}" class="px-5 menu-link">My
-                                Profile</a>
+                        @forelse ($latestNotifications as $notification)
+                        <div class="py-4 d-flex flex-stack">
+                            <div class="d-flex align-items-center">
+
+                                <div class="symbol symbol-35px me-4">
+                                    <span class="symbol-label">
+
+                                        <span class="svg-icon svg-icon-2 svg-icon-primary">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 512 512">
+                                                <path
+                                                    d="M64 0C28.7 0 0 28.7 0 64L0 352c0 35.3 28.7 64 64 64l96 0 0 80c0 6.1 3.4 11.6 8.8 14.3s11.9 2.1 16.8-1.5L309.3 416 448 416c35.3 0 64-28.7 64-64l0-288c0-35.3-28.7-64-64-64L64 0z" />
+                                            </svg>
+                                        </span>
+
+                                    </span>
+                                </div>
+
+                                <div class="mb-0 me-2">
+                                    <a href="{{ route('admin.notifications.read', $notification->id) }}"
+                                        class="fs-6 text-hover-primary fw-bolder
+                                                    {{ is_null($notification->read_at) ? 'text-danger' : 'text-gray-800' }}">
+                                        {{ $notification->data['message'] }}
+                                    </a>
+                                </div>
+
+
+                            </div>
+
+                            <span
+                                class="badge badge-light fs-8">{{ \Carbon\Carbon::parse($notification->created_at)->diffForHumans() }}</span>
                         </div>
+                        @empty
+                        <p>No Notification Avaiable</p>
+                        @endforelse
 
-                        <div class="px-5 menu-item" data-kt-menu-trigger="hover" data-kt-menu-placement="left-start">
 
-                            {{-- <a href="#" class="px-5 menu-link">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+    </div>
+    {{-- Notification End  --}}
+
+    @php
+    $id = Auth::guard('admin')->user()->id;
+    $profileData = App\Models\Admin::find($id);
+
+    $roles = Spatie\Permission\Models\Role::latest()->get();
+
+    $routes = Route::current()->getName();
+    @endphp
+
+    <div class="d-flex align-items-center ms-1 ms-lg-3" id="kt_header_user_menu_toggle">
+        <div class="cursor-pointer symbol symbol-30px symbol-md-40px" data-kt-menu-trigger="click"
+            data-kt-menu-attach="parent" data-kt-menu-placement="bottom-end">
+            <img src="{{ !empty($profileData->photo) ? asset('storage/admin_images/' . $profileData->photo) : asset('upload/no_image.jpg') }}"
+                alt="Admin Image">
+        </div>
+        <div class="py-4 menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-800 menu-state-bg menu-state-primary fw-bold fs-6 w-275px"
+            data-kt-menu="true">
+            <div class="px-3 menu-item">
+                <div class="px-3 menu-content d-flex align-items-center">
+                    <div class="symbol symbol-50px me-5">
+
+                        <img src="{{ !empty($profileData->photo) ? asset('storage/admin_images/' . $profileData->photo) : asset('upload/no_image.jpg') }}"
+                            alt="Admin Image">
+
+                    </div>
+                    <div class="d-flex flex-column">
+                        <div class="fw-bolder d-flex align-items-center fs-5">
+                            {{ Auth::guard('admin')->user()->name }}
+                        </div>
+                        <a href="mailto:{{ Auth::guard('admin')->user()->email }}"
+                            class="fw-bold text-muted text-hover-primary fs-7"
+                            style="overflow-wrap: anywhere;">
+                            {{ Auth::guard('admin')->user()->email }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="my-2 separator"></div>
+
+            <div class="px-5 menu-item">
+                <a href="{{ route('admin.profile.edit') }}" class="px-5 menu-link">My
+                    Profile</a>
+            </div>
+
+            <div class="px-5 menu-item" data-kt-menu-trigger="hover" data-kt-menu-placement="left-start">
+
+                {{-- <a href="#" class="px-5 menu-link">
                                 <span class="menu-title position-relative">Language
                                     <span
                                         class="px-3 py-2 rounded fs-8 bg-light position-absolute translate-middle-y top-50 end-0">English
                                         <img class="w-15px h-15px rounded-1 ms-2"
                                             src="{{ asset('admin/assets/media/flags/united-states.svg') }}"
-                                            alt="" />
-                                    </span>
-                                </span>
-                            </a> --}}
+                alt="" />
+                </span>
+                </span>
+                </a> --}}
 
-                            <div class="py-4 menu-sub menu-sub-dropdown w-175px">
+                <div class="py-4 menu-sub menu-sub-dropdown w-175px">
 
-                                @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
-                                    <div class="px-3 menu-item">
-                                        <a rel="alternate" hreflang="{{ $localeCode }}"
-                                            href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}"
-                                            class="px-5 menu-link d-flex">
-                                            <span class="symbol symbol-20px me-4">
-                                                <img class="rounded-1"
-                                                    src="{{ asset('admin/assets/media/flags/' . $localeCode . '.svg') }}"
-                                                    alt="" />
-                                            </span>{{ $properties['native'] }}
-                                        </a>
-                                    </div>
-                                @endforeach
-
-                            </div>
-
-                        </div>
-                        <div class="px-5 menu-item">
-                            <form method="POST" action="{{ route('admin.logout') }}">
-                                @csrf
-                                <a href="{{ route('admin.logout') }}"
-                                    onclick="event.preventDefault();
-                                        this.closest('form').submit();"
-                                    class="px-5 menu-link"> {{ __('Sign Out') }}</a>
-                            </form>
-                        </div>
+                    @foreach (LaravelLocalization::getSupportedLocales() as $localeCode => $properties)
+                    <div class="px-3 menu-item">
+                        <a rel="alternate" hreflang="{{ $localeCode }}"
+                            href="{{ LaravelLocalization::getLocalizedURL($localeCode, null, [], true) }}"
+                            class="px-5 menu-link d-flex">
+                            <span class="symbol symbol-20px me-4">
+                                <img class="rounded-1"
+                                    src="{{ asset('admin/assets/media/flags/' . $localeCode . '.svg') }}"
+                                    alt="" />
+                            </span>{{ $properties['native'] }}
+                        </a>
                     </div>
+                    @endforeach
+
                 </div>
+
+            </div>
+            <div class="px-5 menu-item">
+                <form method="POST" action="{{ route('admin.logout') }}">
+                    @csrf
+                    <a href="{{ route('admin.logout') }}"
+                        onclick="event.preventDefault();
+                                        this.closest('form').submit();"
+                        class="px-5 menu-link"> {{ __('Sign Out') }}</a>
+                </form>
             </div>
         </div>
     </div>
+</div>
+</div>
+</div>
 </div>

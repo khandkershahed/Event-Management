@@ -1,8 +1,8 @@
 @charset "UTF-8";
 
 :root {
-    --theme: #1266c9;
-    --theme2: #3485e4;
+    --theme: #fdb515;
+    --theme2: #fdb515;
     --bs-blue: #009ef6;
     --bs-indigo: #6610f2;
     --bs-purple: #6f42c1;
@@ -6772,6 +6772,9 @@ fieldset:disabled .btn {
     background-color: #000;
 }
 
+.main-dashboard-header{
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px !important;
+}
 .modal-backdrop.fade {
     opacity: 0;
 }
@@ -55404,7 +55407,7 @@ body {
         background-color: #fff;
         height: 65px;
         padding: 0;
-        box-shadow: 0 10px 30px 0 rgba(82, 63, 105, 0.05);
+        box-shadow: 0 10px 30px 0 rgba(82, 63, 105, 0.05) !important;
     }
 
     .header-fixed.toolbar-fixed .header {
@@ -57222,6 +57225,7 @@ body {
 
 .aside-dark .menu .menu-item .menu-link {
     color: #9899ac;
+    height: 50px;
 }
 
 .aside-dark .menu .menu-item .menu-link .menu-title {
@@ -57414,6 +57418,7 @@ body {
     transition: color 0.2s ease, background-color 0.2s ease;
     background-color: var(--theme2);
     color: #fff;
+    height: 50px;
 }
 
 .aside-dark .menu .menu-item .menu-link.active .menu-title {
@@ -57424,6 +57429,7 @@ body {
 .aside-dark .menu .menu-item .menu-link.active .menu-icon .svg-icon,
 .aside-dark .menu .menu-item .menu-link.active .menu-icon i {
     color: var(--theme);
+    /* height: 50px; */
 }
 
 .aside-dark .menu .menu-item .menu-link.active .menu-bullet .bullet {
