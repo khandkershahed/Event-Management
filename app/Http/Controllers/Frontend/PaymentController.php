@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Frontend;
 
 use Stripe\Stripe;
-use Stripe\Checkout\Session;
+use App\Models\Booking;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Stripe\Checkout\Session;
+use App\Models\TemporaryBooking;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
-use App\Models\Booking;
-use App\Models\TemporaryBooking;
 
 class PaymentController extends Controller
 {
@@ -90,18 +90,18 @@ class PaymentController extends Controller
                             'booking_id'    => strtoupper(Str::random(8)),
                             'user_name'     => $tempBooking->user_name,
                             'user_email'    => $tempBooking->user_email,
-                            'invoice_number'=> strtoupper(Str::random(8)),
+                            'invoice_number' => strtoupper(Str::random(8)),
                             'event_seats'   => json_encode([
                                 'seat_ids'   => $seatIds,
                                 'seat_names' => $seatNames,
                             ]),
-                            'event_datetime'=> $tempBooking->event_datetime,
+                            'event_datetime' => $tempBooking->event_datetime,
                             'status'        => 'confirmed',
                             'total_amount'  => $session->amount_total / 100,
-                            'payment_status'=> 'paid',
+                            'payment_status' => 'paid',
                             'payment_type'  => 'Credit Card',
                             'card_type'     => null, // you can parse from Stripe charge if needed
-                            'transaction_id'=> null, // optional if you store bank ref
+                            'transaction_id' => null, // optional if you store bank ref
                             'purchase_date' => now()->toDateString(),
                             'billing_name'  => $tempBooking->user_name,
                             'paid_at'       => now(),
@@ -153,10 +153,21 @@ class PaymentController extends Controller
                 'message' => 'Booking not confirmed yet, please wait.',
             ], 202);
         }
-
+        // Extract billing info from Stripe PaymentMethod
+        $paymentMethod = $paymentIntent->payment_method ?? null;
+        $billingDetails = $paymentMethod ? $paymentMethod->billing_details : null;
+        $booking->event_name = $booking->event->name;
         return response()->json([
             'status'  => 'confirmed',
             'invoice' => $booking, // ✅ returns full booking table data
+            'billing' => [
+                'name'       => $billingDetails->name ?? null,
+                'email'      => $billingDetails->email ?? null,
+                'phone'      => $billingDetails->phone ?? null,
+                'address'    => $billingDetails->address ?? null,
+                'card_brand' => $paymentMethod && $paymentMethod->card ? $paymentMethod->card->brand : null,
+                'last4'      => $paymentMethod && $paymentMethod->card ? $paymentMethod->card->last4 : null,
+            ],
         ]);
     }
 }
