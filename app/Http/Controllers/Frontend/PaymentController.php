@@ -87,10 +87,10 @@ class PaymentController extends Controller
                         Booking::create([
                             'user_id'       => $tempBooking->user_id,
                             'event_id'      => $tempBooking->event_id,
-                            'booking_id'    => strtoupper(Str::random(12)),
+                            'booking_id'    => strtoupper(Str::random(8)),
                             'user_name'     => $tempBooking->user_name,
                             'user_email'    => $tempBooking->user_email,
-                            'invoice_number'=> strtoupper(Str::random(10)),
+                            'invoice_number'=> strtoupper(Str::random(8)),
                             'event_seats'   => json_encode([
                                 'seat_ids'   => $seatIds,
                                 'seat_names' => $seatNames,
