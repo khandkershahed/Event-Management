@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Frontend;
 
 use Stripe\Stripe;
-use App\Models\Booking;
-use App\Models\TemporaryBooking;
-use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
+
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use App\Models\TemporaryBooking;
 
 class PaymentController extends Controller
 {
     /**
-     * Show Stripe checkout page (redirect).
+     * Redirect to Stripe Checkout
      */
     public function showPaymentPage(Request $request, TemporaryBooking $booking)
     {
@@ -29,7 +30,7 @@ class PaymentController extends Controller
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
-        $seatCount = $booking->seats->count();
+        $seatCount   = $booking->seats->count();
         $amountCents = $seatCount * 5000; // $50 per seat
 
         $session = Session::create([
@@ -46,8 +47,8 @@ class PaymentController extends Controller
                 'quantity' => 1,
             ]],
             'mode' => 'payment',
-            'success_url' => route('payment.success') . '?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => route('payment.cancel'),
+            'success_url' => config('app.frontend_url') . '/dashboard/tickets?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url'  => config('app.frontend_url') . '/payment/failed',
             'metadata' => [
                 'temporary_booking_id' => $booking->id,
             ],
@@ -61,8 +62,8 @@ class PaymentController extends Controller
      */
     public function handleStripeWebhook(Request $request)
     {
-        $payload = $request->getContent();
-        $sigHeader = $request->header('Stripe-Signature');
+        $payload       = $request->getContent();
+        $sigHeader     = $request->header('Stripe-Signature');
         $endpointSecret = config('services.stripe.webhook_secret');
 
         try {
@@ -73,7 +74,7 @@ class PaymentController extends Controller
         }
 
         if ($event->type === 'checkout.session.completed') {
-            $session = $event->data->object;
+            $session   = $event->data->object;
             $bookingId = $session->metadata->temporary_booking_id ?? null;
 
             if ($bookingId) {
@@ -87,18 +88,18 @@ class PaymentController extends Controller
 
                         $seatIds = $tempBooking->seats->pluck('seat_id')->toArray();
 
-                        // Create one booking record
+                        // Create final booking
                         $booking = Booking::create([
-                            'user_id' => $tempBooking->user_id,
-                            'event_id' => $tempBooking->event_id,
-                            'user_name' => $tempBooking->user_name,
+                            'user_id'    => $tempBooking->user_id,
+                            'event_id'   => $tempBooking->event_id,
+                            'user_name'  => $tempBooking->user_name,
                             'user_email' => $tempBooking->user_email,
                             'invoice_number' => strtoupper(Str::random(10)),
-                            'event_datetime' => now(), // Adjust if you have event datetime stored elsewhere
-                            'status' => 'confirmed',
-                            'total_amount' => $session->amount_total / 100, // amount in dollars
+                            'event_datetime' => now(), // replace with event datetime if stored
+                            'status'     => 'confirmed',
+                            'total_amount' => $session->amount_total / 100,
                             'payment_status' => 'paid',
-                            'paid_at' => now(),
+                            'paid_at'   => now(),
                             'payment_transaction_id' => $session->payment_intent ?? null,
                         ]);
 
@@ -109,12 +110,12 @@ class PaymentController extends Controller
                             ]);
                         }
 
-                        // Update seats to 'booked'
+                        // Update seats
                         DB::table('event_seats')
                             ->whereIn('id', $seatIds)
                             ->update(['status' => 'booked']);
 
-                        // Delete temporary booking seats and temporary booking
+                        // Cleanup
                         $tempBooking->seats()->delete();
                         $tempBooking->delete();
                     }
@@ -126,18 +127,48 @@ class PaymentController extends Controller
     }
 
     /**
-     * Payment success redirect.
+     * API for Next.js frontend to check payment & fetch tickets
      */
-    public function paymentSuccess(Request $request)
+    public function paymentStatus(Request $request)
     {
-        return response()->view('payment.success');
-    }
+        $sessionId = $request->query('session_id');
 
-    /**
-     * Payment cancelled.
-     */
-    public function paymentCancel()
-    {
-        return response()->view('payment.cancel');
+        if (!$sessionId) {
+            return response()->json(['error' => 'session_id is required'], 400);
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+        $session = Session::retrieve($sessionId);
+
+        $transactionId = $session->payment_intent ?? null;
+
+        // Find booking by transaction ID
+        $booking = Booking::with(['bookingSeats.seat', 'event'])
+            ->where('payment_transaction_id', $transactionId)
+            ->first();
+
+        if (!$booking) {
+            return response()->json([
+                'status' => 'pending',
+                'message' => 'Booking not found yet, please wait for confirmation.'
+            ], 202);
+        }
+
+        return response()->json([
+            'status' => 'confirmed',
+            'booking' => [
+                'invoice_number' => $booking->invoice_number,
+                'event'          => $booking->event->title ?? '',
+                'event_datetime' => $booking->event_datetime,
+                'total_amount'   => $booking->total_amount,
+                'payment_status' => $booking->payment_status,
+                'seats' => $booking->bookingSeats->map(function ($seat) {
+                    return [
+                        'seat_id'   => $seat->seat_id,
+                        'seat_name' => $seat->seat->name ?? null,
+                    ];
+                }),
+            ],
+        ]);
     }
 }
