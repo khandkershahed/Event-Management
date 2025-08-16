@@ -12,6 +12,7 @@ use App\Mail\EmailVerificationMail;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class UserApiController extends Controller
@@ -489,29 +490,64 @@ class UserApiController extends Controller
 
     public function editProfile(Request $request)
     {
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $request->user()->id,
+        $user = $request->user();
+
+        $validatedData = $request->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'username'      => 'nullable|string|max:255|unique:users,username,' . $user->id,
+            'phone'         => 'nullable|string|max:20',
+            'address'       => 'nullable|string|max:500',
+            'city'          => 'nullable|string|max:255',
+            'country'       => 'nullable|string|max:255',
+            'zipcode'       => 'nullable|string|max:20',
+            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        $user = $request->user();
+        // Handle image upload if present
+        $files = [
+            'profile_image' => $request->file('profile_image'),
+        ];
+
+        $uploadedFiles = [];
+
+        foreach ($files as $key => $file) {
+            if (!empty($file)) {
+                $filePath = 'user/' . $key;
+                $oldFile  = $event->$key ?? null;
+
+                if ($oldFile && Storage::disk('public')->exists($oldFile)) {
+                    Storage::disk('public')->delete($oldFile);
+                }
+
+                $uploadedFiles[$key] = customUpload($file, $filePath);
+                if ($uploadedFiles[$key]['status'] === 0) {
+                    return redirect()->back()->with('error', $uploadedFiles[$key]['error_message']);
+                }
+            } else {
+                $uploadedFiles[$key] = ['status' => 0];
+            }
+        }
+
+
         $user->update([
-            'name'  => $request->name,
-            'email' => $request->email,
+            $validatedData,
+            'profile_image' => $uploadedFiles['profile_image']['status'] == 1 ? $uploadedFiles['profile_image']['file_path'] : null,
         ]);
 
         return response()->json([
-            'user'    => $user,
+            'status'  => 'success',
             'message' => 'Profile updated successfully.',
-            'status'  => 'success'
+            'user'    => $user,
         ]);
     }
+
 
 
     public function updateProfile(Request $request)
     {
         $user = $request->user();
-        $user->update($request->only(['name', 'email', 'phone']));
+        $user->update($request->only(['name', 'email', 'username', 'phone', 'address', 'profile_image', 'country', 'city', 'zipcode']));
         return response()->json(['message' => 'Profile updated.', 'user' => $user]);
     }
 

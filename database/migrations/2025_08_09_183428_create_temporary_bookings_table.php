@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->onDelete('cascade');
             $table->foreignId('event_id')->nullable()->constrained('events')->onDelete('cascade');
-            $table->string('user_name');
-            $table->string('user_email');
+            $table->string('user_name')->nullable();
+            $table->string('user_email')->nullable();
+            $table->decimal('total_amount', 8, 2)->nullable();
             $table->string('status')->default('pending'); // pending, paid, failed
             $table->timestamp('reserved_until')->nullable();
             $table->timestamps();

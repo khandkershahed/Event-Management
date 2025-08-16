@@ -48,7 +48,7 @@
     class="header-fixed header-tablet-and-mobile-fixed toolbar-enabled toolbar-fixed aside-enabled aside-fixed">
 
     <div class="d-flex flex-column flex-root">
-        <div class="page d-flex flex-row flex-column-fluid">
+        <div class="flex-row page d-flex flex-column-fluid">
             @include('admin.layouts.sidebar')
             <div class="wrapper d-flex flex-column flex-row-fluid pt-lg-17" id="kt_wrapper">
                 @include('admin.layouts.header')
@@ -60,17 +60,17 @@
                                 @foreach ($messages as $item)
                                     <div class="alert alert-danger">
                                         {{ $item }}
-                                    </div>
-                                @endforeach
-                            @endif --}}
-                            {{ $slot }}
                         </div>
+                        @endforeach
+                        @endif --}}
+                        {{ $slot }}
                     </div>
                 </div>
-
-                @include('admin.layouts.footer')
             </div>
+
+            @include('admin.layouts.footer')
         </div>
+    </div>
     </div>
 
 
@@ -164,6 +164,38 @@
                     "<'col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start'i>" +
                     "<'col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
                     ">"
+            });
+        });
+    </script>
+    <script>
+        class CustomDataTable {
+            constructor(selector) {
+                this.selector = selector;
+                this.init();
+            }
+
+            init() {
+                $(this.selector).DataTable({
+                    language: {
+                        lengthMenu: "Show _MENU_",
+                    },
+                    dom: "<'row mb-2'" +
+                        "<'col-sm-6 d-flex align-items-center justify-content-start dt-toolbar'l>" +
+                        "<'col-sm-6 d-flex align-items-center justify-content-end dt-toolbar'f>" +
+                        ">" +
+                        "<'table-responsive'tr>" +
+                        "<'row'" +
+                        "<'col-sm-12 col-md-5 d-flex align-items-center justify-content-center justify-content-md-start'i>" +
+                        "<'col-sm-12 col-md-7 d-flex align-items-center justify-content-center justify-content-md-end'p>" +
+                        ">",
+                });
+            }
+        }
+
+        // Initialize all tables with class "datatable"
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".datatable").forEach(table => {
+                new CustomDataTable(table);
             });
         });
     </script>

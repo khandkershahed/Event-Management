@@ -1,4 +1,4 @@
-<div id="kt_header" class="header align-items-stretch">
+<div id="kt_header" class=" header align-items-stretch">
 
     <div class="container-fluid d-flex align-items-stretch justify-content-between">
 
@@ -68,7 +68,7 @@
                         <div class="position-relative">
                             <i class="fa-solid fa-bell fs-3"></i>
                             <span
-                                class="position-absolute top-0 start-100 translate-middle badge badge-sm rounded-pill bg-danger">
+                                class="top-0 position-absolute start-100 translate-middle badge badge-sm rounded-pill bg-danger">
                                 {{ $ncount }}
                             </span>
                         </div>
