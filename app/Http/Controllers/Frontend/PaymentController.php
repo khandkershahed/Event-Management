@@ -71,7 +71,7 @@ class PaymentController extends Controller
             return response('Invalid payload', 400);
         }
 
-        if ($event->type === 'checkout.session.completed') {
+        if ($event->type === 'checkout.session.completed' || $event->type === 'payment_intent.succeeded') {
             $session   = $event->data->object;
             $bookingId = $session->metadata->temporary_booking_id ?? null;
 
