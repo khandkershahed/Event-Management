@@ -573,4 +573,16 @@ class UserApiController extends Controller
         $request->user()->delete();
         return response()->json(['message' => 'Account deleted successfully.']);
     }
+
+    // User tickets
+    public function tickets(Request $request){
+        $user = $request->user();
+        $tickets = $user->booking()->with('event')->get();
+        return response()->json([
+            'status' => 'success',
+            'tickets' => $tickets,
+            'message' => 'User tickets retrieved successfully.'
+        ]); 
+    }
+
 }

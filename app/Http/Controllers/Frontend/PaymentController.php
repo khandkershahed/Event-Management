@@ -104,7 +104,7 @@ class PaymentController extends Controller
 
                     Log::info("✅ TemporaryBooking found", [
                         'status'        => $tempBooking->status,
-                        'reserved_until'=> $tempBooking->reserved_until,
+                        'reserved_until' => $tempBooking->reserved_until,
                     ]);
 
                     if ($tempBooking->status !== 'pending') {
@@ -231,6 +231,15 @@ class PaymentController extends Controller
      */
     private function createBookingFromSession($session, TemporaryBooking $tempBooking)
     {
+
+        $paymentIntent = \Stripe\PaymentIntent::retrieve($session->payment_intent);
+        $paymentMethodId = $paymentIntent->payment_method ?? null;
+
+        $paymentMethod = $paymentMethodId
+            ? \Stripe\PaymentMethod::retrieve($paymentMethodId)
+            : null;
+        $billingDetails = $paymentMethod ? $paymentMethod->billing_details : null;
+
         $seatIds   = $tempBooking->seats->pluck('seat_id')->toArray();
         $seatNames = $tempBooking->seats->pluck('seat.name')->toArray();
         $eventDatetime = $tempBooking->event->start_date . ' ' . $tempBooking->event->start_time;
@@ -251,7 +260,10 @@ class PaymentController extends Controller
             'payment_status'         => 'paid',
             'payment_type'           => 'Credit Card',
             'paid_at'                => now(),
-            'billing_name'           => $tempBooking->user_name,
+            'card_type'              => $paymentMethod && $paymentMethod->card ? $paymentMethod->card->brand : null,
+            'billing_name'           => $billingDetails->name ?? null,
+            'billing_email'          => $billingDetails->email ?? null,
+            'billing_address'        => $billingDetails->address ?? null,
             'payment_transaction_id' => $session->payment_intent ?? null,
         ]);
 

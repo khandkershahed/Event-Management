@@ -70,6 +70,7 @@ Route::prefix('api/v1')->group(function () {
         Route::get('/profile', [UserApiController::class, 'profile']);
         Route::put('/profile', [UserApiController::class, 'editProfile']);
         Route::post('/booking/initiate', [BookingController::class, 'initiateBooking']);
+        Route::get('/tickets', [UserApiController::class, 'tickets']);
     });
 
     // Home
