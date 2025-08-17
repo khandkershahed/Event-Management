@@ -105,7 +105,9 @@
                             </div>
                         </div>
                     </div>
-
+                    <button type="button" class="btn btn-light-primary btn-sm" id="add-seat">
+                        <i class="fas fa-plus"></i>
+                    </button>
                 </div>
 
 
