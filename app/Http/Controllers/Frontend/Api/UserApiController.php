@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend\Api;
 
 use App\Models\User;
+use App\Models\Booking;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Ichtrojan\Otp\Models\Otp;
@@ -578,11 +579,12 @@ class UserApiController extends Controller
     public function tickets(Request $request){
         $user = $request->user();
         $tickets = $user->booking()->with('event')->get();
+        $booking = Booking::with(['user','event'])->where('user_id', $user->id)->first();
         return response()->json([
             'status' => 'success',
-            'tickets' => $tickets,
+            'tickets' => $booking,
             'message' => 'User tickets retrieved successfully.'
-        ]); 
+        ]);
     }
 
 }

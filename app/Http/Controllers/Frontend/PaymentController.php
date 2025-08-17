@@ -243,21 +243,24 @@ class PaymentController extends Controller
         $seatIds   = $tempBooking->seats->pluck('seat_id')->toArray();
         $seatNames = $tempBooking->seats->pluck('seat.name')->toArray();
         $eventDatetime = $tempBooking->event->start_date . ' ' . $tempBooking->event->start_time;
-        $bookingID = 'ET' . strtoupper(Str::random(8));
+
+        $bookingID = 'ET' . $tempBooking->user_id . strtoupper(Str::random(6));
 
         $todayDate = now()->format('dmY');
-        $latestInvoice = Booking::whereDate('created_at', now())
-            ->where('invoice_number', 'like', "INV-$todayDate-%")
-            ->orderBy('invoice_number', 'desc')
-            ->first();
 
+        // Get the latest invoice number (regardless of date)
+        $latestInvoice = Booking::whereNotNull('invoice_number')
+            ->orderBy('id', 'desc')
+            ->first();
         if ($latestInvoice && preg_match('/INV-\d{8}-(\d+)/', $latestInvoice->invoice_number, $matches)) {
             $lastNumber = (int)$matches[1];
             $nextNumber = $lastNumber + 1;
         } else {
-            $nextNumber = 1;
+            $nextNumber = 1; // First invoice ever
         }
+        
         $invoiceNumber = "INV-$todayDate-$nextNumber";
+
 
         // Invoice number generation with event id
 
