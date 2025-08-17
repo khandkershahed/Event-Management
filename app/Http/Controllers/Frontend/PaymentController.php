@@ -233,7 +233,7 @@ class PaymentController extends Controller
     {
         $seatIds   = $tempBooking->seats->pluck('seat_id')->toArray();
         $seatNames = $tempBooking->seats->pluck('seat.name')->toArray();
-
+        $eventDatetime = $tempBooking->event->start_date . ' ' . $tempBooking->event->start_time;
         $booking = Booking::create([
             'user_id'               => $tempBooking->user_id,
             'event_id'              => $tempBooking->event_id,
@@ -245,7 +245,7 @@ class PaymentController extends Controller
                 'seat_ids'   => $seatIds,
                 'seat_names' => $seatNames,
             ]),
-            'event_datetime'         => $tempBooking->event_datetime,
+            'event_datetime'         => $eventDatetime,
             'status'                 => 'confirmed',
             'total_amount'           => $session->amount_total / 100,
             'payment_status'         => 'paid',
