@@ -14,7 +14,7 @@
                 @csrf
                 <div class="row">
                     {{-- Event --}}
-                    <div class="col-lg-6 mb-7">
+                    <div class="col-lg-8 mb-7">
                         <x-metronic.label for="event_id" class="col-form-label fw-bold fs-6">
                             {{ __('Select Event') }}
                         </x-metronic.label>
@@ -31,7 +31,7 @@
                     </div>
 
                     {{-- Seat Type --}}
-                    <div class="col-lg-6 mb-7">
+                    <div class="col-lg-4 mb-7">
                         <x-metronic.label for="seat_type_id" class="col-form-label fw-bold fs-6">
                             {{ __('Seat Type') }}
                         </x-metronic.label>
