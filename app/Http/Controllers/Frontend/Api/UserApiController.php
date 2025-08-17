@@ -581,7 +581,7 @@ class UserApiController extends Controller
         $user = $request->user();
         $bookings = Booking::with([
             'user:id,name,email',
-            'event:id,name,start_date,start_time,eventType:id,name,venue,end_date,end_time'
+            'event:id,name,start_date,start_time,venue,end_date,end_time'
         ])
             ->where('user_id', $user->id)
             ->get(); // only these fields from booking
