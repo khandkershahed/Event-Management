@@ -258,7 +258,7 @@ class PaymentController extends Controller
         } else {
             $nextNumber = 1; // First invoice ever
         }
-        
+
         $invoiceNumber = "INV-$todayDate-$nextNumber";
 
 
