@@ -187,7 +187,7 @@ class PaymentController extends Controller
                 Log::error('Error during fallback booking creation: ' . $e->getMessage());
                 return response()->json([
                     'status' => 'error',
-                    'message' => 'Failed to create booking.',
+                    'message' => 'Failed to create booking.' . $e->getMessage(),
                 ], 500);
             }
 
