@@ -58,6 +58,11 @@
 
                             <td>
                                 {{-- @if (Auth::guard('admin')->user()->can('edit.faq')) --}}
+                                <a href="{{ route('admin.event-seat.create') }}" class="" title="Add Seats">
+                                    <i class="fa-solid fa-plus-circle text-info me-1 fs-4"></i>
+                                </a>
+                                {{-- @endif
+                                {{-- @if (Auth::guard('admin')->user()->can('edit.faq')) --}}
                                 <a href="{{ route('admin.event.edit', $event->id) }}" class="">
                                     <i class="fa-solid fa-edit text-primary me-1 fs-4"></i>
                                 </a>
