@@ -60,6 +60,7 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
 // All Controller
 Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function () {
 
+    Route::get('/ticket/scan/{id}', [AdminController::class, 'ticketURL'])->name('ticket.scan');
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
     Route::get('/profile', [AdminProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');

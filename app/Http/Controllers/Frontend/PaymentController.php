@@ -243,13 +243,33 @@ class PaymentController extends Controller
         $seatIds   = $tempBooking->seats->pluck('seat_id')->toArray();
         $seatNames = $tempBooking->seats->pluck('seat.name')->toArray();
         $eventDatetime = $tempBooking->event->start_date . ' ' . $tempBooking->event->start_time;
+        $bookingID = 'ET' . strtoupper(Str::random(8));
+
+        $todayDate = now()->format('dmY');
+        $latestInvoice = Booking::whereDate('created_at', now())
+            ->where('invoice_number', 'like', "INV-$todayDate-%")
+            ->orderBy('invoice_number', 'desc')
+            ->first();
+
+        if ($latestInvoice && preg_match('/INV-\d{8}-(\d+)/', $latestInvoice->invoice_number, $matches)) {
+            $lastNumber = (int)$matches[1];
+            $nextNumber = $lastNumber + 1;
+        } else {
+            $nextNumber = 1;
+        }
+        $invoiceNumber = "INV-$todayDate-$nextNumber";
+
+        // Invoice number generation with event id
+
+        $ticket_url = route('admin.ticket.scan', ['id' => $bookingID]);
+
         $booking = Booking::create([
             'user_id'               => $tempBooking->user_id,
             'event_id'              => $tempBooking->event_id,
-            'booking_id'            => strtoupper(Str::random(8)),
+            'booking_id'            => $bookingID,
             'user_name'             => $tempBooking->user_name,
             'user_email'            => $tempBooking->user_email,
-            'invoice_number'        => strtoupper(Str::random(8)),
+            'invoice_number'        => $invoiceNumber,
             'event_seats'           => json_encode([
                 'seat_ids'   => $seatIds,
                 'seat_names' => $seatNames,
@@ -264,6 +284,8 @@ class PaymentController extends Controller
             'billing_name'           => $billingDetails->name ?? null,
             'billing_email'          => $billingDetails->email ?? null,
             'billing_address'        => $billingDetails->address ?? null,
+            'ticket_url'             => $ticket_url,
+            'purchase_date'          => now()->format('d-m-Y H:i:s'),
             'payment_transaction_id' => $session->payment_intent ?? null,
         ]);
 

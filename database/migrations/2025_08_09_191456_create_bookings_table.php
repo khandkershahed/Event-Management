@@ -31,6 +31,7 @@ return new class extends Migration
             $table->string('billing_email')->nullable();
             $table->string('billing_address')->nullable();
             $table->timestamp('paid_at')->nullable(); // time payment was made
+            $table->text('ticket_url')->nullable(); // time payment was made
             $table->string('payment_transaction_id')->nullable(); // transaction reference from stripe
             $table->timestamps();
         });
