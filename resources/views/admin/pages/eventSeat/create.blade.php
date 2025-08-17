@@ -75,6 +75,40 @@
                     </div>
                 </div>
 
+                {{-- repeater --}}
+                <div class="row">
+                    <div class="col-12">
+                        <x-metronic.label class="fw-bold fs-6">{{ __('Seats') }}</x-metronic.label>
+
+                        <div id="seat-repeater">
+                            <div class="repeater-item border rounded mb-3 p-3 position-relative">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <x-metronic.input name="seats[0][name]" placeholder="Seat Name (e.g. A1)"
+                                            required />
+                                    </div>
+                                    <div class="col-md-3">
+                                        <x-metronic.input name="seats[0][code]" placeholder="Seat Code (optional)" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-metronic.input name="seats[0][row]" placeholder="Row" />
+                                    </div>
+                                    <div class="col-md-2">
+                                        <x-metronic.input name="seats[0][column]" placeholder="Column" />
+                                    </div>
+                                    <div class="col-md-2 d-flex align-items-center">
+                                        <button type="button" class="btn btn-danger btn-sm remove-repeater">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+
                 <div class="text-end pt-10">
                     <x-metronic.button type="submit" class="dark rounded-1 px-5">
                         {{ __('Create Seats') }}
@@ -83,4 +117,49 @@
             </form>
         </div>
     </div>
+
+    @push('scripts')
+        <script>
+            let seatIndex = 1;
+
+            document.getElementById('add-seat').addEventListener('click', function() {
+                const seatRepeater = document.getElementById('seat-repeater');
+
+                const html = `
+            <div class="repeater-item border rounded mb-3 p-3 position-relative">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="text" name="seats[${seatIndex}][name]" class="form-control" placeholder="Seat Name (e.g. A1)" required>
+                    </div>
+                    <div class="col-md-3">
+                        <input type="text" name="seats[${seatIndex}][code]" class="form-control" placeholder="Seat Code (optional)">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" name="seats[${seatIndex}][row]" class="form-control" placeholder="Row">
+                    </div>
+                    <div class="col-md-2">
+                        <input type="text" name="seats[${seatIndex}][column]" class="form-control" placeholder="Column">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-repeater">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+                seatRepeater.insertAdjacentHTML('beforeend', html);
+                seatIndex++;
+            });
+
+            // Remove seat row
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.remove-repeater')) {
+                    e.target.closest('.repeater-item').remove();
+                }
+            });
+        </script>
+    @endpush
+
 </x-admin-app-layout>
