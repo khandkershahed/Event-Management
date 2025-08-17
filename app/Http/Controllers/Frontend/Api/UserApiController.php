@@ -576,15 +576,20 @@ class UserApiController extends Controller
     }
 
     // User tickets
-    public function tickets(Request $request){
+    public function tickets(Request $request)
+    {
         $user = $request->user();
-        $tickets = $user->booking()->with('event')->get();
-        $booking = Booking::with(['user','event'])->where('user_id', $user->id)->first();
+        $bookings = Booking::with([
+            'user:id,name,email',
+            'event:id,name,start_date,start_time,eventType:id,name,venue,end_date,end_time'
+        ])
+            ->where('user_id', $user->id)
+            ->get(); // only these fields from booking
+
         return response()->json([
             'status' => 'success',
-            'tickets' => $booking,
+            'tickets' => $bookings,
             'message' => 'User tickets retrieved successfully.'
         ]);
     }
-
 }
