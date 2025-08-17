@@ -1,6 +1,6 @@
 <x-admin-app-layout :title="'Create Event'">
     <div class="card card-flash">
-        <div class="card-header mt-6">
+        <div class="mt-6 card-header">
             <div class="card-toolbar">
                 <a href="{{ route('admin.event.index') }}" class="btn btn-light-info">
                     <span class="svg-icon svg-icon-3"><i class="fas fa-arrow-left"></i></span>
@@ -8,7 +8,7 @@
                 </a>
             </div>
         </div>
-        <div class="card-body pt-0">
+        <div class="pt-0 card-body">
             <form method="POST" action="{{ route('admin.event.store') }}" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
@@ -97,7 +97,7 @@
                                             </div>
                                         </div>
                                         <div class="py-4 mt-3 card-body">
-                                            <div class="row mb-3">
+                                            <div class="mb-3 row">
                                                 {{-- Media Inputs --}}
                                                 <div class="col-lg-6 mb-7">
                                                     <x-metronic.label for="logo"
@@ -133,7 +133,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="p-5 fv-row border-dashed border-1">
+                                                <div class="p-5 border-dashed fv-row border-1">
                                                     <x-metronic.label for="" class="form-label">Add the
                                                         Events Gallery Images</x-metronic.label>
                                                     <div class="dropzone-field">
@@ -305,7 +305,7 @@
                         {{-- Status Card Start --}}
                         <div class="py-2 card card-flush">
                             <div class="card-header">
-                                <div class="card-title py-1">
+                                <div class="py-1 card-title">
                                     <h2>Status</h2>
                                 </div>
                             </div>
@@ -323,7 +323,7 @@
                         </div>
                         <div class="py-2 card card-flush">
                             <div class="card-header">
-                                <div class="card-title py-1">
+                                <div class="py-1 card-title">
                                     <h2>Featured Event?</h2>
                                 </div>
                             </div>
@@ -341,7 +341,7 @@
                         {{-- Category Card Start --}}
                         <div class="py-2 card card-flush">
                             <div class="card-header">
-                                <div class="card-title py-1">
+                                <div class="py-1 card-title">
                                     <h2>Event Type</h2>
                                 </div>
                             </div>
