@@ -18,7 +18,8 @@
                         <x-metronic.label for="event_id" class="col-form-label fw-bold fs-6">
                             {{ __('Select Event') }}
                         </x-metronic.label>
-                        <x-metronic.select-option id="event_id" name="event_id" required>
+                        <x-metronic.select-option id="event_id" name="event_id" data-hide-search="true"
+                            data-placeholder="Select an Event" required>
                             <option></option>
                             @foreach ($events as $event)
                                 <option value="{{ $event->id }}"
@@ -34,7 +35,8 @@
                         <x-metronic.label for="seat_type_id" class="col-form-label fw-bold fs-6">
                             {{ __('Seat Type') }}
                         </x-metronic.label>
-                        <x-metronic.select-option id="seat_type_id" name="seat_type_id" required>
+                        <x-metronic.select-option id="seat_type_id" name="seat_type_id" data-hide-search="true"
+                            data-placeholder="Select a Seat Type" required>
                             <option></option>
                             @foreach ($seat_types as $seat_type)
                                 <option value="{{ $seat_type->id }}"
