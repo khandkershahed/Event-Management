@@ -592,8 +592,7 @@ class UserApiController extends Controller
             $eventSeats = json_decode($booking->event_seats, true);
             $seatIds = $eventSeats['seat_ids'] ?? [];
             // Fetch seat details
-            $seats = EventSeat::with('event:id,name','eventType:id,name')
-                ->whereIn('id', $seatIds)
+            $seats = EventSeat::whereIn('id', $seatIds)
                 ->get(['name', 'code', 'price']);
 
             $booking->seats = $seats;
