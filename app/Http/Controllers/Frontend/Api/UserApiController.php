@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Mail\EmailVerificationMail;
 use App\Http\Controllers\Controller;
+use App\Models\EventSeat;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -579,16 +580,30 @@ class UserApiController extends Controller
     public function tickets(Request $request)
     {
         $user = $request->user();
+
         $bookings = Booking::with([
             'user:id,name,email',
             'event:id,name,start_date,start_time,venue,end_date,end_time'
         ])
             ->where('user_id', $user->id)
-            ->get(); // only these fields from booking
+            ->get();
+        // Attach seat detailsto each booking
+        $bookings->transform(function ($booking) {
+            $eventSeats = json_decode($booking->event_seats, true);
+            $seatIds = $eventSeats['seat_ids'] ?? [];
+            // Fetch seat details
+            $seats = EventSeat::with('event:id,name','eventType:id,name')
+                ->whereIn('id', $seatIds)
+                ->get(['name', 'code', 'price']);
+
+            $booking->seats = $seats;
+
+            return $booking;
+        });
 
         return response()->json([
             'status' => 'success',
-            'tickets' => $bookings,
+            'bookings' => $bookings,
             'message' => 'User tickets retrieved successfully.'
         ]);
     }
