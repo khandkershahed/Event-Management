@@ -17,10 +17,10 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class, // 1st
             RolePermissionSeeder::class, // 2nd
             SettingSeeder::class, // 2nd
-            EventTypeSeeder::class,
-            EventSeeder::class,
-            EventSeatTypesSeeder::class,
-            EventSeatSeeder::class,
+            // EventTypeSeeder::class,
+            // EventSeeder::class,
+            // EventSeatTypesSeeder::class,
+            // EventSeatSeeder::class,
         ]);
         // $this->call(UserSeeder::class);
     }
