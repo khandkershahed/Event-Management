@@ -16,7 +16,8 @@ class EventSeatController extends Controller
     public function index()
     {
         return view('admin.pages.eventSeat.index', [
-            'event_seats' => EventSeat::latest()->get(['id', 'name']),
+            'events' => Event::latest()->get(['id', 'name']),
+            // 'event_seats' => EventSeat::latest()->get(['id', 'name']),
         ]);
     }
 
