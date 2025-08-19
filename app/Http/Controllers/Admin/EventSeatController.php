@@ -30,7 +30,7 @@ class EventSeatController extends Controller
 
     public function store(Request $request)
     {
-        dd($request->all());
+        // dd($request->all());
         $request->validate([
             'event_id' => 'required|exists:events,id',
             'seat_type_id' => 'required|exists:event_seat_types,id',
