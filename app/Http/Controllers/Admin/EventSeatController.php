@@ -16,9 +16,22 @@ class EventSeatController extends Controller
     public function index()
     {
         return view('admin.pages.eventSeat.index', [
-            'event_seats' => EventSeat::latest()->get(),
+            'event_seats' => EventSeat::latest()->get(['id', 'name']),
         ]);
     }
+
+
+
+    public function fetchSeats(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|exists:events,id',
+        ]);
+
+        $seats = EventSeat::where('event_id', $request->event_id)->get();
+        return response()->json($seats);
+    }
+
     public function create()
     {
         $data = [

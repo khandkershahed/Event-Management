@@ -66,6 +66,7 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::post('/event-seats/fetch', [EventSeatController::class, 'fetchSeats'])->name('event-seat.fetch');
     //Resource Controller
     Route::resources([
             'banner'         => PageBannerController::class,
