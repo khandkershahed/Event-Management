@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Carbon\Carbon;
 use App\Models\Event;
 use App\Models\EventType;
+use App\Models\EventImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -48,6 +50,7 @@ class EventController extends Controller
             'logo'                 => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'image'                => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'banner_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'organizer_logo'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'video_teaser_url'     => 'nullable|url',
             'location_map_url'     => 'nullable|url',
             'start_date'           => 'nullable|date',
@@ -80,6 +83,8 @@ class EventController extends Controller
                 'logo'         => $request->file('logo'),
                 'image'        => $request->file('image'),
                 'banner_image' => $request->file('banner_image'),
+                'organizer_logo' => $request->file('organizer_logo'),
+                'venue_image' => $request->file('venue_image'),
             ];
 
             $uploadedFiles = [];
@@ -97,7 +102,7 @@ class EventController extends Controller
             }
 
             // Create event
-            Event::create([
+            $event = Event::create([
                 'event_type_id'        => $request->event_type_id,
                 'name'                 => $request->name,
                 'slug'                 => $request->slug,
@@ -106,6 +111,8 @@ class EventController extends Controller
                 'logo'                 => $uploadedFiles['logo']['status'] == 1 ? $uploadedFiles['logo']['file_path'] : null,
                 'image'                => $uploadedFiles['image']['status'] == 1 ? $uploadedFiles['image']['file_path'] : null,
                 'banner_image'         => $uploadedFiles['banner_image']['status'] == 1 ? $uploadedFiles['banner_image']['file_path'] : null,
+                'organizer_logo'       => $uploadedFiles['organizer_logo']['status'] == 1 ? $uploadedFiles['organizer_logo']['file_path'] : null,
+                'venue_image'          => $uploadedFiles['venue_image']['status'] == 1 ? $uploadedFiles['venue_image']['file_path'] : null,
                 'video_teaser_url'     => $request->video_teaser_url,
                 'location_map_url'     => $request->location_map_url,
                 'start_date'           => $request->start_date,
@@ -123,6 +130,22 @@ class EventController extends Controller
                 'status'               => $request->status,
                 'added_by'             => Auth::guard('admin')->user()->name ?? 'system',
             ]);
+
+            if ($request->hasFile('multi_images')) {
+                foreach ($request->file('multi_images') as $image) {
+                    if ($image) {
+                        $multiImageUpload = customUpload($image, 'events/multi_images');
+                        if ($multiImageUpload['status'] === 0) {
+                            return redirect()->back()->with('error', $multiImageUpload['error_message']);
+                        }
+                        EventImage::create([
+                            'event_id'   => $event->id,
+                            'image'      => $multiImageUpload['file_path'],
+                            'created_at' => Carbon::now(),
+                        ]);
+                    }
+                }
+            }
 
             DB::commit();
 
@@ -199,6 +222,8 @@ class EventController extends Controller
                 'logo'         => $request->file('logo'),
                 'image'        => $request->file('image'),
                 'banner_image' => $request->file('banner_image'),
+                'organizer_logo' => $request->file('banner_image'),
+                'venue_image' => $request->file('banner_image'),
             ];
 
             $uploadedFiles = [];
@@ -230,6 +255,8 @@ class EventController extends Controller
                 'logo'                 => $uploadedFiles['logo']['status'] == 1 ? $uploadedFiles['logo']['file_path'] : $event->logo,
                 'image'                => $uploadedFiles['image']['status'] == 1 ? $uploadedFiles['image']['file_path'] : $event->image,
                 'banner_image'         => $uploadedFiles['banner_image']['status'] == 1 ? $uploadedFiles['banner_image']['file_path'] : $event->banner_image,
+                'organizer_logo'       => $uploadedFiles['organizer_logo']['status'] == 1 ? $uploadedFiles['organizer_logo']['file_path'] : $event->organizer_logo,
+                'venue_image'          => $uploadedFiles['venue_image']['status'] == 1 ? $uploadedFiles['venue_image']['file_path'] : $event->venue_image,
                 'video_teaser_url'     => $request->video_teaser_url,
                 'location_map_url'     => $request->location_map_url,
                 'start_date'           => $request->start_date,
@@ -246,6 +273,37 @@ class EventController extends Controller
                 'terms_and_conditions' => $request->terms_and_conditions,
                 'updated_by'           => Auth::guard('admin')->user()->name ?? 'system',
             ]);
+
+            // Handle multiple image uploads
+            if ($request->hasFile('multi_img')) {
+                foreach ($request->file('multi_img') as $image) {
+                    if ($image) {
+                        $multiImageUpload = customUpload($image, 'events/multi_images');
+                        if ($multiImageUpload['status'] === 0) {
+                            return redirect()->back()->with('error', $multiImageUpload['error_message']);
+                        }
+                        EventImage::create([
+                            'event_id'   => $event->id,
+                            'image'      => $multiImageUpload['file_path'],
+                            'created_at' => Carbon::now(),
+                        ]);
+                    }
+                }
+            }
+
+            // Handle deletion of removed images
+            if ($request->input('remove_images')) {
+                $imagesToRemove = json_decode($request->input('remove_images'), true);
+                foreach ($imagesToRemove as $imageId) {
+                    $image = EventImage::find($imageId);
+                    if ($image) {
+                        if ($image->photo && Storage::exists("public/" . $image->photo)) {
+                            Storage::delete("public/" . $image->photo);
+                        }
+                        $image->delete();
+                    }
+                }
+            }
 
             DB::commit();
             Session::flash('success', 'Event updated successfully!', ['timeOut' => 30000]);

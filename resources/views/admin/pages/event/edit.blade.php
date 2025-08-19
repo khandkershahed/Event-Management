@@ -96,14 +96,32 @@
                         <x-metronic.file-input id="banner_image" name="banner_image" :value="old('banner_image')"
                             :source="isset($event->banner_image) ? asset('storage/' . $event->banner_image) : null" />
                     </div>
-
+                    <div class="col-lg-4 mb-7">
+                        <x-metronic.label for="banner_image" class="col-form-label fw-bold fs-6">
+                            {{ __('Banner Image') }}
+                        </x-metronic.label>
+                        <x-metronic.file-input id="banner_image" name="banner_image" :value="old('banner_image')"
+                            :source="isset($event->banner_image) ? asset('storage/' . $event->banner_image) : null" />
+                    </div>
+                    <div class="col-lg-4 mb-7">
+                        <x-metronic.label for="venue_image" class="col-form-label fw-bold fs-6">
+                            {{ __('Venue Image') }}
+                        </x-metronic.label>
+                        <x-metronic.file-input id="venue_image" name="venue_image" :source="isset($event->venue_image) ? asset('storage/' . $event->venue_image) : null"/>
+                    </div>
+                    <div class="col-lg-4 mb-7">
+                        <x-metronic.label for="organizer_logo" class="col-form-label fw-bold fs-6">
+                            {{ __('Venue Image') }}
+                        </x-metronic.label>
+                        <x-metronic.file-input id="organizer_logo" name="organizer_logo" :source="isset($event->organizer_logo) ? asset('storage/' . $event->organizer_logo) : null"/>
+                    </div>
                     {{-- Video Teaser URL --}}
                     <div class="col-lg-6 mb-7">
                         <x-metronic.label for="video_teaser_url" class="col-form-label fw-bold fs-6">
                             {{ __('Video Teaser URL') }}
                         </x-metronic.label>
-                        <x-metronic.input id="video_teaser_url" type="url" name="video_teaser_url" :value="old('video_teaser_url', $event->video_teaser_url)"
-                            placeholder="Enter video teaser URL" />
+                        <x-metronic.input id="video_teaser_url" type="url" name="video_teaser_url"
+                            :value="old('video_teaser_url', $event->video_teaser_url)" placeholder="Enter video teaser URL" />
                     </div>
 
                     {{-- Location Map URL --}}
@@ -208,7 +226,37 @@
                                 {{ old('is_featured', $event->is_featured) == '1' ? 'selected' : '' }}>Yes</option>
                         </x-metronic.select-option>
                     </div>
+                    <div class="col-lg-10">
+                        <label class="form-label">Multi Image</label>
+                        <div class="dropzone-field">
+                            <label for="files" class="custom-file-upload">
+                                <div class="d-flex align-items-center">
+                                    <p class="mb-0"><i class="bi bi-file-earmark-arrow-up text-primary fs-3x"></i>
+                                    </p>
+                                    <h5 class="mb-0">Drop files here or click to upload.
+                                        <br>
+                                        <span class="text-muted" style="font-size: 10px">Upload 10 File</span>
+                                    </h5>
+                                </div>
+                            </label>
+                            <input type="file" id="files" name="multi_img[]" multiple class="form-control"
+                                style="display: none;" />
+                        </div>
 
+                        <!-- Display existing images -->
+                        <div class="existing-images">
+                            @foreach ($event->images as $image)
+                                <div class="shadow img-thumb-wrapper card">
+                                    <img class="img-thumb" src="{{ asset('storage/' . $image->photo) }}"
+                                        title="{{ $image->photo }}" />
+                                    <br />
+                                    <a href="{{ route('admin.multiimage.destroy', $image->id) }}"
+                                        class="remove delete">Remove</a>
+                                    {{-- <span class="remove">Remove</span> --}}
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                     {{-- Terms & Conditions --}}
                     <div class="col-lg-12 mb-7">
                         <x-metronic.label for="terms_and_conditions" class="col-form-label fw-bold fs-6">

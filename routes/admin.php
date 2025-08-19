@@ -67,6 +67,8 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/event-seats/fetch', [EventSeatController::class, 'fetchSeats'])->name('event-seat.fetch');
+    Route::post('/event-seat/fetch-seat-types', [EventSeatController::class, 'fetchSeatTypes'])->name('event-seat.fetch-seat-types');
+
     //Resource Controller
     Route::resources([
             'banner'         => PageBannerController::class,

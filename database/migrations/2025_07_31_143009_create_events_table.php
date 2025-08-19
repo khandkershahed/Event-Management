@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('tagline')->nullable();
             $table->text('description')->nullable();
             $table->string('logo')->nullable();
+            $table->string('venue_image')->nullable();
+            $table->string('organizer_logo')->nullable();
             $table->string('image')->nullable();
             $table->string('banner_image')->nullable();
             $table->text('video_teaser_url')->nullable();
