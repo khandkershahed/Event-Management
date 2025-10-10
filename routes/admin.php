@@ -66,6 +66,10 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [AdminProfileController::class, 'destroy'])->name('profile.destroy');
 
+    Route::post('/seatmap/save', [EventSeatController::class, 'fetchSeats'])->name('seatmap.save');
+    Route::post('/event-seats/fetch', [EventSeatController::class, 'fetchSeats'])->name('event-seat.fetch');
+    Route::post('/event-seat/fetch-seat-types', [EventSeatController::class, 'fetchSeatTypes'])->name('event-seat.fetch-seat-types');
+
     //Resource Controller
     Route::resources([
             'banner'         => PageBannerController::class,

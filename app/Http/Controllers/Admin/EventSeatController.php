@@ -16,9 +16,43 @@ class EventSeatController extends Controller
     public function index()
     {
         return view('admin.pages.eventSeat.index', [
-            'event_seats' => EventSeat::latest()->get(),
+            'events' => Event::latest()->get(['id', 'name']),
         ]);
     }
+
+    public function fetchSeatTypes(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|exists:events,id',
+        ]);
+
+        $seatTypeIds = EventSeat::where('event_id', $request->event_id)
+            ->distinct()
+            ->pluck('seat_type_id');
+
+        $seatTypes = EventSeatType::whereIn('id', $seatTypeIds)->get(['id', 'name']);
+
+        return response()->json($seatTypes);
+    }
+
+    public function fetchSeats(Request $request)
+    {
+        $request->validate([
+            'event_id' => 'required|exists:events,id',
+            'seat_type_id' => 'nullable|exists:event_seat_types,id',
+        ]);
+
+        $query = EventSeat::where('event_id', $request->event_id);
+
+        if ($request->filled('seat_type_id')) {
+            $query->where('seat_type_id', $request->seat_type_id);
+        }
+
+        $seats = $query->get();
+
+        return response()->json($seats);
+    }
+
     public function create()
     {
         $data = [
@@ -67,5 +101,33 @@ class EventSeatController extends Controller
         }
 
         return redirect()->route('admin.event-seat.index')->with('success', "$created seats created successfully.");
+    }
+
+    public function update(Request $request, $id)
+    {
+        $seat = EventSeat::findOrFail($id);
+
+        $request->validate([
+            'name'        => 'required|string|max:255',
+            'code'        => 'nullable|string|max:220',
+            'row'         => 'nullable|string|max:220',
+            'column'      => 'nullable|string|max:220',
+            'price'       => 'required|numeric|min:0',
+            'status'      => 'required|in:active,inactive',
+            'description' => 'nullable|string',
+        ]);
+
+        $seat->update([
+            'name'        => $request->name,
+            'code'        => $request->code,
+            'row'         => $request->row,
+            'column'      => $request->column,
+            'price'       => $request->price,
+            'status'      => $request->status,
+            'description' => $request->description,
+            'updated_by'  => Auth::guard('admin')->user()->id ?? 'system',
+        ]);
+
+        return redirect()->route('admin.event-seat.index')->with('success', 'Seat updated successfully.');
     }
 }

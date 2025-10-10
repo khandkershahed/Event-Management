@@ -71,6 +71,15 @@
                                                         name="age_restriction" placeholder="e.g., 18+, All Ages"
                                                         :value="old('age_restriction')" />
                                                 </div>
+                                                {{-- Purchase Deadline --}}
+                                                <div class="col-lg-4 mb-7">
+                                                    <x-metronic.label for="purchase_deadline"
+                                                        class="col-form-label fw-bold fs-6">
+                                                        {{ __('Purchase Deadline') }}
+                                                    </x-metronic.label>
+                                                    <x-metronic.input id="purchase_deadline" type="datetime-local"
+                                                        name="purchase_deadline" :value="old('purchase_deadline')" />
+                                                </div>
                                                 {{-- Terms & Conditions --}}
                                                 <div class="col-lg-12 mb-7">
                                                     <x-metronic.label for="terms_and_conditions"
@@ -181,8 +190,7 @@
                                                 <x-metronic.label for="tagline" class="col-form-label fw-bold fs-6">
                                                     {{ __('Tagline') }}
                                                 </x-metronic.label>
-                                                <x-metronic.textarea id="tagline"
-                                                    name="tagline"
+                                                <x-metronic.textarea id="tagline" name="tagline"
                                                     placeholder="Enter any terms or conditions">{{ old('tagline') }}</x-metronic.textarea>
                                             </div>
                                         </div>
@@ -245,7 +253,7 @@
                                                 </div>
 
                                                 {{-- Venue --}}
-                                                <div class="col-lg-12 mb-7">
+                                                <div class="col-lg-8 mb-7">
                                                     <x-metronic.label for="venue"
                                                         class="col-form-label fw-bold fs-6">
                                                         {{ __('Venue') }}
@@ -273,16 +281,21 @@
                                                         name="organizer_brand" placeholder="Organizer brand"
                                                         :value="old('organizer_brand')" />
                                                 </div>
-
-                                                {{-- Purchase Deadline --}}
                                                 <div class="col-lg-4 mb-7">
-                                                    <x-metronic.label for="purchase_deadline"
+                                                    <x-metronic.label for="organizer_logo"
                                                         class="col-form-label fw-bold fs-6">
-                                                        {{ __('Purchase Deadline') }}
+                                                        {{ __('Organizer Logo') }}
                                                     </x-metronic.label>
-                                                    <x-metronic.input id="purchase_deadline" type="datetime-local"
-                                                        name="purchase_deadline" :value="old('purchase_deadline')" />
+                                                    <x-metronic.file-input id="organizer_logo" name="organizer_logo" />
                                                 </div>
+                                                <div class="col-lg-4 mb-7">
+                                                    <x-metronic.label for="venue_image"
+                                                        class="col-form-label fw-bold fs-6">
+                                                        {{ __('Venue Image') }}
+                                                    </x-metronic.label>
+                                                    <x-metronic.file-input id="venue_image" name="venue_image" />
+                                                </div>
+
                                             </div>
 
                                         </div>
