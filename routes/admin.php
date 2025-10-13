@@ -25,6 +25,8 @@ use App\Http\Controllers\Admin\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Admin\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Admin\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Admin\EventSeatController;
+use App\Http\Controllers\Admin\SeatingPlanController;
+use App\Http\Controllers\Admin\VenueController;
 
 Route::group(['middleware' => 'guest:admin', 'prefix' => 'admin', 'as' => 'admin.'], function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
@@ -80,6 +82,8 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
             'blog-category'  => BlogCategoryController::class,
             'blog-post'      => BlogPostController::class,
+            'venue'          => VenueController::class,
+            'seating-plan'   => SeatingPlanController::class,
 
             'contact'        => ContactController::class,
             'subscription'   => SubscriptionController::class,

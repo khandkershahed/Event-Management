@@ -1,3 +1,10 @@
+@php
+    /**
+     * admin-seatmap-designer.blade.php
+     * Complete Blade file for Admin Seat Map Designer
+     */
+@endphp
+
 <x-admin-app-layout :title="'Event Seat Map Designer'">
     <div class="card card-flash">
         <div class="card-header mt-6">
@@ -18,6 +25,7 @@
                     height: 600px;
                     border: 1px solid #ccc;
                     background: #f9f9f9;
+                    overflow: hidden;
                 }
 
                 .seating-plan-section,
@@ -28,6 +36,11 @@
                     overflow: hidden;
                     padding: 4px;
                     cursor: move;
+                    box-sizing: border-box;
+                }
+
+                .seating-plan-stage {
+                    background: rgba(255, 230, 180, 0.6);
                 }
 
                 .seating-plan-section h6,
@@ -35,6 +48,8 @@
                     margin: 0;
                     font-size: 12px;
                     text-align: center;
+                    pointer-events: none;
+                    user-select: none;
                 }
 
                 .ui-rotatable-handle {
@@ -47,6 +62,31 @@
                     top: 50%;
                     transform: translateY(-50%);
                     cursor: grab;
+                    z-index: 9999;
+                }
+
+                /* Seat styles */
+                .section-seat {
+                    position: absolute;
+                    width: 18px;
+                    height: 18px;
+                    background: #28a745;
+                    border-radius: 50%;
+                    color: #fff;
+                    font-size: 10px;
+                    text-align: center;
+                    line-height: 18px;
+                    cursor: pointer;
+                    user-select: none;
+                    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+                }
+
+                .section-seat.selected {
+                    background: #007bff;
+                }
+
+                .section-seat .seat-label {
+                    pointer-events: none;
                 }
 
                 /* context menu styles */
@@ -59,6 +99,7 @@
                     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.2);
                     list-style: none;
                     padding: 0;
+                    min-width: 160px;
                 }
 
                 .context-menu-list li {
@@ -68,6 +109,13 @@
 
                 .context-menu-list li:hover {
                     background: #eee;
+                }
+
+                /* small helper for the controls */
+                .designer-controls {
+                    display: flex;
+                    gap: 8px;
+                    align-items: center
                 }
             </style>
 
@@ -80,11 +128,13 @@
 
                 <div class="mt-3">
                     <button type="submit" class="btn btn-success">Save Seat Map</button>
+                    <button type="button" id="clear-designer" class="btn btn-outline-danger">Clear</button>
                 </div>
             </form>
 
             {{-- Context Menus --}}
             <ul id="context-menu-section" class="context-menu-list">
+                <li data-action="add-seat">Add seat</li>
                 <li data-action="manage-seats">Manage section seats</li>
                 <li data-action="change-name">Change section name</li>
                 <li data-action="change-bgcolor">Change background color</li>
@@ -93,35 +143,12 @@
             </ul>
 
             <ul id="context-menu-stage" class="context-menu-list">
+                <li data-action="add-seat">Add seat</li>
                 <li data-action="change-stage-name">Change stage name</li>
                 <li data-action="change-stage-bgcolor">Change stage background color</li>
             </ul>
 
             {{-- Modals --}}
-            {{-- Manage Seats Modal --}}
-            <div class="modal fade" id="modal-manage-seats" tabindex="-1" aria-labelledby="modal-manage-seats-label"
-                aria-hidden="true">
-                <div class="modal-dialog modal-xl">
-                    <div class="modal-content">
-                        <div class="modal-header bg-dark text-light">
-                            <h5 class="modal-title" id="modal-manage-seats-label">Manage Section Seats</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <button type="button" class="btn btn-sm btn-primary add-new-row">Add a new row</button>
-                            <div class="section-rows-container mt-2">
-                                <!-- dynamically inserted row forms -->
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="button" class="btn btn-primary" id="save-section-seats">Save Seats</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             {{-- Change Name Modal --}}
             <div class="modal fade" id="modal-change-name" tabindex="-1" aria-labelledby="modal-change-name-label"
                 aria-hidden="true">
@@ -184,26 +211,42 @@
                 let sectionCounter = 0;
                 let currentContextTarget = null;
 
+                // Utility: create unique ids
+                function uid(prefix = 'id') {
+                    return prefix + '-' + Math.random().toString(36).substr(2, 9);
+                }
+
+                // Create section/stage element and wire behaviors
                 function makeSectionElement(id, label = 'Section', x = 10, y = 10, w = 150, h = 100, rotation = 0,
-                    isStage = false) {
+                    isStage = false, seats = []) {
                     const cls = isStage ? 'seating-plan-stage' : 'seating-plan-section';
+
                     const el = $(`
               <div class="${cls}" data-id="${id}" data-label="${label}" style="left:${x}px; top:${y}px; width:${w}px; height:${h}px; transform:rotate(${rotation}deg);">
                 <h6>${label}</h6>
                 <div class="ui-rotatable-handle"></div>
               </div>
             `);
-                    el.appendTo(container);
 
+                    container.append(el);
+
+                    // make draggable & resizable
                     el.draggable({
                         containment: container,
-                        stop: serializeDesign
+                        stop: function() {
+                            serializeDesign();
+                        }
                     }).resizable({
                         containment: container,
                         handles: "n, e, s, w, ne, se, sw, nw",
-                        stop: serializeDesign
+                        stop: function() {
+                            // ensure seats stay inside bounds
+                            keepSeatsInBounds(el);
+                            serializeDesign();
+                        }
                     });
 
+                    // rotation handle
                     el.find('.ui-rotatable-handle').on('mousedown', function(e) {
                         e.preventDefault();
                         e.stopPropagation();
@@ -227,6 +270,34 @@
                         showContextMenu($(this), isStage, e.pageX, e.pageY);
                     });
 
+                    // clicking inside a section should deselect seats
+                    el.on('click', function(e) {
+                        // prevent bubbling to container
+                        e.stopPropagation();
+                        // deselect seats unless clicking a seat
+                        if (!$(e.target).hasClass('section-seat')) {
+                            el.find('.section-seat').removeClass('selected');
+                        }
+                    });
+
+                    // double-click inside section to add seat
+                    el.on('dblclick', function(e) {
+                        const offset = el.offset();
+                        const xPos = e.pageX - offset.left - 9; // center
+                        const yPos = e.pageY - offset.top - 9;
+                        addSeatToSection(el, xPos, yPos);
+                    });
+
+                    // load provided seats
+                    if (Array.isArray(seats) && seats.length) {
+                        seats.forEach(s => {
+                            // ensure seat position stays within width/height
+                            const sx = Math.max(0, Math.min(s.x, w - 18));
+                            const sy = Math.max(0, Math.min(s.y, h - 18));
+                            addSeatToSection(el, sx, sy, s.label || s.id, s.id);
+                        });
+                    }
+
                     return el;
                 }
 
@@ -241,16 +312,107 @@
                     return 0;
                 }
 
+                // Keep seats inside section after resize
+                function keepSeatsInBounds(sectionEl) {
+                    sectionEl.find('.section-seat').each(function() {
+                        const seat = $(this);
+                        const sx = parseFloat(seat.css('left'));
+                        const sy = parseFloat(seat.css('top'));
+                        const sw = sectionEl.width();
+                        const sh = sectionEl.height();
+                        const seatW = seat.outerWidth();
+                        const seatH = seat.outerHeight();
+                        let changed = false;
+                        let nx = sx,
+                            ny = sy;
+                        if (sx > sw - seatW) {
+                            nx = Math.max(0, sw - seatW);
+                            changed = true;
+                        }
+                        if (sy > sh - seatH) {
+                            ny = Math.max(0, sh - seatH);
+                            changed = true;
+                        }
+                        if (nx < 0) {
+                            nx = 0;
+                            changed = true;
+                        }
+                        if (ny < 0) {
+                            ny = 0;
+                            changed = true;
+                        }
+                        if (changed) seat.css({
+                            left: nx + 'px',
+                            top: ny + 'px'
+                        });
+                    });
+                }
+
+                // Add a seat inside a section element
+                function addSeatToSection(sectionEl, x, y, label = null, customId = null) {
+                    const seats = sectionEl.find('.section-seat');
+                    const seatIndex = seats.length + 1;
+                    const seatLabel = label || ('S' + seatIndex);
+                    const seatId = customId || uid('seat');
+
+                    const seat = $(
+                        `<div class="section-seat" data-id="${seatId}" data-label="${seatLabel}" style="left:${x}px; top:${y}px;">
+                            <span class="seat-label">${seatLabel}</span>
+                        </div>`
+                    );
+
+                    // make seat draggable inside section
+                    seat.draggable({
+                        containment: sectionEl,
+                        stop: function() {
+                            serializeDesign();
+                        }
+                    });
+
+                    // click to toggle selection
+                    seat.on('click', function(e) {
+                        e.stopPropagation();
+                        $(this).toggleClass('selected');
+                    });
+
+                    // double-click to remove seat
+                    seat.on('dblclick', function(e) {
+                        e.stopPropagation();
+                        if (confirm('Delete this seat?')) {
+                            $(this).remove();
+                            serializeDesign();
+                        }
+                    });
+
+                    sectionEl.append(seat);
+                    serializeDesign();
+                    return seat;
+                }
+
                 function serializeDesign() {
                     const design = [];
                     container.find('.seating-plan-section, .seating-plan-stage').each(function() {
                         const el = $(this);
-                        const id = el.data('id');
+                        const id = el.data('id') || uid('section');
+                        el.attr('data-id', id);
                         const label = el.data('label') || el.find('h6').text();
                         const pos = el.position();
                         const w = el.width(),
                             h = el.height();
                         const rotation = getRotation(el);
+
+                        // gather seats of this section
+                        const seats = [];
+                        el.find('.section-seat').each(function() {
+                            const s = $(this);
+                            seats.push({
+                                id: s.data('id') || uid('seat'),
+                                label: s.data('label') || s.find('.seat-label').text(),
+                                x: parseFloat(s.css('left')),
+                                y: parseFloat(s.css('top'))
+                            });
+                        });
+
                         design.push({
                             id,
                             label,
@@ -258,24 +420,32 @@
                             y: pos.top,
                             width: w,
                             height: h,
-                            rotation
+                            rotation,
+                            seats
                         });
+
                     });
-                    $("#venue_seating_plan_design").val(JSON.stringify(design));
+
+                    $('#venue_seating_plan_design').val(JSON.stringify(design));
                 }
 
                 function hideAllContextMenus() {
-                    $(".context-menu-list").hide();
+                    $('.context-menu-list').hide();
                 }
 
                 function showContextMenu(el, isStage, x, y) {
                     hideAllContextMenus();
                     currentContextTarget = el;
-                    const menu = isStage ? $("#context-menu-stage") : $("#context-menu-section");
-                    // position
+                    const menu = isStage ? $('#context-menu-stage') : $('#context-menu-section');
+                    // ensure menu remains inside viewport
+                    const containerOffset = container.offset();
+                    const maxLeft = containerOffset.left + container.outerWidth() - 10;
+                    const maxTop = containerOffset.top + container.outerHeight() - 10;
+                    const finalLeft = Math.min(x, maxLeft);
+                    const finalTop = Math.min(y, maxTop);
                     menu.css({
-                        top: y + "px",
-                        left: x + "px"
+                        top: finalTop + 'px',
+                        left: finalLeft + 'px'
                     }).show();
                 }
 
@@ -285,7 +455,7 @@
                 });
 
                 // handle context menu clicks
-                $(".context-menu-list li").on('click', function(e) {
+                $('.context-menu-list li').on('click', function(e) {
                     e.stopPropagation();
                     hideAllContextMenus();
                     const action = $(this).data('action');
@@ -294,65 +464,171 @@
                     if (action === 'change-name' || action === 'change-stage-name') {
                         const currentName = currentContextTarget.data('label') || currentContextTarget.find(
                             'h6').text();
-                        $("#input-new-name").val(currentName);
-                        $("#modal-change-name").modal('show');
+                        $('#input-new-name').val(currentName);
+                        $('#modal-change-name').modal('show');
                     } else if (action === 'manage-seats') {
-                        $("#modal-manage-seats").modal('show');
+                        // for compatibility - highlight seats
+                        currentContextTarget.find('.section-seat').toggleClass('selected');
                     } else if (action === 'change-bgcolor' || action === 'change-stage-bgcolor') {
-                        const bg = currentContextTarget.css('background-color');
-                        $("#input-bgcolor").val(bg);
-                        $("#modal-change-bgcolor").modal('show');
+                        const bg = rgb2hex(currentContextTarget.css('background-color')) || '';
+                        $('#input-bgcolor').val(bg);
+                        $('#modal-change-bgcolor').modal('show');
                     } else if (action === 'delete-section') {
-                        currentContextTarget.remove();
-                        serializeDesign();
+                        if (confirm('Delete this section/stage?')) {
+                            currentContextTarget.remove();
+                            serializeDesign();
+                        }
                     } else if (action === 'duplicate-section') {
+                        // create clone with new id and same seats
                         const clone = currentContextTarget.clone();
-                        const newId = 'section-' + (++sectionCounter);
+                        const newId = uid('section');
                         clone.attr('data-id', newId);
-                        clone.data('label', currentContextTarget.data('label'));
-                        clone.find('h6').text(currentContextTarget.data('label'));
+                        // compute offset for clone
+                        const pos = currentContextTarget.position();
+                        const newLeft = Math.min(pos.left + 20, container.width() - currentContextTarget
+                        .width());
+                        const newTop = Math.min(pos.top + 20, container.height() - currentContextTarget
+                        .height());
+                        clone.css({
+                            left: newLeft + 'px',
+                            top: newTop + 'px'
+                        });
+                        // remove existing seats from clone and rebuild properly
+                        // gather seat data
+                        const seatsData = [];
+                        currentContextTarget.find('.section-seat').each(function() {
+                            const s = $(this);
+                            seatsData.push({
+                                x: parseFloat(s.css('left')),
+                                y: parseFloat(s.css('top')),
+                                label: s.data('label') || s.find('.seat-label').text()
+                            });
+                        });
+                        // remove seats in clone
+                        clone.find('.section-seat').remove();
                         container.append(clone);
-                        // rebind same behaviors
-                        makeSectionElement(newId, currentContextTarget.data('label'),
-                            clone.position().left + 20, clone.position().top + 20,
-                            clone.width(), clone.height(), getRotation(clone),
-                            clone.hasClass('seating-plan-stage'));
+                        // rebind behavior by calling makeSectionElement with seats
+                        const isStage = clone.hasClass('seating-plan-stage');
+                        const width = clone.width();
+                        const height = clone.height();
+                        const rotation = getRotation(currentContextTarget);
+                        clone.remove();
+                        makeSectionElement(newId, currentContextTarget.data('label') || currentContextTarget
+                            .find('h6').text(), newLeft, newTop, width, height, rotation, isStage, seatsData
+                            );
                         serializeDesign();
+                    } else if (action === 'add-seat') {
+                        // Add seat: instruct admin to click location inside section (or double-click to add instantly)
+                        alert('Click inside the section to place a new seat, or double-click to cancel.');
+                        // one-time click handler
+                        const onceHandler = function(e) {
+                            const offset = currentContextTarget.offset();
+                            const x = e.pageX - offset.left - 9;
+                            const y = e.pageY - offset.top - 9;
+                            addSeatToSection(currentContextTarget, x, y);
+                            $(document).off('click', onceHandler);
+                        };
+                        // attach a single-use click on the section
+                        currentContextTarget.on('click.addseat', function(e) {
+                            e.stopPropagation();
+                            const offset = currentContextTarget.offset();
+                            const x = e.pageX - offset.left - 9;
+                            const y = e.pageY - offset.top - 9;
+                            addSeatToSection(currentContextTarget, x, y);
+                            currentContextTarget.off('click.addseat');
+                        });
                     }
                 });
 
                 // Save new name
-                $("#save-new-name").on('click', function() {
-                    const newName = $("#input-new-name").val().trim();
+                $('#save-new-name').on('click', function() {
+                    const newName = $('#input-new-name').val().trim();
                     if (currentContextTarget && newName) {
                         currentContextTarget.data('label', newName);
                         currentContextTarget.find('h6').text(newName);
-                        $("#modal-change-name").modal('hide');
+                        $('#modal-change-name').modal('hide');
                         serializeDesign();
                     }
                 });
 
                 // Save new background color
-                $("#save-bgcolor").on('click', function() {
-                    const newColor = $("#input-bgcolor").val().trim();
+                $('#save-bgcolor').on('click', function() {
+                    const newColor = $('#input-bgcolor').val().trim();
                     if (currentContextTarget && newColor) {
                         currentContextTarget.css('background-color', newColor);
-                        $("#modal-change-bgcolor").modal('hide');
+                        $('#modal-change-bgcolor').modal('hide');
+                        serializeDesign();
                     }
                 });
 
                 // Add initial elements
-                $("#add-new-section").click(function() {
+                $('#add-new-section').click(function() {
                     sectionCounter++;
-                    makeSectionElement('section-' + sectionCounter, 'Section ' + sectionCounter);
+                    makeSectionElement('section-' + sectionCounter, 'Section ' + sectionCounter, 20 +
+                        sectionCounter * 10, 20 + sectionCounter * 10);
                 });
-                $("#add-stage").click(function() {
-                    makeSectionElement('stage', 'Stage', 200, 20, 250, 80, 0, true);
+                $('#add-stage').click(function() {
+                    makeSectionElement('stage-' + uid('stage'), 'Stage', 200, 20, 300, 100, 0, true);
                 });
 
                 // Prevent default browser context menu inside container
                 container.on('contextmenu', function(e) {
                     e.preventDefault();
+                });
+
+                // clicking container deselects seats
+                container.on('click', function() {
+                    container.find('.section-seat').removeClass('selected');
+                });
+
+                // clear designer
+                $('#clear-designer').on('click', function() {
+                    if (confirm('Clear the entire design?')) {
+                        container.empty();
+                        serializeDesign();
+                    }
+                });
+
+                // helper: convert rgb to hex (simple)
+                function rgb2hex(rgb) {
+                    if (!rgb) return '';
+                    const m = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+                    if (!m) return rgb; // maybe already hex
+                    return '#' + [1, 2, 3].map(i => parseInt(m[i]).toString(16).padStart(2, '0')).join('');
+                }
+
+                // Load existing design if server rendered a value
+                (function loadExisting() {
+                    try {
+                        const raw = $('#venue_seating_plan_design').val() ||
+                            "{{ old('seatmap_design') ?? (isset($seatmap) ? addslashes($seatmap->layout_json ?? '') : '') }}";
+                        if (raw) {
+                            const data = JSON.parse(raw);
+                            if (Array.isArray(data)) {
+                                data.forEach(sec => {
+                                    const id = sec.id || uid('section');
+                                    const label = sec.label || 'Section';
+                                    const x = sec.x || 10;
+                                    const y = sec.y || 10;
+                                    const width = sec.width || 150;
+                                    const height = sec.height || 100;
+                                    const rotation = sec.rotation || 0;
+                                    const seats = sec.seats || [];
+                                    makeSectionElement(id, label, x, y, width, height, rotation, sec
+                                        .isStage || false, seats);
+                                });
+                                serializeDesign();
+                            }
+                        }
+                    } catch (err) {
+                        console.warn('Failed to parse existing seatmap JSON', err);
+                    }
+                })();
+
+                // ensure serialize before submit
+                $('form').on('submit', function() {
+                    serializeDesign();
+                    return true;
                 });
 
             });

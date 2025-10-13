@@ -16,4 +16,10 @@ class Venue extends Model
      * @var array
      */
     protected $guarded = [];
+    
+    public function seatingPlans()
+    {
+        return $this->hasMany(SeatingPlan::class);
+    }
+
 }
