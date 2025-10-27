@@ -89,13 +89,7 @@
                     </div>
 
                     {{-- Banner Image --}}
-                    <div class="col-lg-4 mb-7">
-                        <x-metronic.label for="banner_image" class="col-form-label fw-bold fs-6">
-                            {{ __('Banner Image') }}
-                        </x-metronic.label>
-                        <x-metronic.file-input id="banner_image" name="banner_image" :value="old('banner_image')"
-                            :source="isset($event->banner_image) ? asset('storage/' . $event->banner_image) : null" />
-                    </div>
+                    
                     <div class="col-lg-4 mb-7">
                         <x-metronic.label for="banner_image" class="col-form-label fw-bold fs-6">
                             {{ __('Banner Image') }}
@@ -111,7 +105,7 @@
                     </div>
                     <div class="col-lg-4 mb-7">
                         <x-metronic.label for="organizer_logo" class="col-form-label fw-bold fs-6">
-                            {{ __('Venue Image') }}
+                            {{ __('Organizer Logo') }}
                         </x-metronic.label>
                         <x-metronic.file-input id="organizer_logo" name="organizer_logo" :source="isset($event->organizer_logo) ? asset('storage/' . $event->organizer_logo) : null"/>
                     </div>

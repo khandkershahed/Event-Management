@@ -8,7 +8,7 @@ use App\Http\Controllers\Frontend\UserDashboardController;
 use App\Http\Controllers\Frontend\ModeratorDashboardController;
 
 
-Route::get('/', [HomeController::class, 'home'])->name('homepage');
+
 
 
 
@@ -25,6 +25,7 @@ Route::get('/', [HomeController::class, 'home'])->name('homepage');
 // })->middleware(['auth:admin', 'verified'])->name('admin.dashboard');
 // Route::get('/payment/{id}', [PaymentController::class, 'showPaymentPage'])->name('payment.page');
 
+require __DIR__ . '/frontend.php';
 // web routes (Laravel Blade)
 Route::get('/payment/{booking}', [PaymentController::class, 'showPaymentPage'])
     ->name('payment.page')

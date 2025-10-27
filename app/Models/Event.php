@@ -16,6 +16,16 @@ class Event extends Model
      * @var array
      */
     protected $guarded = [];
+
+    protected $casts = [
+        'start_date'         => 'date',
+        'end_date'           => 'date',
+        'start_time'         => 'datetime:H:i', // Handles TIME columns
+        'end_time'           => 'datetime:H:i', // Handles TIME columns
+        'purchase_deadline'  => 'datetime',
+        'is_featured'        => 'boolean',
+    ];
+    
     public function eventType()
     {
         return $this->belongsTo(EventType::class);
@@ -29,5 +39,26 @@ class Event extends Model
     public function eventSeats()
     {
         return $this->hasMany(EventSeat::class);
+    }
+    // In app/Models/Event.php
+
+    // Example for getting a price
+    public function getDisplayPriceAttribute()
+    {
+        // Add your logic here. Maybe get the minimum ticket price?
+        // This is just a placeholder.
+        if ($this->price > 0) {
+            return 'AUD $' . $this->price;
+        }
+        return 'Free';
+    }
+
+    // Example for getting duration (if you calculate it)
+    public function getDurationAttribute()
+    {
+        if ($this->start_time && $this->end_time) {
+            return $this->start_time->diffInHours($this->end_time) . 'h';
+        }
+        return '1h'; // Default
     }
 }

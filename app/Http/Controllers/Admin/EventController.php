@@ -222,8 +222,8 @@ class EventController extends Controller
                 'logo'         => $request->file('logo'),
                 'image'        => $request->file('image'),
                 'banner_image' => $request->file('banner_image'),
-                'organizer_logo' => $request->file('banner_image'),
-                'venue_image' => $request->file('banner_image'),
+                'organizer_logo' => $request->file('organizer_logo'),
+                'venue_image' => $request->file('venue_image'),
             ];
 
             $uploadedFiles = [];
