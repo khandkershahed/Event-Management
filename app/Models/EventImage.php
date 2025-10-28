@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EventImage extends Model
 {
-    use HasFactory, HasSlug;
-    protected $slugSourceColumn = 'name';
+    use HasFactory;
     /**
      * The attributes that aren't mass assignable.
      *
