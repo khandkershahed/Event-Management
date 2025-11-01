@@ -25,7 +25,7 @@ class Event extends Model
         'purchase_deadline'  => 'datetime',
         'is_featured'        => 'boolean',
     ];
-    
+
     public function eventType()
     {
         return $this->belongsTo(EventType::class);
@@ -53,6 +53,18 @@ class Event extends Model
         return 'Free';
     }
 
+    // protected function duration(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: function ($value) {
+    //             if (!$this->start_time || !$this->end_time) {
+    //                 return null;
+    //             }
+    //             $hours = $this->start_time->diffInHours($this->end_time);
+    //             return $hours > 0 ? $hours . 'h' : null;
+    //         }
+    //     );
+    // }
     // Example for getting duration (if you calculate it)
     public function getDurationAttribute()
     {

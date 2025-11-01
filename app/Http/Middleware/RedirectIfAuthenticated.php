@@ -53,7 +53,7 @@ class RedirectIfAuthenticated
 
         $routes = [
             'admin' => 'admin.dashboard',
-            'web' => 'dashboard',
+            'web' => 'user.dashboard',
         ];
 
         if (array_key_exists($guard, $routes)) {

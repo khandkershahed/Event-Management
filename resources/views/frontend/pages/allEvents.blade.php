@@ -47,7 +47,6 @@
                     <div class="event-filter-items">
                         <div class="featured-controls">
                             <div class="filter-tag">
-                                {{-- Add class and data-values for jQuery --}}
                                 <a href="#" class="date-filter active" data-value="all">All</a>
                                 <a href="#" class="date-filter" data-value="today">Today</a>
                                 <a href="#" class="date-filter" data-value="tomorrow">Tomorrow</a>
@@ -60,31 +59,21 @@
 
                             @if ($event_types->isNotEmpty())
                                 <div class="controls">
-                                    <button type="button" class="control category-filter active"
-                                        data-value="all">All</button>
+                                    <button type="button" class="control" data-filter="all">
+                                        All
+                                    </button>
                                     @foreach ($event_types as $type)
-                                        <button type="button" class="control category-filter"
-                                            data-value="{{ $type->slug }}">
+                                        <button type="button" class="control" data-filter=".{{ $type->slug }}">
                                             {{ $type->name }}
                                         </button>
                                     @endforeach
                                 </div>
                             @endif
-                            <div class="row" id="event-grid-container">
-                                {{-- Load the initial events from the controller --}}
+                            <div class="row" data-ref="event-filter-content">
                                 @include('frontend.layouts.event_grid', compact('events'))
                             </div>
-                            <div id="loading-spinner" class="text-center p-5" style="display: none;">
-                                <div class="spinner-border" role="status">
-                                    <span class="visually-hidden">Loading...</span>
-                                </div>
-                            </div>
-
                             <div class="browse-btn">
-                                <button class="main-btn btn-hover" id="see-more-btn" data-page="1"
-                                    style="{{ $events->hasMorePages() ? '' : 'display: none;' }}">
-                                    See More
-                                </button>
+                                <a href="javascript:void(0);" id="see-more-btn" class="main-btn btn-hover">See More</a>
                             </div>
                         </div>
                     </div>
@@ -103,13 +92,13 @@
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     }
                 });
-
+                let currentCategorySlug = 'all';
                 // --- The Main AJAX Function ---
                 function fetchEvents(page, append = false) {
                     let search = $('#event-search-input').val() || '';
                     let event_type_id = $('#event-type-select').val() || '0';
                     let date_filter = $('.date-filter.active').data('value') || 'all';
-                    let category_slug = $('.category-filter.active').data('value') || 'all';
+
 
                     $('#loading-spinner').show();
                     $('#see-more-btn').hide();
@@ -122,13 +111,13 @@
                             search: search,
                             event_type_id: event_type_id,
                             date_filter: date_filter,
-                            category_slug: category_slug
+                            category_slug: currentCategorySlug
                         },
                         success: function(response) {
-                            if (append) {
-                                $('#event-grid-container').append(response.html);
+                            if (!append) {
+                                $('[data-ref="event-filter-content"]').html(response.html);
                             } else {
-                                $('#event-grid-container').html(response.html);
+                                $('[data-ref="event-filter-content"]').append(response.html);
                             }
 
                             // Update pagination
@@ -167,11 +156,13 @@
                 });
 
                 // 3. Category Filter Clicks
-                $('.category-filter').on('click', function(e) {
+                $('.control').on('click', function(e) {
                     e.preventDefault();
-                    $('.category-filter').removeClass('active');
+                    $('.control').removeClass('active');
                     $(this).addClass('active');
-                    fetchEvents(1, false); // Fetch page 1, replace content
+                    currentCategorySlug = $(this).data('filter').replace('.', '');
+                    // alert(currentCategorySlug);
+                    fetchEvents(1, false);
                 });
 
                 // 4. "See More" Button Click

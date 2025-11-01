@@ -11,3 +11,4 @@ Route::get('events', [HomeController::class, 'allEvents'])->name('all.events');
 Route::get('event/{slug}', [HomeController::class, 'eventDetails'])->name('event.details');
 Route::get('checkout', [HomeController::class, 'checkout'])->name('checkout');
 Route::get('/fetch-events', [HomeController::class, 'fetchEvents'])->name('events.fetch');
+// Route::get('/event/create', [HomeController::class, 'fetchEvents'])->name('events.fetch');

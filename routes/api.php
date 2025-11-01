@@ -9,18 +9,13 @@ use App\Http\Controllers\Frontend\Api\UserApiController;
 
 // Login
 Route::prefix('api/v1')->group(function () {
-    // 🚪 Public routes
     Route::post('/register', [UserApiController::class, 'register']);
     Route::post('/login', [UserApiController::class, 'login']);
-    // 🔒 Protected routes (requires auth:sanctum)
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [UserApiController::class, 'logout']);
-        // 👤 User profile
         Route::get('/profile', [UserApiController::class, 'profile']);
         Route::put('/profile', [UserApiController::class, 'updateProfile']);
-        // 🔑 Change password
         Route::post('/change-password', [UserApiController::class, 'changePassword']);
-        // 🗑️ Optional: delete account
         Route::delete('/delete-account', [UserApiController::class, 'deleteAccount']);
     });
 });

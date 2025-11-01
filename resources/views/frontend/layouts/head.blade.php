@@ -53,3 +53,4 @@
 <link href="{{ asset('frontend/css/style.css?v=' . time()) }}" rel="stylesheet" />
 <link href="{{ asset('frontend/css/responsive.css?v=' . time()) }}" rel="stylesheet" />
 <link href="{{ asset('frontend/css/night-mode.css?v=' . time()) }}" rel="stylesheet" />
+<link href="{{ asset('frontend/css/vertical-responsive-menu.css?v=' . time()) }}" rel="stylesheet" />

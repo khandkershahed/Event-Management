@@ -1,198 +1,170 @@
-{{-- <div class="container py-5 d-flex justify-content-center align-items-center min-vh-100">
-    <div class="card shadow-lg border-0 rounded-4 p-5" style="max-width: 480px; width: 100%; background: #f9f9f9;">
-        <div class="card-body">
-            <!-- Logo or App Name (Optional) -->
-            <div class="text-center mb-4">
-                <h3 class="fw-bold text-dark">Welcome Back!</h3>
-            </div>
-
-            <!-- Login Form -->
-            <form method="POST" action="{{ route('login') }}">
-                @csrf
-                <!-- Email Input -->
-                <div class="mb-4">
-                    <label for="email" class="form-label fw-semibold text-muted">Email</label>
-                    <input id="email" type="email" name="email" class="form-control form-control-lg shadow-sm"
-                        required autocomplete="username" placeholder="Enter your email">
-                    <x-input-error :messages="$errors->get('email')" class="text-danger mt-1" />
-                </div>
-
-                <!-- Password Input -->
-                <div class="mb-4">
-                    <label for="password" class="form-label fw-semibold text-muted">Password</label>
-                    <input id="password" type="password" name="password" class="form-control form-control-lg shadow-sm"
-                        required autocomplete="current-password" placeholder="Enter your password">
-                    <x-input-error :messages="$errors->get('password')" class="text-danger mt-1" />
-                </div>
-
-                <!-- Remember Me & Forgot Password -->
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="remember_me" name="remember">
-                        <label class="form-check-label text-muted" for="remember_me">Remember me</label>
+<x-frontend-app-layout :title="'User Login'">
+    <div class="container p-80">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-md-10">
+                <div class="app-top-items">
+                    <a href="index.html">
+                        <div class="sign-logo" id="logo">
+                            <img src="images/logo.svg" alt="" />
+                            <img class="logo-inverse" src="images/dark-logo.svg" alt="" />
+                        </div>
+                    </a>
+                    <div class="app-top-right-link">
+                        New to {{ $setting->website_name }}?<a class="sidebar-register-link" href="sign_up.html">Sign
+                            up</a>
                     </div>
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}"
-                            class="text-decoration-none text-muted fw-semibold">Forgot password?</a>
-                    @endif
                 </div>
+            </div>
+            <div class="col-xl-5 col-lg-6 col-md-7">
+                <div class="registration">
+                    <form method="POST" action="{{ route('login') }}" class="mt-3">
+                        @csrf
+                        <h2 class="registration-title">Sign in to {{ $setting->website_name }}</h2>
+                        <div class="form-group mt-5">
+                            <label class="form-label">Your Email*</label>
+                            <input class="form-control h_50" type="email" name="email"
+                                placeholder="Enter your email" required value="{{ old('email') }}" />
+                            @error('email')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="form-group mt-4">
+                            <div class="field-password">
+                                <label class="form-label">Password*</label>
+                                <a class="forgot-pass-link" href="{{ route('password.request') }}">Forgot Password?</a>
+                            </div>
+                            <div class="loc-group position-relative">
+                                <input class="form-control h_50" type="password" name="password" placeholder="Enter your password" />
+                                <span class="pass-show-eye"><i class="fas fa-eye-slash"></i></span>
+                            </div>
+                            @error('password')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <button class="main-btn btn-hover w-100 mt-4" type="submit">
+                            Sign In <i class="fas fa-sign-in-alt ms-2"></i>
+                        </button>
+                    </form>
+                    {{-- <div class="divider">
+                        <span>or</span>
+                    </div>
+                    <div class="social-btns-list">
+                        <button class="social-login-btn">
+                            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 26.488 27.029">
+                                <g transform="translate(-0.126)">
+                                    <path
+                                        d="M1258.806,1021.475a11.578,11.578,0,0,0-.285-2.763h-12.688v5.015h7.448a6.605,6.605,0,0,1-2.763,4.384l-.025.168,4.012,3.108.278.028a13.214,13.214,0,0,0,4.024-9.941"
+                                        transform="translate(-1232.192 -1007.66)" fill="#4285f4"></path>
+                                    <path
+                                        d="M145.071,1502.921a12.881,12.881,0,0,0,8.949-3.273l-4.265-3.3a8,8,0,0,1-4.685,1.352,8.136,8.136,0,0,1-7.688-5.616l-.158.013-4.172,3.229-.055.152a13.5,13.5,0,0,0,12.073,7.448"
+                                        transform="translate(-131.431 -1475.893)" fill="#34a853"></path>
+                                    <path
+                                        d="M5.952,689.263a8.32,8.32,0,0,1-.45-2.673,8.744,8.744,0,0,1,.435-2.673l-.008-.179-4.224-3.28-.138.066a13.486,13.486,0,0,0,0,12.133l4.385-3.393"
+                                        transform="translate(0 -673.076)" fill="#fbbc05"></path>
+                                    <path
+                                        d="M145.071,5.225A7.49,7.49,0,0,1,150.3,7.238l3.814-3.724A12.984,12.984,0,0,0,145.071,0,13.5,13.5,0,0,0,133,7.448l4.37,3.394a8.169,8.169,0,0,1,7.7-5.616"
+                                        transform="translate(-131.431)" fill="#eb4335"></path>
+                                </g>
+                            </svg>
+                            Sign in with Google
+                        </button>
+                        <button class="social-login-btn">
+                            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 27 27">
+                                <g transform="translate(0)">
+                                    <circle cx="13.5" cy="13.5" r="13.5" transform="translate(0 0)"
+                                        fill="#3b5998"></circle>
+                                    <path
+                                        d="M851.461,383.684h-3.1c-1.841,0-3.889.735-3.889,3.266.009.882,0,1.727,0,2.678h-2.13v3.215h2.2V402.1h4.035v-9.316h2.663l.241-3.163H848.5s.007-1.407,0-1.816c0-1,1.1-.943,1.164-.943.522,0,1.538,0,1.8,0v-3.176Z"
+                                        transform="translate(-833.401 -379.385)" fill="#fff"></path>
+                                </g>
+                            </svg>
+                            Sign in with Facebook
+                        </button>
+                    </div>
+                    <div class="new-sign-link">
+                        New to {{ $setting->website_name }}?<a class="signup-link" href="sign_up.html">Sign up</a>
+                    </div> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                // =============================
+                // Toggle Password Visibility
+                // =============================
+                $('.pass-show-eye').on('click', function() {
+                    const input = $(this).siblings('input');
+                    const icon = $(this).find('i');
 
-                <!-- Submit Button -->
-                <button type="submit"
-                    class="btn btn-primary w-100 rounded-pill py-2 shadow-lg transition-all hover:scale-105">Log
-                    In</button>
-            </form>
+                    if (input.attr('type') === 'password') {
+                        input.attr('type', 'text');
+                        icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                    } else {
+                        input.attr('type', 'password');
+                        icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                    }
+                });
+            });
+        </script>
+    @endpush
+</x-frontend-app-layout>
+{{--
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <p class="pb-1 text-center">Welcome Here!</p>
+                    <h2 class="mb-4 fw-bold text-center">Login Now</h2>
 
+                    <!-- Display Validation Errors -->
+                    @if ($errors->any())
+                        <div class="alert alert-danger mb-0">
+                            <p class="mb-0">
+                                @foreach ($errors->all() as $error)
+                                    <span class="mb-0">{{ $error }}</span>
+                                @endforeach
+                            </p>
+                        </div>
+                    @endif
 
+                    <form method="POST" action="{{ route('login') }}" class="mt-3">
+                        @csrf
+
+                        <!-- Email -->
+                        <div class="mb-3 form-outline">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" id="email" class="form-control" name="email"
+                                placeholder="Email Address" required value="{{ old('email') }}">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="row">
+                            <div class="col-md-12 mb-3 form-outline">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" id="password" class="form-control" name="password"
+                                    placeholder="Password" required>
+                            </div>
+                        </div>
+
+                        <!-- Login Button -->
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-common-one">Login Now</button>
+                        </div>
+
+                        <!-- No Registered? -->
+                        <div class="text-center mt-4">
+                            <p>No have any account? <a href="{{ route('register') }}" class="login-link">Register</a>
+                            </p>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
 </div> --}}
-
-
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Now</title>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-
-    <style>
-        body {
-            background: #97989967;
-            font-family: 'Arial', sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            max-width: 900px;
-        }
-
-        .card {
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .card-body {
-            padding: 40px;
-        }
-
-        .form-control {
-            border-radius: 5px;
-            padding: 10px;
-        }
-
-        .btn-common-one {
-            background: #013c7a;
-            color: #fff;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-
-        .btn-common-one:hover {
-            background: #0563c2;
-            color: #fff;
-        }
-
-        .input-group-text {
-            background: #f1f1f1;
-            border-radius: 10px 0 0 10px;
-            border: none;
-        }
-
-        .form-outline {
-            position: relative;
-        }
-
-        .form-outline i {
-            position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            color: #aaa;
-        }
-
-        .form-control {
-            padding-left: 20px;
-        }
-
-        .login-link {
-            text-decoration: none;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .login-link:hover {
-            color: #0a0a0a;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <p class="pb-1 text-center">Welcome Here!</p>
-                        <h2 class="mb-4 fw-bold text-center">Login Now</h2>
-
-                        <!-- Display Validation Errors -->
-                        @if ($errors->any())
-                            <div class="alert alert-danger mb-0">
-                                <p class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <span class="mb-0">{{ $error }}</span>
-                                    @endforeach
-                                </p>
-                            </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('login') }}" class="mt-3">
-                            @csrf
-
-                            <!-- Email -->
-                            <div class="mb-3 form-outline">
-                                <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" class="form-control" name="email"
-                                    placeholder="Email Address" required value="{{ old('email') }}">
-                            </div>
-
-                            <!-- Password -->
-                            <div class="row">
-                                <div class="col-md-12 mb-3 form-outline">
-                                    <i class="fas fa-lock"></i>
-                                    <input type="password" id="password" class="form-control" name="password"
-                                        placeholder="Password" required>
-                                </div>
-                            </div>
-
-                            <!-- Login Button -->
-                            <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-common-one">Login Now</button>
-                            </div>
-
-                            <!-- No Registered? -->
-                            <div class="text-center mt-4">
-                                <p>No have any account? <a href="{{ route('register') }}"
-                                        class="login-link">Register</a></p>
-                            </div>
-
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</body>
-
-</html>

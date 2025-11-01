@@ -20,7 +20,7 @@ class HomeController extends Controller
             ->where('status', 'active')
             ->where('is_featured', true)
             ->latest()
-            ->take(8)
+            ->take(12)
             ->get();
 
         $data = [

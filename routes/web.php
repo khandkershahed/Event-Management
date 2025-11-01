@@ -37,5 +37,6 @@ Route::get('/payment/cancel', [PaymentController::class, 'paymentCancel'])->name
 Route::get('api/v1/payment/status', [PaymentController::class, 'paymentStatus']);
 
 require __DIR__ . '/auth.php';
+require __DIR__ . '/client.php';
 require __DIR__ . '/admin.php';
 require __DIR__ . '/api.php';

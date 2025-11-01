@@ -10,18 +10,23 @@
                 </button>
                 <a class="navbar-brand order-1 order-lg-0 ml-lg-0 ml-2 me-auto" href="{{ route('homepage') }}">
                     <div class="res-main-logo">
-                        <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}" alt="" />
+                        <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}"
+                            alt="" />
                     </div>
                     <div class="main-logo" id="logo">
-                        <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}" alt="" />
-                        <img class="logo-inverse" src="{{ !empty($setting->site_logo_white) && file_exists(public_path('storage/' . $setting->site_logo_white)) ? asset('storage/' . $setting->site_logo_white) : asset('images/logo.webp') }}" alt="" />
+                        <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}"
+                            alt="" />
+                        <img class="logo-inverse"
+                            src="{{ !empty($setting->site_logo_white) && file_exists(public_path('storage/' . $setting->site_logo_white)) ? asset('storage/' . $setting->site_logo_white) : asset('images/logo.webp') }}"
+                            alt="" />
                     </div>
                 </a>
                 <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar"
                     aria-labelledby="offcanvasNavbarLabel">
                     <div class="offcanvas-header">
                         <div class="offcanvas-logo" id="offcanvasNavbarLabel">
-                            <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}" alt="" />
+                            <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}"
+                                alt="" />
                         </div>
                         <button type="button" class="close-btn" data-bs-dismiss="offcanvas" aria-label="Close">
                             <i class="fa-solid fa-xmark"></i>
@@ -30,7 +35,7 @@
                     <div class="offcanvas-body">
                         <div class="offcanvas-top-area">
                             <div class="create-bg">
-                                <a href="create.html" class="offcanvas-create-btn">
+                                <a href="" class="offcanvas-create-btn">
                                     <i class="fa-solid fa-calendar-days"></i>
                                     <span>Create Event</span>
                                 </a>
@@ -46,14 +51,11 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="pricing.html">Pricing</a>
-                            </li>
-                            <li class="nav-item ">
                                 <a class="nav-link" href="#">
                                     Blog
                                 </a>
                             </li>
-                            
+
                         </ul>
                     </div>
                     <div class="offcanvas-footer">
@@ -82,35 +84,59 @@
                 <div class="right-header order-2">
                     <ul class="align-self-stretch">
                         <li>
-                            <a href="create.html" class="create-btn btn-hover">
+                            <a href="" class="create-btn btn-hover">
                                 <i class="fa-solid fa-calendar-days"></i>
                                 <span>Create Event</span>
                             </a>
                         </li>
-                        <li class="dropdown account-dropdown">
-                            <a href="#" class="account-link" role="button" id="accountClick"
-                                data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="images/profile-imgs/img-13.jpg" alt="" />
-                                <i class="fas fa-caret-down arrow-icon"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
-                                aria-labelledby="accountClick">
-                                <li>
-                                    <div class="dropdown-account-header">
-                                        <div class="account-holder-avatar">
-                                            <img src="images/profile-imgs/img-13.jpg" alt="" />
+                        @auth
+                            <li class="dropdown account-dropdown">
+                                <a href="#" class="account-link" role="button" id="accountClick"
+                                    data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                        alt="" />
+                                    <i class="fas fa-caret-down arrow-icon"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
+                                    aria-labelledby="accountClick">
+                                    <li>
+                                        <div class="dropdown-account-header">
+                                            <div class="account-holder-avatar">
+                                                <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                                    alt="" />
+                                            </div>
+                                            <h5>{{ Auth::user()->name }}</h5>
+                                            <p>{{ Auth::user()->email }}</p>
                                         </div>
-                                        <h5>John Doe</h5>
-                                        <p>johndoe@example.com</p>
-                                    </div>
-                                </li>
-                                <li class="profile-link">
-                                    <a href="my_organisation_dashboard.html" class="link-item">My Organisation</a>
-                                    <a href="organiser_profile_view.html" class="link-item">My Profile</a>
-                                    <a href="sign_in.html" class="link-item">Sign Out</a>
-                                </li>
-                            </ul>
-                        </li>
+                                    </li>
+                                    <li class="profile-link">
+                                        <a href="{{ route('user.dashboard') }}" class="link-item">My Dashboard</a>
+                                        <a href="" class="link-item">My Profile</a>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button onclick="this.form.submit()" class="link-item border-0 bg-white text-start">Sign Out</button>
+                                            {{-- <a href="javascript:void(0)" onclick="this.form.submit(); return false;" class="link-item">Sign Out</a> --}}
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        @else
+                            <li class="dropdown account-dropdown"
+                                style="vertical-align: middle; background: #eee; border-radius: 50%;padding: 12px 8px;">
+                                <a href="#" class="account-link" role="button" id="accountClick"
+                                    data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user"></i>
+                                    <i class="fas fa-caret-down arrow-icon"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
+                                    aria-labelledby="accountClick">
+                                    <li class="profile-link">
+                                        <a href="{{ route('login') }}" class="link-item">Sign In</a>
+                                        <a href="{{ route('register') }}" class="link-item">Sign Up</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endauth
                         <li>
                             <div class="night_mode_switch__btn">
                                 <div id="night-mode" class="fas fa-moon fa-sun"></div>

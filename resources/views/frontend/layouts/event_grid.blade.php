@@ -1,10 +1,10 @@
 
 @forelse($events as $event)
-    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mix {{ optional($event->eventType)->slug }}">
         <div class="main-card mt-4">
             <div class="event-thumbnail">
                 <a href="{{ route('event.details', $event->slug) }}" class="thumbnail-img">
-                    <img src="{{ asset('storage/' . $event->image) }}" alt="{{ $event->name }}" />
+                    <img src="{{ !empty($event->image) && file_exists(asset('storage/' . $event->image)) ? asset('storage/' . $event->image) : asset('images/no_image.jpg') }}" alt="{{ $event->name }}" />
                 </a>
                 <span class="bookmark-icon" title="Bookmark"></span>
             </div>

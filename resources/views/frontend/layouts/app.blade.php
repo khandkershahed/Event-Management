@@ -24,6 +24,7 @@
     <script src="{{ asset('frontend/vendor/mixitup/dist/mixitup.min.js') }}"></script>
     <script src="{{ asset('frontend/js/custom.js') }}"></script>
     <script src="{{ asset('frontend/js/night-mode.js') }}"></script>
+    @stack('scripts')
     <script>
       var containerEl = document.querySelector(
         '[data-ref~="event-filter-content"]'

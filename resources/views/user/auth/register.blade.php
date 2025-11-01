@@ -1,255 +1,187 @@
-{{-- <div class="container py-5 mb-5 mb-lg-0">
-    <div class="py-5 row">
-        <div class="col-lg-10 offset-lg-1">
-            <div class="border-0 card">
-                <div class="p-0 border-0 shadow-sm card-body">
-                    <div class="row g-0 align-items-center">
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <div class="col-lg-8 offset-lg-2">
-                                    <div class="">
-                                        <p class="pb-2">Welcome Here!</p>
-                                        <h2 class="mb-5 fw-bold">Register Now</h2>
-                                        <form method="POST" action="{{ route('register') }}">
-                                            @csrf
-                                            <!-- 2 column grid layout with text inputs for the first and last names -->
-                                            <div class="row">
-                                                <div class="mb-2 col-md-12 col-12">
-                                                    <div class="form-outline">
-                                                        <x-input-label class="form-label" for="name"
-                                                            :value="__('Name')" />
-                                                        <x-text-input id="name"
-                                                            class="form-control form-control-solid" type="text"
-                                                            name="name" :value="old('name')" required autofocus
-                                                            autocomplete="name" placeholder="" />
-                                                        <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                                                    </div>
-                                                </div>
-                                                <div class="mb-4 col-md-12 col-12">
-                                                    <div class="form-outline">
-                                                        <x-input-label class="form-label" for="email"
-                                                            :value="__('Email')" />
-                                                        <x-text-input id="email"
-                                                            class="form-control form-control-solid" type="email"
-                                                            name="email" :value="old('email')" required
-                                                            autocomplete="username" />
-                                                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="mb-4 col-md-6 col-12">
-                                                    <div class="form-outline">
-                                                        <x-input-label class="form-label" for="password"
-                                                            :value="__('Password')" />
-
-                                                        <x-text-input id="password"
-                                                            class="form-control form-control-solid" type="password"
-                                                            placeholder="********" name="password" required
-                                                            autocomplete="new-password" />
-                                                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
-                                                    </div>
-                                                </div>
-                                                <div class="mb-4 col-md-6 col-12">
-                                                    <div class="form-outline">
-                                                        <x-input-label class="form-label" for="password_confirmation"
-                                                            :value="__('Confirm Password')" />
-
-                                                        <x-text-input id="password_confirmation"
-                                                            class="form-control form-control-solid"
-                                                            placeholder="********" type="password"
-                                                            name="password_confirmation" required
-                                                            autocomplete="new-password" />
-                                                        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="pt-4">
-                                                <!-- Submit button -->
-                                                <x-primary-button class="px-4 btn btn-common-one rounded-pill w-100">
-                                                    {{ __('Register') }}
-                                                </x-primary-button>
-                                            </div>
-
-                                            <!-- Checkbox -->
-                                            <div
-                                                class="pt-4 mb-2 form-check d-flex justify-content-center align-items-center">
-                                                <h6 class="d-flex justify-content-start align-items-center">
-                                                    {{ __('Already registered?') }}
-                                                    <a href="{{ route('login') }}"
-                                                        class="btn btn-sm btn-link text-gray fw-bold fs-6">Log In</a>
-                                                </h6>
-                                            </div>
-
-                                        </form>
-                                    </div>
+<x-frontend-app-layout :title="'User Registration'">
+    <div class="container p-80">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-md-10">
+                <div class="app-top-items">
+                    <a href="index.html">
+                        <div class="sign-logo" id="logo">
+                            <img src="images/logo.svg" alt="" />
+                            <img class="logo-inverse" src="images/dark-logo.svg" alt="" />
+                        </div>
+                    </a>
+                    <div class="app-top-right-link">
+                        Already have an account?<a class="sidebar-register-link" href="{{ route('login') }}">Sign In</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xl-5 col-lg-6 col-md-7">
+                <div class="registration">
+                    <form method="POST" action="{{ route('register') }}" class="mt-3">
+                        @csrf
+                        <h2 class="registration-title">Sign up to {{ $setting->website_name }}</h2>
+                        <div class="row mt-3">
+                            <div class="col-lg-6 col-md-12">
+                                <div class="form-group mt-4">
+                                    <label class="form-label">Name*</label>
+                                    <input type="text" id="name" class="form-control h_50" name="name"
+                                        placeholder="Full Name" required value="{{ old('name') }}">
+                                    @error('name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
                                 </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12">
+                                <div class="form-group mt-4">
+                                    <label class="form-label">Phone</label>
+                                    <input type="text" id="phone" class="form-control h_50" name="phone"
+                                        placeholder="Phone Number" required value="{{ old('phone') }}">
+                                    @error('phone')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12">
+                                <div class="form-group mt-4">
+                                    <label class="form-label">Your Email*</label>
+                                    <input type="email" id="email" class="form-control h_50" name="email"
+                                        placeholder="Your Email*" required value="{{ old('email') }}">
+                                    @error('email')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12">
+                                <div class="form-group mt-4">
+                                    <div class="field-password">
+                                        <label class="form-label">Password*</label>
+                                    </div>
+                                    <div class="loc-group position-relative">
+                                        <input type="password" id="password" class="form-control h_50" name="password"
+                                            placeholder="Password" required />
+                                        <span class="pass-show-eye"><i class="fas fa-eye-slash"></i></span>
+                                    </div>
+                                    @error('password')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-6 col-md-12">
+                                <div class="form-group mt-4">
+                                    <div class="field-password">
+                                        <label class="form-label">Confirm Password*</label>
+                                    </div>
+                                    <div class="loc-group position-relative">
+                                        <input type="password" id="password_confirmation" class="form-control h_50"
+                                            name="password_confirmation" placeholder="Confirm Password" required>
+                                        <span class="pass-show-eye"><i class="fas fa-eye-slash"></i></span>
+                                    </div>
+                                    @error('password_confirmation')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-lg-12 col-md-12">
+                                <button class="main-btn btn-hover w-100 mt-4" type="submit">
+                                    Sign Up
+                                </button>
                             </div>
                         </div>
-
+                    </form>
+                    <div class="agree-text">
+                        By clicking "Sign up", you agree to {{ $setting->website_name }}
+                        <a href="#">Terms & Conditions</a> and have read the
+                        <a href="#">Privacy Policy</a>.
+                    </div>
+                    {{-- <div class="divider">
+                        <span>or</span>
+                    </div>
+                    <div class="social-btns-list mb-lg-5">
+                        <button class="social-login-btn">
+                            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 26.488 27.029">
+                                <g transform="translate(-0.126)">
+                                    <path
+                                        d="M1258.806,1021.475a11.578,11.578,0,0,0-.285-2.763h-12.688v5.015h7.448a6.605,6.605,0,0,1-2.763,4.384l-.025.168,4.012,3.108.278.028a13.214,13.214,0,0,0,4.024-9.941"
+                                        transform="translate(-1232.192 -1007.66)" fill="#4285f4"></path>
+                                    <path
+                                        d="M145.071,1502.921a12.881,12.881,0,0,0,8.949-3.273l-4.265-3.3a8,8,0,0,1-4.685,1.352,8.136,8.136,0,0,1-7.688-5.616l-.158.013-4.172,3.229-.055.152a13.5,13.5,0,0,0,12.073,7.448"
+                                        transform="translate(-131.431 -1475.893)" fill="#34a853"></path>
+                                    <path
+                                        d="M5.952,689.263a8.32,8.32,0,0,1-.45-2.673,8.744,8.744,0,0,1,.435-2.673l-.008-.179-4.224-3.28-.138.066a13.486,13.486,0,0,0,0,12.133l4.385-3.393"
+                                        transform="translate(0 -673.076)" fill="#fbbc05"></path>
+                                    <path
+                                        d="M145.071,5.225A7.49,7.49,0,0,1,150.3,7.238l3.814-3.724A12.984,12.984,0,0,0,145.071,0,13.5,13.5,0,0,0,133,7.448l4.37,3.394a8.169,8.169,0,0,1,7.7-5.616"
+                                        transform="translate(-131.431)" fill="#eb4335"></path>
+                                </g>
+                            </svg>
+                            Sign in with Google
+                        </button>
+                        <button class="social-login-btn">
+                            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                viewBox="0 0 27 27">
+                                <g transform="translate(0)">
+                                    <circle cx="13.5" cy="13.5" r="13.5" transform="translate(0 0)"
+                                        fill="#3b5998"></circle>
+                                    <path
+                                        d="M851.461,383.684h-3.1c-1.841,0-3.889.735-3.889,3.266.009.882,0,1.727,0,2.678h-2.13v3.215h2.2V402.1h4.035v-9.316h2.663l.241-3.163H848.5s.007-1.407,0-1.816c0-1,1.1-.943,1.164-.943.522,0,1.538,0,1.8,0v-3.176Z"
+                                        transform="translate(-833.401 -379.385)" fill="#fff"></path>
+                                </g>
+                            </svg>
+                            Sign in with Facebook
+                        </button>
+                    </div> --}}
+                    <div class="new-sign-link">
+                        Already have an account?<a class="signup-link" href="{{ route('login') }}">Sign In</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div> --}}
+    @push('scripts')
+        <script>
+            $(document).ready(function() {
+                // =============================
+                // Toggle Password Visibility
+                // =============================
+                $('.pass-show-eye').on('click', function() {
+                    const input = $(this).siblings('input');
+                    const icon = $(this).find('i');
 
-<!DOCTYPE html>
-<html lang="en">
+                    if (input.attr('type') === 'password') {
+                        input.attr('type', 'text');
+                        icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                    } else {
+                        input.attr('type', 'password');
+                        icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                    }
+                });
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register Now</title>
-    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+                // =====================================
+                // Realtime Confirm Password Checker
+                // =====================================
+                $('#password, #password_confirmation').on('keyup', function() {
+                    const password = $('#password').val();
+                    const confirm = $('#password_confirmation').val();
 
-    <style>
-        body {
-            background: #97989967;
-            font-family: 'Arial', sans-serif;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+                    // Remove previous message if exists
+                    $('#password_match_message').remove();
 
-        .container {
-            max-width: 900px;
-        }
+                    if (confirm.length > 0) {
+                        if (password === confirm) {
+                            $('#password_confirmation')
+                                .after(
+                                    '<span id="password_match_message" class="text-success mt-1 d-block">✅ Passwords match</span>'
+                                    );
+                        } else {
+                            $('#password_confirmation')
+                                .after(
+                                    '<span id="password_match_message" class="text-danger mt-1 d-block">❌ Passwords do not match</span>'
+                                    );
+                        }
+                    }
+                });
+            });
+        </script>
+    @endpush
 
-        .card {
-            border-radius: 5px;
-            overflow: hidden;
-        }
-
-        .card-body {
-            padding: 40px;
-        }
-
-        .form-control {
-            border-radius: 5px;
-            padding: 10px;
-        }
-
-        .btn-common-one {
-            background: #013c7a;
-            color: #fff;
-            font-weight: bold;
-            padding: 10px;
-            border-radius: 5px;
-            transition: 0.3s;
-        }
-
-        .btn-common-one:hover {
-            background: #0563c2;
-            color: #fff;
-        }
-
-        .input-group-text {
-            background: #f1f1f1;
-            border-radius: 10px 0 0 10px;
-            border: none;
-        }
-
-        .form-outline {
-            position: relative;
-        }
-
-        .form-outline i {
-            position: absolute;
-            top: 50%;
-            left: 10px;
-            transform: translateY(-50%);
-            color: #aaa;
-        }
-
-        .form-control {
-            padding-left: 20px;
-        }
-
-        .login-link {
-            text-decoration: none;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-        .login-link:hover {
-            color: #0a0a0a;
-        }
-    </style>
-</head>
-
-<body>
-
-    <div class="container py-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card shadow-sm">
-                    <div class="card-body">
-                        <p class="pb-1 text-center">Welcome Here!</p>
-                        <h2 class="mb-4 fw-bold text-center">Register Now</h2>
-
-                        <!-- Display Validation Errors -->
-                        @if ($errors->any())
-                            <div class="alert alert-danger mb-0">
-                                <p class="mb-0">
-                                    @foreach ($errors->all() as $error)
-                                        <span class="mb-0">{{ $error }}</span>
-                                    @endforeach
-                                </p>
-                            </div>
-                        @endif
-
-                        <form method="POST" action="{{ route('register') }}" class="mt-3">
-                            @csrf
-
-                            <!-- Name -->
-                            <div class="mb-3 form-outline">
-                                <i class="fas fa-user"></i>
-                                <input type="text" id="name" class="form-control" name="name"
-                                    placeholder="Full Name" required value="{{ old('name') }}">
-                            </div>
-
-                            <!-- Email -->
-                            <div class="mb-3 form-outline">
-                                <i class="fas fa-envelope"></i>
-                                <input type="email" id="email" class="form-control" name="email"
-                                    placeholder="Email Address" required value="{{ old('email') }}">
-                            </div>
-
-                            <!-- Password -->
-                            <div class="row">
-                                <div class="col-md-6 mb-3 form-outline">
-                                    <i class="fas fa-lock"></i>
-                                    <input type="password" id="password" class="form-control" name="password"
-                                        placeholder="Password" required>
-                                </div>
-                                <div class="col-md-6 mb-3 form-outline">
-                                    <i class="fas fa-lock"></i>
-                                    <input type="password" id="password_confirmation" class="form-control"
-                                        name="password_confirmation" placeholder="Confirm Password" required>
-                                </div>
-                            </div>
-
-                            <!-- Register Button -->
-                            <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-common-one">Register</button>
-                            </div>
-
-                            <!-- Already Registered? -->
-                            <div class="text-center mt-4">
-                                <p>Already registered? <a href="{{ route('login') }}" class="login-link">Log In</a></p>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</body>
-
-</html>
+</x-frontend-app-layout>
