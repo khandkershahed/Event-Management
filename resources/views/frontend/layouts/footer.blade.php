@@ -1,4 +1,4 @@
-<footer class="footer mt-auto">
+<footer class="mt-auto footer">
     <div class="footer-top">
         <div class="container">
             <div class="row">
@@ -76,8 +76,8 @@
                     <div class="footer-content">
                         <h4>Download Mobile App</h4>
                         <div class="download-app-link">
-                            <a href="#" class="download-btn"><img src="images/app-store.png" alt="" /></a>
-                            <a href="#" class="download-btn"><img src="images/google-play.png"
+                            <a href="#" class="download-btn"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/app-store.png" alt="" /></a>
+                            <a href="#" class="download-btn"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/google-play.png"
                                     alt="" /></a>
                         </div>
                     </div>
@@ -92,7 +92,7 @@
                     <div class="footer-copyright-text">
                         <p class="mb-0">
                             © 2025, <strong>FlixzaGlobal</strong>. All rights reserved. Powered
-                            by Gambolthemes
+                            by Event Trailor
                         </p>
                     </div>
                 </div>

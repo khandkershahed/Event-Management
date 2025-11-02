@@ -59,7 +59,7 @@ table, caption, tbody, tfoot, thead, tr, th, td,
 article, aside, canvas, details, embed, 
 figure, figcaption, footer, header, hgroup, 
 menu, nav, output, ruby, section, summary,
-time, mark, audio, video ::-ms-ticks-after{
+time, mark, audio, video{
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -735,7 +735,8 @@ body {
 }
 
 .hero-banner {
-	background-image: url(../images/banner.html);
+	/* background-image: url(../images/banner.html); */
+	background-image: url(https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/banner.jpg);
     background-position: center center;
     background-repeat: no-repeat;
     background-size: cover;

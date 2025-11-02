@@ -28,7 +28,7 @@
                         <h3>Explore Events</h3>
                     </div>
                 </div>
-                {{-- <div class="col-xl-12 col-lg-12 col-md-12">
+                <!-- <div class="col-xl-12 col-lg-12 col-md-12">
                     <div class="event-filter-items">
                         <div class="featured-controls">
                             <div class="filter-tag">
@@ -49,44 +49,44 @@
                                     All
                                 </button>
                                 @foreach ($event_types as $type)
-                                    <button type="button" class="control" data-filter=".{{ $type->slug }}">
-                                        {{ $type->name }}
-                                    </button>
+                                <button type="button" class="control" data-filter=".{{ $type->slug }}">
+                                    {{ $type->name }}
+                                </button>
                                 @endforeach
                             </div>
                             <div class="row" data-ref="event-filter-content">
                                 @foreach ($events as $event)
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mix {{ $type->slug }}"
-                                        data-ref="mixitup-target">
-                                        <div class="main-card mt-4">
-                                            <div class="event-thumbnail">
-                                                <a href="venue_event_detail_view.html" class="thumbnail-img">
-                                                    <img src="images/event-imgs/img-1.jpg" alt="" />
-                                                </a>
-                                                <span class="bookmark-icon" title="Bookmark"></span>
+                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mix {{ $type->slug }}"
+                                    data-ref="mixitup-target">
+                                    <div class="mt-4 main-card">
+                                        <div class="event-thumbnail">
+                                            <a href="venue_event_detail_view.html" class="thumbnail-img">
+                                                <img src="images/event-imgs/img-1.jpg" alt="" />
+                                            </a>
+                                            <span class="bookmark-icon" title="Bookmark"></span>
+                                        </div>
+                                        <div class="event-content">
+                                            <a href="venue_event_detail_view.html" class="event-title">A New Way Of
+                                                Life</a>
+                                            <div class="duration-price-remaining">
+                                                <span class="duration-price">AUD $100.00*</span>
+                                                <span class="remaining"></span>
                                             </div>
-                                            <div class="event-content">
-                                                <a href="venue_event_detail_view.html" class="event-title">A New Way Of
-                                                    Life</a>
-                                                <div class="duration-price-remaining">
-                                                    <span class="duration-price">AUD $100.00*</span>
-                                                    <span class="remaining"></span>
+                                        </div>
+                                        <div class="event-footer">
+                                            <div class="event-timing">
+                                                <div class="publish-date">
+                                                    <span><i class="fa-solid fa-calendar-day me-2"></i>15
+                                                        Apr</span>
+                                                    <span class="dot"><i class="fa-solid fa-circle"></i></span>
+                                                    <span>Fri, 3.45 PM</span>
                                                 </div>
-                                            </div>
-                                            <div class="event-footer">
-                                                <div class="event-timing">
-                                                    <div class="publish-date">
-                                                        <span><i class="fa-solid fa-calendar-day me-2"></i>15
-                                                            Apr</span>
-                                                        <span class="dot"><i class="fa-solid fa-circle"></i></span>
-                                                        <span>Fri, 3.45 PM</span>
-                                                    </div>
-                                                    <span class="publish-time"><i
-                                                            class="fa-solid fa-clock me-2"></i>1h</span>
-                                                </div>
+                                                <span class="publish-time"><i
+                                                        class="fa-solid fa-clock me-2"></i>1h</span>
                                             </div>
                                         </div>
                                     </div>
+                                </div>
                                 @endforeach
                             </div>
                             <div class="browse-btn">
@@ -94,7 +94,7 @@
                             </div>
                         </div>
                     </div>
-                </div> --}}
+                </div> -->
                 <div class="col-xl-12 col-lg-12 col-md-12">
                     <div class="event-filter-items">
                         <div class="featured-controls">
@@ -106,20 +106,19 @@
                                 <a href="#" class="date-filter" data-value="this_weekend">This Weekend</a>
                                 <a href="#" class="date-filter" data-value="next_week">Next Week</a>
                                 <a href="#" class="date-filter" data-value="this_month">This Month</a>
-                                {{-- Add the rest of your date filters here --}}
                             </div>
 
                             @if ($event_types->isNotEmpty())
-                                <div class="controls">
-                                    <button type="button" class="control" data-filter="all">
-                                        All
-                                    </button>
-                                    @foreach ($event_types as $type)
-                                        <button type="button" class="control" data-filter=".{{ $type->slug }}">
-                                            {{ $type->name }}
-                                        </button>
-                                    @endforeach
-                                </div>
+                            <div class="controls">
+                                <button type="button" class="control" data-filter="all">
+                                    All
+                                </button>
+                                @foreach ($event_types as $type)
+                                <button type="button" class="control" data-filter=".{{ $type->slug }}">
+                                    {{ $type->name }}
+                                </button>
+                                @endforeach
+                            </div>
                             @endif
                             <div class="row" data-ref="event-filter-content">
                                 @include('frontend.layouts.event_grid', compact('events'))
@@ -133,7 +132,7 @@
             </div>
         </div>
     </div>
-    {{-- <div class="host-engaging-event-block p-80">
+    <div class="host-engaging-event-block p-80">
         <div class="container">
             <div class="row">
                 <div class="col-lg-10">
@@ -153,7 +152,7 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="images/icons/venue-events.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/venue-events.png" alt="" />
                                         </div>
                                         <h4>Venue Events</h4>
                                         <p>
@@ -167,7 +166,7 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="images/icons/webinar.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/webinar.png" alt="" />
                                         </div>
                                         <h4>Webinar</h4>
                                         <p>
@@ -181,7 +180,7 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="images/icons/training-workshop.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/training-workshop.png" alt="" />
                                         </div>
                                         <h4>Training & Workshop</h4>
                                         <p>
@@ -195,7 +194,7 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="images/icons/online-class.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/online-class.png" alt="" />
                                         </div>
                                         <h4>Online Class</h4>
                                         <p>
@@ -209,7 +208,7 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="images/icons/talk-show.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/talk-show.png" alt="" />
                                         </div>
                                         <h4>Talk Show</h4>
                                         <p>
@@ -246,7 +245,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-1.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-1.png" alt="" />
                                     </div>
                                     <h4>Online Events</h4>
                                     <p>
@@ -258,7 +257,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-2.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-2.png" alt="" />
                                     </div>
                                     <h4>Venue Event</h4>
                                     <p>
@@ -270,7 +269,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-3.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-3.png" alt="" />
                                     </div>
                                     <h4>Engaging Event Page</h4>
                                     <p>
@@ -282,7 +281,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-4.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-4.png" alt="" />
                                     </div>
                                     <h4>Marketing Automation</h4>
                                     <p>
@@ -294,7 +293,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-5.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-5.png" alt="" />
                                     </div>
                                     <h4>Sell Tickets</h4>
                                     <p>
@@ -306,7 +305,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-6.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-6.png" alt="" />
                                     </div>
                                     <h4>Networking</h4>
                                     <p>
@@ -318,7 +317,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-7.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-7.png" alt="" />
                                     </div>
                                     <h4>Recording</h4>
                                     <p>
@@ -330,7 +329,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-8.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-8.png" alt="" />
                                     </div>
                                     <h4>Live Streaming</h4>
                                     <p>
@@ -342,7 +341,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-9.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-9.png" alt="" />
                                     </div>
                                     <h4>Engagement Metrics</h4>
                                     <p>
@@ -354,7 +353,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-10.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-10.png" alt="" />
                                     </div>
                                     <h4>Security & Support</h4>
                                     <p>
@@ -366,7 +365,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-11.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-11.png" alt="" />
                                     </div>
                                     <h4>Reports & Analytics</h4>
                                     <p>
@@ -378,7 +377,7 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="images/icons/feature-icon-12.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-12.png" alt="" />
                                     </div>
                                     <h4>Mobile & Desktop App</h4>
                                     <p>
@@ -437,7 +436,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-1.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-1.png" alt="" />
                                             </div>
                                             <h4>Sign up for free</h4>
                                             <p>
@@ -449,7 +448,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-2.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-2.png" alt="" />
                                             </div>
                                             <h4>Use built-in event page template</h4>
                                             <p>
@@ -461,11 +460,11 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-3.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-3.png" alt="" />
                                             </div>
                                             <h4>Customise your event page as you like</h4>
                                             <p>
-                                                Add logo, collage hero images, and add details to
+                                                Add logo, collage hero https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/ and add details to
                                                 create an outstanding event page.
                                             </p>
                                         </div>
@@ -483,7 +482,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-4.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-4.png" alt="" />
                                             </div>
                                             <h4>Promote your events on social media & email</h4>
                                             <p>
@@ -495,7 +494,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-5.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-5.png" alt="" />
                                             </div>
                                             <h4>
                                                 Use early-bird discounts, coupons & group ticketing
@@ -509,7 +508,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-6.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-6.png" alt="" />
                                             </div>
                                             <h4>Get paid quickly & securely</h4>
                                             <p>
@@ -531,7 +530,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-7.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-7.png" alt="" />
                                             </div>
                                             <h4>Free event hosting</h4>
                                             <p>
@@ -543,7 +542,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-8.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-8.png" alt="" />
                                             </div>
                                             <h4>Built-in video conferencing platform</h4>
                                             <p>
@@ -556,7 +555,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-9.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-9.png" alt="" />
                                             </div>
                                             <h4>Connect your attendees with your event</h4>
                                             <p>
@@ -577,7 +576,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-10.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-10.png" alt="" />
                                             </div>
                                             <h4>Create multiple sessions & earn more</h4>
                                             <p>
@@ -589,7 +588,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-11.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-11.png" alt="" />
                                             </div>
                                             <h4>Clone past event to create similar events</h4>
                                             <p>
@@ -601,7 +600,7 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="images/icons/step-icon-12.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-12.png" alt="" />
                                             </div>
                                             <h4>Get support like nowhere else</h4>
                                             <p>
@@ -803,7 +802,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12">
-                    <div class="main-title text-center">
+                    <div class="text-center main-title">
                         <h3>
                             321+ events created by thousands of organisations around the
                             globe
@@ -815,27 +814,27 @@
                         <div class="owl-carousel organisations-slider owl-theme">
                             <div class="item">
                                 <div class="sponsor">
-                                    <a href="#"><img src="images/icons/sponsor-1.png" alt="" /></a>
+                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-1.png" alt="" /></a>
                                 </div>
                             </div>
                             <div class="item">
                                 <div class="sponsor">
-                                    <a href="#"><img src="images/icons/sponsor-2.png" alt="" /></a>
+                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-2.png" alt="" /></a>
                                 </div>
                             </div>
                             <div class="item">
                                 <div class="sponsor">
-                                    <a href="#"><img src="images/icons/sponsor-3.png" alt="" /></a>
+                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-3.png" alt="" /></a>
                                 </div>
                             </div>
                             <div class="item">
                                 <div class="sponsor">
-                                    <a href="#"><img src="images/icons/sponsor-4.png" alt="" /></a>
+                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-4.png" alt="" /></a>
                                 </div>
                             </div>
                             <div class="item">
                                 <div class="sponsor">
-                                    <a href="#"><img src="images/icons/sponsor-5.png" alt="" /></a>
+                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-5.png" alt="" /></a>
                                 </div>
                             </div>
                             <div class="item">
@@ -853,63 +852,62 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
     @push('scripts')
-        <script>
-            $(document).ready(function() {
-                // Keep track of filters
-                let currentDateFilter = 'all';
-                let currentCategorySlug = 'all';
+    <script>
+        $(document).ready(function() {
+            // Keep track of filters
+            let currentDateFilter = 'all';
+            let currentCategorySlug = 'all';
 
-                // Date filter click
-                $('.date-filter').on('click', function(e) {
-                    e.preventDefault();
-                    $('.date-filter').removeClass('active');
-                    $(this).addClass('active');
-                    currentDateFilter = $(this).data('value');
-                    fetchEvents(1, false); // Fetch page 1, replace content
-                });
-
-                // Category filter click
-                $('.control').on('click', function(e) {
-                    e.preventDefault();
-                    $('.control').removeClass('active');
-                    $(this).addClass('active');
-                    currentCategorySlug = $(this).data('filter').replace('.', '');
-                    // alert(currentCategorySlug);
-                    fetchEvents(1, false);
-                });
-
-                // Fetch events via AJAX
-                function fetchEvents(page = 1, append = false) {
-                    // alert(page);
-                    $.ajax({
-                        url: "{{ route('events.fetch') }}",
-                        method: 'GET',
-                        data: {
-                            page: page,
-                            date_filter: currentDateFilter,
-                            category_slug: currentCategorySlug,
-                        },
-                        beforeSend: function() {
-                            $('[data-ref="event-filter-content"]').html(
-                                '<div class="col-12 text-center py-5"><h5>Loading...</h5></div>');
-                        },
-                        success: function(response) {
-                            if (!append) {
-                                $('[data-ref="event-filter-content"]').html(response.html);
-                            } else {
-                                $('[data-ref="event-filter-content"]').append(response.html);
-                            }
-                        },
-                        error: function(xhr) {
-                            console.log(xhr.responseText);
-                        }
-                    });
-                }
+            // Date filter click
+            $('.date-filter').on('click', function(e) {
+                e.preventDefault();
+                $('.date-filter').removeClass('active');
+                $(this).addClass('active');
+                currentDateFilter = $(this).data('value');
+                fetchEvents(1, false); // Fetch page 1, replace content
             });
 
-        </script>
+            // Category filter click
+            $('.control').on('click', function(e) {
+                e.preventDefault();
+                $('.control').removeClass('active');
+                $(this).addClass('active');
+                currentCategorySlug = $(this).data('filter').replace('.', '');
+                // alert(currentCategorySlug);
+                fetchEvents(1, false);
+            });
+
+            // Fetch events via AJAX
+            function fetchEvents(page = 1, append = false) {
+                // alert(page);
+                $.ajax({
+                    url: "{{ route('events.fetch') }}",
+                    method: 'GET',
+                    data: {
+                        page: page,
+                        date_filter: currentDateFilter,
+                        category_slug: currentCategorySlug,
+                    },
+                    beforeSend: function() {
+                        $('[data-ref="event-filter-content"]').html(
+                            '<div class="py-5 text-center col-12"><h5>Loading...</h5></div>');
+                    },
+                    success: function(response) {
+                        if (!append) {
+                            $('[data-ref="event-filter-content"]').html(response.html);
+                        } else {
+                            $('[data-ref="event-filter-content"]').append(response.html);
+                        }
+                    },
+                    error: function(xhr) {
+                        console.log(xhr.responseText);
+                    }
+                });
+            }
+        });
+    </script>
     @endpush
 
 </x-frontend-app-layout>
