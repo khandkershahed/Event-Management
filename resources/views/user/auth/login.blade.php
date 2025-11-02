@@ -1,170 +1,105 @@
 <x-frontend-app-layout :title="'User Login'">
-    <div class="container p-80">
-        <div class="row justify-content-center">
-            <div class="col-lg-10 col-md-10">
-                <div class="app-top-items">
-                    <a href="index.html">
-                        <div class="sign-logo" id="logo">
-                            <img src="images/logo.svg" alt="" />
-                            <img class="logo-inverse" src="images/dark-logo.svg" alt="" />
-                        </div>
+    <style>
+        header {
+            display: none;
+        }
+
+        .wrapper {
+            margin-top: 0px;
+        }
+
+        footer {
+            display: none;
+        }
+    </style>
+    <div class="bg-white form-wrapper">
+        <div class="app-form d-flex justify-content-between align-items-center">
+            <div class="app-form-sidebar">
+                <div class="sidebar-sign-logo">
+                    <a href="{{ route('homepage') }}">
+                        <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}" alt="">
                     </a>
-                    <div class="app-top-right-link">
-                        New to {{ $setting->website_name }}?<a class="sidebar-register-link" href="sign_up.html">Sign
-                            up</a>
-                    </div>
+                </div>
+                <div class="sign_sidebar_text">
+                    <h1>The Easiest Way to Create Events and Sell More Tickets Online</h1>
                 </div>
             </div>
-            <div class="col-xl-5 col-lg-6 col-md-7">
-                <div class="registration">
-                    <form method="POST" action="{{ route('login') }}" class="mt-3">
-                        @csrf
-                        <h2 class="registration-title">Sign in to {{ $setting->website_name }}</h2>
-                        <div class="form-group mt-5">
-                            <label class="form-label">Your Email*</label>
-                            <input class="form-control h_50" type="email" name="email"
-                                placeholder="Enter your email" required value="{{ old('email') }}" />
-                            @error('email')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        <div class="form-group mt-4">
-                            <div class="field-password">
-                                <label class="form-label">Password*</label>
-                                <a class="forgot-pass-link" href="{{ route('password.request') }}">Forgot Password?</a>
+            <div class="app-form-content ">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10 col-md-10">
+                            <div class="app-top-items">
+                                <a href="{{ route('homepage') }}">
+                                    <div class="sign-logo" id="logo">
+                                        <img src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}" alt="">
+                                        <img class="logo-inverse" src="{{ !empty($setting->site_logo_black) && file_exists(public_path('storage/' . $setting->site_logo_black)) ? asset('storage/' . $setting->site_logo_black) : asset('images/logo.webp') }}" alt="">
+                                    </div>
+                                </a>
                             </div>
-                            <div class="loc-group position-relative">
-                                <input class="form-control h_50" type="password" name="password" placeholder="Enter your password" />
-                                <span class="pass-show-eye"><i class="fas fa-eye-slash"></i></span>
-                            </div>
-                            @error('password')
-                                <span class="text-danger">{{ $message }}</span>
-                            @enderror
                         </div>
-                        <button class="main-btn btn-hover w-100 mt-4" type="submit">
-                            Sign In <i class="fas fa-sign-in-alt ms-2"></i>
-                        </button>
-                    </form>
-                    {{-- <div class="divider">
-                        <span>or</span>
+                        <div class="col-xl-5 col-lg-6 col-md-7">
+                            <div class="registration">
+                                <form method="POST" action="{{ route('login') }}" class="mt-3">
+                                    @csrf
+                                    <h2 class="registration-title">Sign in to {{ $setting->website_name }}</h2>
+                                    <div class="mt-5 form-group">
+                                        <label class="form-label">Your Email*</label>
+                                        <input class="form-control h_50" type="email" name="email" placeholder="Enter your email" value="{{ old('email') }}">
+                                        @error('email')
+                                        <span class="text-danger">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="mt-4 form-group">
+                                        <div class="field-password">
+                                            <label class="form-label">Password*</label>
+                                            <a class="forgot-pass-link" href="{{ route('password.request') }}">Forgot Password?</a>
+                                        </div>
+                                        <div class="loc-group position-relative">
+                                            <input class="form-control h_50" type="password" name="password" placeholder="Enter your password">
+                                            <span class="pass-show-eye"><i class="fas fa-eye-slash"></i></span>
+                                            @error('password')
+                                            <span class="text-danger">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <button class="mt-4 main-btn btn-hover w-100" type="button" onclick="window.location.href='index.html'">Sign In <i class="fas fa-sign-in-alt ms-2"></i></button>
+                                </form>
+                                <div class="mt-5 text-center app-top-right-link">
+                                    New to Barren?<a class="sidebar-register-link" href="{{ route('register') }}">Sign up</a>
+                                </div>
+                                <div class="new-sign-link">
+                                    New to Barren?<button class="signup-link" type="submit">Sign up</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="social-btns-list">
-                        <button class="social-login-btn">
-                            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 26.488 27.029">
-                                <g transform="translate(-0.126)">
-                                    <path
-                                        d="M1258.806,1021.475a11.578,11.578,0,0,0-.285-2.763h-12.688v5.015h7.448a6.605,6.605,0,0,1-2.763,4.384l-.025.168,4.012,3.108.278.028a13.214,13.214,0,0,0,4.024-9.941"
-                                        transform="translate(-1232.192 -1007.66)" fill="#4285f4"></path>
-                                    <path
-                                        d="M145.071,1502.921a12.881,12.881,0,0,0,8.949-3.273l-4.265-3.3a8,8,0,0,1-4.685,1.352,8.136,8.136,0,0,1-7.688-5.616l-.158.013-4.172,3.229-.055.152a13.5,13.5,0,0,0,12.073,7.448"
-                                        transform="translate(-131.431 -1475.893)" fill="#34a853"></path>
-                                    <path
-                                        d="M5.952,689.263a8.32,8.32,0,0,1-.45-2.673,8.744,8.744,0,0,1,.435-2.673l-.008-.179-4.224-3.28-.138.066a13.486,13.486,0,0,0,0,12.133l4.385-3.393"
-                                        transform="translate(0 -673.076)" fill="#fbbc05"></path>
-                                    <path
-                                        d="M145.071,5.225A7.49,7.49,0,0,1,150.3,7.238l3.814-3.724A12.984,12.984,0,0,0,145.071,0,13.5,13.5,0,0,0,133,7.448l4.37,3.394a8.169,8.169,0,0,1,7.7-5.616"
-                                        transform="translate(-131.431)" fill="#eb4335"></path>
-                                </g>
-                            </svg>
-                            Sign in with Google
-                        </button>
-                        <button class="social-login-btn">
-                            <svg class="me-2" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 27 27">
-                                <g transform="translate(0)">
-                                    <circle cx="13.5" cy="13.5" r="13.5" transform="translate(0 0)"
-                                        fill="#3b5998"></circle>
-                                    <path
-                                        d="M851.461,383.684h-3.1c-1.841,0-3.889.735-3.889,3.266.009.882,0,1.727,0,2.678h-2.13v3.215h2.2V402.1h4.035v-9.316h2.663l.241-3.163H848.5s.007-1.407,0-1.816c0-1,1.1-.943,1.164-.943.522,0,1.538,0,1.8,0v-3.176Z"
-                                        transform="translate(-833.401 -379.385)" fill="#fff"></path>
-                                </g>
-                            </svg>
-                            Sign in with Facebook
-                        </button>
-                    </div>
-                    <div class="new-sign-link">
-                        New to {{ $setting->website_name }}?<a class="signup-link" href="sign_up.html">Sign up</a>
-                    </div> --}}
+                </div>
+                <div class="copyright-footer">
+                    © 2025, <strong>FlixzaGlobal</strong>. All rights reserved. Powered
+                    by {{ $setting->website_name }}
                 </div>
             </div>
         </div>
     </div>
     @push('scripts')
-        <script>
-            $(document).ready(function() {
-                // =============================
-                // Toggle Password Visibility
-                // =============================
-                $('.pass-show-eye').on('click', function() {
-                    const input = $(this).siblings('input');
-                    const icon = $(this).find('i');
+    <script>
+        $(document).ready(function() {
+            // =============================
+            // Toggle Password Visibility
+            // =============================
+            $('.pass-show-eye').on('click', function() {
+                const input = $(this).siblings('input');
+                const icon = $(this).find('i');
 
-                    if (input.attr('type') === 'password') {
-                        input.attr('type', 'text');
-                        icon.removeClass('fa-eye-slash').addClass('fa-eye');
-                    } else {
-                        input.attr('type', 'password');
-                        icon.removeClass('fa-eye').addClass('fa-eye-slash');
-                    }
-                });
+                if (input.attr('type') === 'password') {
+                    input.attr('type', 'text');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                } else {
+                    input.attr('type', 'password');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                }
             });
-        </script>
+        });
+    </script>
     @endpush
 </x-frontend-app-layout>
-{{--
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <p class="pb-1 text-center">Welcome Here!</p>
-                    <h2 class="mb-4 fw-bold text-center">Login Now</h2>
-
-                    <!-- Display Validation Errors -->
-                    @if ($errors->any())
-                        <div class="alert alert-danger mb-0">
-                            <p class="mb-0">
-                                @foreach ($errors->all() as $error)
-                                    <span class="mb-0">{{ $error }}</span>
-                                @endforeach
-                            </p>
-                        </div>
-                    @endif
-
-                    <form method="POST" action="{{ route('login') }}" class="mt-3">
-                        @csrf
-
-                        <!-- Email -->
-                        <div class="mb-3 form-outline">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" id="email" class="form-control" name="email"
-                                placeholder="Email Address" required value="{{ old('email') }}">
-                        </div>
-
-                        <!-- Password -->
-                        <div class="row">
-                            <div class="col-md-12 mb-3 form-outline">
-                                <i class="fas fa-lock"></i>
-                                <input type="password" id="password" class="form-control" name="password"
-                                    placeholder="Password" required>
-                            </div>
-                        </div>
-
-                        <!-- Login Button -->
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-common-one">Login Now</button>
-                        </div>
-
-                        <!-- No Registered? -->
-                        <div class="text-center mt-4">
-                            <p>No have any account? <a href="{{ route('register') }}" class="login-link">Register</a>
-                            </p>
-                        </div>
-
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> --}}

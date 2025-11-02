@@ -173,4 +173,59 @@ class HomeController extends Controller
         
         return view('frontend.pages.aboutUs');
     }
+    public function faq()
+    {
+        
+        return view('frontend.pages.faq');
+    }
+    public function contactUs()
+    {
+
+        return view('frontend.pages.contactUs');
+    }
+    public function helpCenter()
+    {
+
+        return view('frontend.pages.helpCenter');
+    }
+    public function sellTicketOnline()
+    {
+
+        return view('frontend.pages.sellTicketOnline');
+    }
+    public function privacyPolicy()
+    {
+
+        return view('frontend.pages.privacyPolicy');
+    }
+    public function termsConditions()
+    {
+
+        return view('frontend.pages.termsConditions');
+    }
+    public function blog()
+    {
+
+        return view('frontend.pages.blog');
+    }
+    public function referFriend()
+    {
+
+        return view('frontend.pages.referFriend');
+    }
+    public function eventCreate()
+    {
+
+        return view('frontend.pages.eventCreate');
+    }
+    public function onlineEventCreate()
+    {
+
+        return view('frontend.pages.onlineEventCreate');
+    }
+    public function venueEventCreate()
+    {
+
+        return view('frontend.pages.venueEventCreate');
+    }
 }
