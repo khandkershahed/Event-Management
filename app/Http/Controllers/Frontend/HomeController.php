@@ -168,4 +168,9 @@ class HomeController extends Controller
             }
         }
     }
+    public function aboutUs()
+    {
+        
+        return view('frontend.pages.aboutUs');
+    }
 }
