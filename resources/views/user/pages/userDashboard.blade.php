@@ -4,75 +4,8 @@
             display: none;
         }
     </style>
-    <nav class="vertical_nav">
-        <div class="left_section menu_left" id="js-menu">
-            <div class="left_section">
-                <ul>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard.html" class="menu--link active" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Dashboard">
-                            <i class="fa-solid fa-gauge menu--icon"></i>
-                            <span class="menu--label">Dashboardass</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_events.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Events">
-                            <i class="fa-solid fa-calendar-days menu--icon"></i>
-                            <span class="menu--label">Events</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_promotion.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Promotion">
-                            <i class="fa-solid fa-rectangle-ad menu--icon"></i>
-                            <span class="menu--label">Promotion</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_contact_lists.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Contact List">
-                            <i class="fa-regular fa-address-card menu--icon"></i>
-                            <span class="menu--label">Contact List</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_payout.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Payouts">
-                            <i class="fa-solid fa-credit-card menu--icon"></i>
-                            <span class="menu--label">Payouts</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_reports.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Reports">
-                            <i class="fa-solid fa-chart-pie menu--icon"></i>
-                            <span class="menu--label">Reports</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_subscription.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Subscription">
-                            <i class="fa-solid fa-bahai menu--icon"></i>
-                            <span class="menu--label">Subscription</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_conversion_setup.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Conversion Setup">
-                            <i class="fa-solid fa-square-plus menu--icon"></i>
-                            <span class="menu--label">Conversion Setup</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_about.html" class="menu--link" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="About">
-                            <i class="fa-solid fa-circle-info menu--icon"></i>
-                            <span class="menu--label">About</span>
-                        </a>
-                    </li>
-                    <li class="menu--item">
-                        <a href="my_organisation_dashboard_my_team.html" class="menu--link team-lock" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="My Team">
-                            <i class="fa-solid fa-user-group menu--icon"></i>
-                            <span class="menu--label">My Team</span>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    <div class="pt-3 mt-2 wrapper wrapper-body">
+    @include('user.layout.sidebar')
+    <div class="wrapper wrapper-body">
         <div class="pt-0 dashboard-body">
             <div class="container-fluid">
                 <div class="row">

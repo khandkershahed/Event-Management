@@ -816,7 +816,7 @@ body {
 /* --- Index Page --- */
 
 .wrapper {
-    margin-top: 60px;
+    margin-top: 20px;
 }
 
 .hero-banner {
@@ -2503,7 +2503,7 @@ body {
     background-position: center center;
     position: absolute;
     inset: 0px;
-    background-image: url(https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/banners/hero-cover-01.html);
+    background-image: url(https://gambolthemes.net/html-items/barren-html/disable-demo-link/images/banners/hero-cover-01.jpg);
     filter: none;
     transition: all 0.12s ease-in-out 0s;
     opacity: 1;
@@ -4039,7 +4039,7 @@ body {
 }
 
 .subscription-bg {
-    background: url(https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/banners/subscription-bg.html)
+    background: url(https://gambolthemes.net/html-items/barren-html/disable-demo-link/images/banners/subscription-bg.png)
         no-repeat center/cover;
     margin-bottom: 16px;
     padding: 28px;

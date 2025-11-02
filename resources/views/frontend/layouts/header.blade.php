@@ -45,10 +45,15 @@
                             <li class="nav-item">
                                 <a class="nav-link active" aria-current="page" href="{{ route('homepage') }}">Home</a>
                             </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('all.events') }}">
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     Explore Events
                                 </a>
+                                <ul class="dropdown-menu dropdown-submenu">
+                                    <li><a class="dropdown-item" href="{{ route('all.events') }}">Explore Events</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('venue.event.create') }}">Venue Event Detail View</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('online.event.create') }}">Online Event Detail View</a></li>
+                                </ul>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{route('blog')}}">
@@ -96,7 +101,7 @@
                         </li>
                         @auth
                         <li class="dropdown account-dropdown">
-                            <a href="#" class="account-link" role="button" id="accountClick"
+                            <a href="{{ route('user.my.profile') }}" class="account-link" role="button" id="accountClick"
                                 data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
                                 <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
                                     alt="" />
@@ -116,7 +121,7 @@
                                 </li>
                                 <li class="profile-link">
                                     <a href="{{ route('user.dashboard') }}" class="link-item">My Dashboard</a>
-                                    <a href="" class="link-item">My Profile</a>
+                                    <a href="{{ route('user.my.profile') }}" class="link-item">My Profile</a>
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button onclick="this.form.submit()" class="bg-white border-0 link-item text-start">Sign Out</button>
