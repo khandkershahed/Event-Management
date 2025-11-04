@@ -816,7 +816,7 @@ body {
 /* --- Index Page --- */
 
 .wrapper {
-    margin-top: 20px;
+    margin-top: 60px;
 }
 
 .hero-banner {
@@ -3030,10 +3030,6 @@ body {
 
 .modal-footer {
     border-top: 1px solid #efefef !important;
-}
-
-.modal-body {
-    padding: 0 !important;
 }
 
 .model-content {
