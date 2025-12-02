@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use Carbon\Carbon;
 use App\Models\Event;
+use App\Models\Venue;
 use App\Models\EventType;
 use App\Models\EventImage;
+use App\Models\SeatingPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -17,7 +19,7 @@ use Illuminate\Support\Facades\Validator;
 class EventController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of events.
      */
     public function index()
     {
@@ -27,78 +29,82 @@ class EventController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form to create a new event.
      */
     public function create()
     {
         return view('admin.pages.event.create', [
-            'event_types' => EventType::latest()->active()->get(),
+            'event_types'   => EventType::latest()->active()->get(),
+            'venues'        => Venue::orderBy('name')->get(),
+            'seating_plans' => collect(), // initially empty until venue selected
         ]);
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created event.
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'event_type_id'        => 'nullable|exists:event_types,id',
-            'name'                 => 'required|string|max:255|unique:events,name',
-            'slug'                 => 'nullable|string|max:255|unique:events,slug',
-            'tagline'              => 'nullable|string|max:255',
-            'description'          => 'nullable|string',
-            'logo'                 => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'image'                => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'banner_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'organizer_logo'       => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'video_teaser_url'     => 'nullable|url',
-            'location_map_url'     => 'nullable|url',
-            'start_date'           => 'nullable|date',
-            'end_date'             => 'nullable|date|after_or_equal:start_date',
-            'start_time'           => 'nullable|date_format:H:i',
-            'end_time'             => 'nullable|date_format:H:i',
-            'venue'                => 'nullable|string',
-            'is_featured'          => 'nullable|boolean',
-            'organizer_name'       => 'nullable|string|max:255',
-            'organizer_brand'      => 'nullable|string|max:255',
-            'purchase_deadline'    => 'nullable|date',
-            'total_capacity'       => 'nullable|integer|min:0',
-            'age_restriction'      => 'nullable|string|max:50',
+            'event_type_id'     => 'nullable|exists:event_types,id',
+            'name'              => 'required|string|max:255|unique:events,name',
+            'slug'              => 'nullable|string|max:255|unique:events,slug',
+            'venue_id'          => 'required|exists:venues,id',
+            'seating_plan_id'   => 'required|exists:seating_plans,id',
+            'tagline'           => 'nullable|string|max:255',
+            'description'       => 'nullable|string',
+            'logo'              => 'nullable|image|max:2048',
+            'image'             => 'nullable|image|max:2048',
+            'banner_image'      => 'nullable|image|max:2048',
+            'organizer_logo'    => 'nullable|image|max:2048',
+            'venue_image'       => 'nullable|image|max:2048',
+            'video_teaser_url'  => 'nullable|url',
+            'location_map_url'  => 'nullable|url',
+            'start_date'        => 'nullable|date',
+            'end_date'          => 'nullable|date|after_or_equal:start_date',
+            'start_time'        => 'nullable',
+            'end_time'          => 'nullable',
+            'venue'             => 'nullable|string',
+            'is_featured'       => 'nullable|boolean',
+            'organizer_name'    => 'nullable|string',
+            'organizer_brand'   => 'nullable|string',
+            'purchase_deadline' => 'nullable|date',
+            'total_capacity'    => 'nullable|integer|min:0',
+            'age_restriction'   => 'nullable|string|max:50',
             'terms_and_conditions' => 'nullable|string',
-            'status'               => 'required|in:active,inactive',
+            'status'            => 'required|in:active,inactive',
         ]);
 
         if ($validator->fails()) {
-            foreach ($validator->errors()->all() as $error) {
-                Session::flash('error', $error, ['timeOut' => 30000]);
+            foreach ($validator->errors()->all() as $err) {
+                Session::flash('error', $err);
             }
-            return redirect()->back()->withInput();
+            return back()->withInput();
         }
 
         DB::beginTransaction();
 
         try {
+
             // Handle file uploads
             $files = [
-                'logo'         => $request->file('logo'),
-                'image'        => $request->file('image'),
-                'banner_image' => $request->file('banner_image'),
-                'organizer_logo' => $request->file('organizer_logo'),
-                'venue_image' => $request->file('venue_image'),
+                'logo',
+                'image',
+                'banner_image',
+                'organizer_logo',
+                'venue_image'
             ];
 
-            $uploadedFiles = [];
+            $uploaded = [];
 
-            foreach ($files as $key => $file) {
-                if (!empty($file)) {
-                    $filePath = 'events/' . $key;
-                    $uploadedFiles[$key] = customUpload($file, $filePath);
-                    if ($uploadedFiles[$key]['status'] === 0) {
-                        throw new \Exception($uploadedFiles[$key]['error_message']);
+            foreach ($files as $key) {
+                if ($request->hasFile($key)) {
+                    $upload = customUpload($request->file($key), 'events/' . $key);
+                    if ($upload['status'] === 0) {
+                        throw new \Exception($upload['error_message']);
                     }
-                } else {
-                    $uploadedFiles[$key] = ['status' => 0];
-                }
+                    $uploaded[$key] = $upload['file_path'];
+                } else $uploaded[$key] = null;
             }
 
             // Create event
@@ -108,11 +114,13 @@ class EventController extends Controller
                 'slug'                 => $request->slug,
                 'tagline'              => $request->tagline,
                 'description'          => $request->description,
-                'logo'                 => $uploadedFiles['logo']['status'] == 1 ? $uploadedFiles['logo']['file_path'] : null,
-                'image'                => $uploadedFiles['image']['status'] == 1 ? $uploadedFiles['image']['file_path'] : null,
-                'banner_image'         => $uploadedFiles['banner_image']['status'] == 1 ? $uploadedFiles['banner_image']['file_path'] : null,
-                'organizer_logo'       => $uploadedFiles['organizer_logo']['status'] == 1 ? $uploadedFiles['organizer_logo']['file_path'] : null,
-                'venue_image'          => $uploadedFiles['venue_image']['status'] == 1 ? $uploadedFiles['venue_image']['file_path'] : null,
+                'logo'                 => $uploaded['logo'],
+                'image'                => $uploaded['image'],
+                'banner_image'         => $uploaded['banner_image'],
+                'organizer_logo'       => $uploaded['organizer_logo'],
+                'venue_image'          => $uploaded['venue_image'],
+                'venue_id'             => $request->venue_id,
+                'seating_plan_id'      => $request->seating_plan_id,
                 'video_teaser_url'     => $request->video_teaser_url,
                 'location_map_url'     => $request->location_map_url,
                 'start_date'           => $request->start_date,
@@ -131,209 +139,162 @@ class EventController extends Controller
                 'added_by'             => Auth::guard('admin')->user()->name ?? 'system',
             ]);
 
+            // Multi images
             if ($request->hasFile('multi_images')) {
-                foreach ($request->file('multi_images') as $image) {
-                    if ($image) {
-                        $multiImageUpload = customUpload($image, 'events/multi_images');
-                        if ($multiImageUpload['status'] === 0) {
-                            return redirect()->back()->with('error', $multiImageUpload['error_message']);
-                        }
-                        EventImage::create([
-                            'event_id'   => $event->id,
-                            'image'      => $multiImageUpload['file_path'],
-                            'created_at' => Carbon::now(),
-                        ]);
+                foreach ($request->file('multi_images') as $img) {
+                    $upload = customUpload($img, 'events/multi_images');
+                    if ($upload['status'] === 0) {
+                        throw new \Exception($upload['error_message']);
                     }
+                    EventImage::create([
+                        'event_id' => $event->id,
+                        'image'    => $upload['file_path'],
+                        'created_at' => now(),
+                    ]);
                 }
             }
 
             DB::commit();
 
-            return redirect()->back()->with('success', 'Event created successfully!');
+            return redirect()->route('admin.event.index')
+                ->with('success', 'Event created successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            Session::flash('error', 'An error occurred while creating the event: ' . $e->getMessage(), ['timeOut' => 30000]);
-            return redirect()->back()->withInput();
+            Session::flash('error', 'Error: ' . $e->getMessage());
+            return back()->withInput();
         }
     }
 
-
-
     /**
-     * Display the specified resource.
+     * Show the form for editing an event.
      */
-    public function show(string $id)
+    public function edit($id)
     {
-        //
-    }
+        $event = Event::findOrFail($id);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
         return view('admin.pages.event.edit', [
-            'event' => Event::findOrFail($id),
-            'event_types' => EventType::latest()->active()->get(),
+            'event'         => $event,
+            'event_types'   => EventType::latest()->active()->get(),
+            'venues'        => Venue::orderBy('name')->get(),
+            'seating_plans' => SeatingPlan::where('venue_id', $event->venue_id)->get(),
         ]);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified event.
      */
     public function update(Request $request, Event $event)
     {
         $validator = Validator::make($request->all(), [
-            'event_type_id'        => 'required|exists:event_types,id',
-            'name'                 => 'required|string|max:200|unique:events,name,' . $event->id,
-            'status'               => 'required|in:active,inactive',
-            'tagline'              => 'nullable|string|max:255',
-            'description'          => 'nullable|string',
-            'logo'                 => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'image'                => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'banner_image'         => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'video_teaser_url'     => 'nullable|url',
-            'location_map_url'     => 'nullable|url',
-            'start_date'           => 'nullable|date',
-            'end_date'             => 'nullable|date|after_or_equal:start_date',
-            // 'start_time'           => 'nullable|date_format:H:i',
-            // 'end_time'             => 'nullable|date_format:H:i',
-            'venue'                => 'nullable|string',
-            'organizer_name'       => 'nullable|string|max:255',
-            'organizer_brand'      => 'nullable|string|max:255',
-            'purchase_deadline'    => 'nullable|date',
-            'total_capacity'       => 'nullable|integer|min:0',
-            'age_restriction'      => 'nullable|string|max:100',
-            'is_featured'          => 'nullable|boolean',
-            'terms_and_conditions' => 'nullable|string',
+            'event_type_id'     => 'required|exists:event_types,id',
+            'venue_id'          => 'required|exists:venues,id',
+            'seating_plan_id'   => 'required|exists:seating_plans,id',
+            'name'              => 'required|string|max:255|unique:events,name,' . $event->id,
+            'tagline'           => 'nullable|string|max:255',
+            'description'       => 'nullable|string',
+            'logo'              => 'nullable|image|max:2048',
+            'image'             => 'nullable|image|max:2048',
+            'banner_image'      => 'nullable|image|max:2048',
+            'organizer_logo'    => 'nullable|image|max:2048',
+            'venue_image'       => 'nullable|image|max:2048',
+            'video_teaser_url'  => 'nullable|url',
+            'location_map_url'  => 'nullable|url',
+            'start_date'        => 'nullable|date',
+            'end_date'          => 'nullable|date|after_or_equal:start_date',
+            'status'            => 'required|in:active,inactive',
         ]);
 
         if ($validator->fails()) {
-            foreach ($validator->errors()->all() as $error) {
-                Session::flash('error', $error, ['timeOut' => 30000]);
+            foreach ($validator->errors()->all() as $err) {
+                Session::flash('error', $err);
             }
-            return redirect()->back()->withInput();
+            return back()->withInput();
         }
 
         DB::beginTransaction();
 
         try {
-            $files = [
-                'logo'         => $request->file('logo'),
-                'image'        => $request->file('image'),
-                'banner_image' => $request->file('banner_image'),
-                'organizer_logo' => $request->file('organizer_logo'),
-                'venue_image' => $request->file('venue_image'),
-            ];
 
-            $uploadedFiles = [];
+            // Image fields
+            $files = ['logo', 'image', 'banner_image', 'organizer_logo', 'venue_image'];
 
-            foreach ($files as $key => $file) {
-                if (!empty($file)) {
-                    $filePath = 'event/' . $key;
-                    $oldFile  = $event->$key ?? null;
-
-                    if ($oldFile && Storage::disk('public')->exists($oldFile)) {
-                        Storage::disk('public')->delete($oldFile);
+            foreach ($files as $key) {
+                if ($request->hasFile($key)) {
+                    $upload = customUpload($request->file($key), 'events/' . $key);
+                    if ($upload['status'] === 0) {
+                        throw new \Exception($upload['error_message']);
                     }
 
-                    $uploadedFiles[$key] = customUpload($file, $filePath);
-                    if ($uploadedFiles[$key]['status'] === 0) {
-                        return redirect()->back()->with('error', $uploadedFiles[$key]['error_message']);
+                    if ($event->$key && Storage::disk('public')->exists($event->$key)) {
+                        Storage::disk('public')->delete($event->$key);
                     }
-                } else {
-                    $uploadedFiles[$key] = ['status' => 0];
+
+                    $event->$key = $upload['file_path'];
                 }
             }
 
+            // Update event
             $event->update([
-                'event_type_id'        => $request->event_type_id,
-                'name'                 => $request->name,
-                'status'               => $request->status,
-                'tagline'              => $request->tagline,
-                'description'          => $request->description,
-                'logo'                 => $uploadedFiles['logo']['status'] == 1 ? $uploadedFiles['logo']['file_path'] : $event->logo,
-                'image'                => $uploadedFiles['image']['status'] == 1 ? $uploadedFiles['image']['file_path'] : $event->image,
-                'banner_image'         => $uploadedFiles['banner_image']['status'] == 1 ? $uploadedFiles['banner_image']['file_path'] : $event->banner_image,
-                'organizer_logo'       => $uploadedFiles['organizer_logo']['status'] == 1 ? $uploadedFiles['organizer_logo']['file_path'] : $event->organizer_logo,
-                'venue_image'          => $uploadedFiles['venue_image']['status'] == 1 ? $uploadedFiles['venue_image']['file_path'] : $event->venue_image,
-                'video_teaser_url'     => $request->video_teaser_url,
-                'location_map_url'     => $request->location_map_url,
-                'start_date'           => $request->start_date,
-                'end_date'             => $request->end_date,
-                'start_time'           => $request->start_time,
-                'end_time'             => $request->end_time,
-                'venue'                => $request->venue,
-                'organizer_name'       => $request->organizer_name,
-                'organizer_brand'      => $request->organizer_brand,
-                'purchase_deadline'    => $request->purchase_deadline,
-                'total_capacity'       => $request->total_capacity,
-                'age_restriction'      => $request->age_restriction,
-                'is_featured'          => $request->is_featured ?? 0,
+                'event_type_id'   => $request->event_type_id,
+                'venue_id'        => $request->venue_id,
+                'seating_plan_id' => $request->seating_plan_id,
+                'name'            => $request->name,
+                'tagline'         => $request->tagline,
+                'description'     => $request->description,
+                'video_teaser_url' => $request->video_teaser_url,
+                'location_map_url' => $request->location_map_url,
+                'start_date'      => $request->start_date,
+                'end_date'        => $request->end_date,
+                'start_time'      => $request->start_time,
+                'end_time'        => $request->end_time,
+                'venue'           => $request->venue,
+                'organizer_name'  => $request->organizer_name,
+                'organizer_brand' => $request->organizer_brand,
+                'purchase_deadline' => $request->purchase_deadline,
+                'total_capacity'    => $request->total_capacity,
+                'age_restriction'   => $request->age_restriction,
+                'is_featured'       => $request->is_featured ?? 0,
                 'terms_and_conditions' => $request->terms_and_conditions,
-                'updated_by'           => Auth::guard('admin')->user()->name ?? 'system',
+                'status'           => $request->status,
+                'updated_by'       => Auth::guard('admin')->user()->name ?? 'system',
             ]);
 
-            // Handle multiple image uploads
-            if ($request->hasFile('multi_img')) {
-                foreach ($request->file('multi_img') as $image) {
-                    if ($image) {
-                        $multiImageUpload = customUpload($image, 'events/multi_images');
-                        if ($multiImageUpload['status'] === 0) {
-                            return redirect()->back()->with('error', $multiImageUpload['error_message']);
-                        }
-                        EventImage::create([
-                            'event_id'   => $event->id,
-                            'image'      => $multiImageUpload['file_path'],
-                            'created_at' => Carbon::now(),
-                        ]);
-                    }
-                }
-            }
-
-            // Handle deletion of removed images
-            if ($request->input('remove_images')) {
-                $imagesToRemove = json_decode($request->input('remove_images'), true);
-                foreach ($imagesToRemove as $imageId) {
-                    $image = EventImage::find($imageId);
-                    if ($image) {
-                        if ($image->photo && Storage::exists("public/" . $image->photo)) {
-                            Storage::delete("public/" . $image->photo);
-                        }
-                        $image->delete();
-                    }
+            // Multi images
+            if ($request->hasFile('multi_images')) {
+                foreach ($request->file('multi_images') as $img) {
+                    $upload = customUpload($img, 'events/multi_images');
+                    EventImage::create([
+                        'event_id' => $event->id,
+                        'image'    => $upload['file_path'],
+                    ]);
                 }
             }
 
             DB::commit();
-            Session::flash('success', 'Event updated successfully!', ['timeOut' => 30000]);
-            return redirect()->back();
+
+            return back()->with('success', 'Event updated successfully!');
         } catch (\Exception $e) {
             DB::rollBack();
-            Session::flash('error', 'An error occurred while updating the event: ' . $e->getMessage(), ['timeOut' => 30000]);
-            return redirect()->back()->withInput();
+            Session::flash('error', 'Error: ' . $e->getMessage());
+            return back()->withInput();
         }
     }
 
-
     /**
-     * Remove the specified resource from storage.
+     * Destroy event.
      */
     public function destroy(Event $event)
     {
-        $files = [
-            'logo'         => $event->logo,
-            'image'        => $event->image,
-            'banner_image' => $event->banner_image,
-        ];
-        foreach ($files as $key => $file) {
-            if (! empty($file)) {
-                $oldFile = $event->$key ?? null;
-                if ($oldFile && Storage::disk('public')->exists($oldFile)) {
-                    Storage::disk('public')->delete($oldFile);
-                }
+        $files = ['logo', 'image', 'banner_image'];
+
+        foreach ($files as $key) {
+            if ($event->$key && Storage::disk('public')->exists($event->$key)) {
+                Storage::disk('public')->delete($event->$key);
             }
         }
+
         $event->delete();
+
+        return redirect()->route('admin.event.index')->with('success', 'Event deleted.');
     }
 }

@@ -1,10 +1,3 @@
-@php
-    /**
-     * admin-seatmap-designer.blade.php
-     * Complete Blade file for Admin Seat Map Designer
-     */
-@endphp
-
 <x-admin-app-layout :title="'Event Seat Map Designer'">
     <div class="card card-flash">
         <div class="card-header mt-6">
@@ -486,9 +479,9 @@
                         // compute offset for clone
                         const pos = currentContextTarget.position();
                         const newLeft = Math.min(pos.left + 20, container.width() - currentContextTarget
-                        .width());
+                            .width());
                         const newTop = Math.min(pos.top + 20, container.height() - currentContextTarget
-                        .height());
+                            .height());
                         clone.css({
                             left: newLeft + 'px',
                             top: newTop + 'px'
@@ -515,7 +508,7 @@
                         clone.remove();
                         makeSectionElement(newId, currentContextTarget.data('label') || currentContextTarget
                             .find('h6').text(), newLeft, newTop, width, height, rotation, isStage, seatsData
-                            );
+                        );
                         serializeDesign();
                     } else if (action === 'add-seat') {
                         // Add seat: instruct admin to click location inside section (or double-click to add instantly)

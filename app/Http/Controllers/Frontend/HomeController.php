@@ -75,7 +75,7 @@ class HomeController extends Controller
             Session::flash('error', 'An error occurred while fetching event details.');
             return redirect()->back();
         }
-    }
+    } 
 
     public function allEvents(Request $request)
     {
@@ -170,12 +170,12 @@ class HomeController extends Controller
     }
     public function aboutUs()
     {
-        
+
         return view('frontend.pages.aboutUs');
     }
     public function faq()
     {
-        
+
         return view('frontend.pages.faq');
     }
     public function contactUs()

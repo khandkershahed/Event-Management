@@ -36,10 +36,16 @@ class Event extends Model
         return $this->hasMany(EventImage::class);
     }
     // eventSeats
-    public function eventSeats()
+    public function seatingPlan()
     {
-        return $this->hasMany(EventSeat::class);
+        return $this->belongsTo(SeatingPlan::class);
     }
+
+    public function tickets()
+    {
+        return $this->hasMany(EventTicket::class);
+    }
+
     // In app/Models/Event.php
 
     // Example for getting a price

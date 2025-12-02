@@ -1,210 +1,408 @@
-<!-- Modal -->
-<style>
-    /* Use Inter font family */
-    body {
-        font-family: 'Inter', sans-serif;
-        background-color: #f8f9fa;
-        /* bg-gray-100 */
-    }
+<!-- ===========================
+     SEAT SELECTOR MODAL
+=========================== -->
+<div class="modal fade" id="seatSelectorModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
 
-    /* Custom orange color for Bootstrap primary button (matches image) */
-    .btn-primary {
-        --bs-btn-bg: #F97316;
-        --bs-btn-border-color: #F97316;
-        --bs-btn-hover-bg: #EA580C;
-        --bs-btn-hover-border-color: #EA580C;
-        --bs-btn-active-bg: #EA580C;
-        --bs-btn-active-border-color: #EA580C;
-        --bs-btn-disabled-bg: #F97316;
-        --bs-btn-disabled-border-color: #F97316;
-        --bs-btn-focus-shadow-rgb: 249, 115, 22, 0.5;
-    }
-
-    .btn-check:focus+.btn-primary,
-    .btn-primary:focus {
-        --bs-btn-bg: #EA580C;
-        --bs-btn-border-color: #EA580C;
-        box-shadow: 0 0 0 0.25rem rgba(249, 115, 22, 0.5);
-    }
-
-    /* Custom seat button sizing */
-    .seat {
-        width: 2.25rem;
-        /* 36px */
-        height: 2.25rem;
-        /* 36px */
-        font-size: 0.75rem;
-        /* 12px */
-        padding: 0.25rem;
-        line-height: 1.5;
-        /* Adjust for Bootstrap button vertical alignment */
-    }
-
-    /* Custom styles for occupied seats */
-    .seat.occupied {
-        background-color: #E5E7EB;
-        border-color: #D1D5DB;
-        color: #9CA3AF;
-    }
-
-    /* Ensure selected seat stays orange and text is white */
-    .seat.btn-primary {
-        color: #ffffff;
-    }
-
-    /* Match the bg-slate-50 color */
-    .bg-slate-50 {
-        background-color: #f8fafc;
-    }
-
-    /* Ensure modal content can scroll */
-    .modal-content {
-        max-height: 90vh;
-    }
-
-    .modal-body {
-        overflow-y: auto;
-    }
-</style>
-<div class="modal fade" id="bookingModal" tabindex="-1" aria-labelledby="bookingModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="shadow-lg modal-content rounded-3">
-
-            <!-- Modal Header -->
-            <div class="p-4 modal-header border-bottom-0">
-                <h5 class="modal-title fs-5 fw-semibold text-dark" id="bookingModalLabel">Book Your Seat</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <!-- HEADER -->
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">Select Your Seats</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- Modal Body -->
-            <div class="p-0 modal-body">
-                <!-- Two-column layout -->
-                <div class="row g-0">
+            <!-- BODY -->
+            <div class="modal-body p-0 d-flex">
 
-                    <!-- Left Column: Seat Selection -->
-                    <div class="p-4 col-lg-8 p-md-5">
-                        <h6 class="mb-4 fs-6 fw-semibold text-dark">Select Your Seats</h6>
+                <!-- LEFT: SEAT MAP -->
+                <div class="flex-grow-1 bg-light position-relative">
 
-                        <!-- Screen visual -->
-                        <div style="background-color: #E5E7EB; height: 0.5rem;" class="mx-auto mb-3 rounded w-75"></div>
-                        <p class="mb-4 text-center text-muted small">SCREEN</p>
-
-                        <!-- Seat Grid -->
-                        <div class="flex-wrap gap-2 mx-auto d-flex justify-content-center" style="max-width: 320px;">
-                            <!-- Row A -->
-                            <button class="seat" data-seat="A1">A1</button>
-                            <button class="seat" data-seat="A2">A2</button>
-                            <button class="seat occupied" data-seat="A3" disabled>A3</button>
-                            <button class="seat" data-seat="A4">A4</button>
-                            <button class="seat" data-seat="A5">A5</button>
-                            <button class="seat" data-seat="A6">A6</button>
-                            <button class="seat occupied" data-seat="A7" disabled>A7</button>
-                            <button class="seat" data-seat="A8">A8</button>
-
-                            <!-- Row B -->
-                            <button class="seat" data-seat="B1">B1</button>
-                            <button class="seat" data-seat="B2">B2</button>
-                            <button class="seat" data-seat="B3">B3</button>
-                            <button class="seat" data-seat="B4">B4</button>
-                            <button class="seat occupied" data-seat="B5" disabled>B5</button>
-                            <button class="seat" data-seat="B6">B6</button>
-                            <button class="seat" data-seat="B7">B7</button>
-                            <button class="seat" data-seat="B8">B8</button>
-
-                            <!-- Row C -->
-                            <button class="seat" data-seat="C1">C1</button>
-                            <button class="seat" data-seat="C2">C2</button>
-                            <button class="seat" data-seat="C3">C3</button>
-                            <button class="seat" data-seat="C4">C4</button>
-                            <button class="seat" data-seat="C5">C5</button>
-                            <button class="seat" data-seat="C6">C6</button>
-                            <button class="seat" data-seat="C7">C7</button>
-                            <button class="seat" data-seat="C8">C8</button>
-
-                            <!-- Row D -->
-                            <button class="seat" data-seat="D1">D1</button>
-                            <button class="seat" data-seat="D2">D2</button>
-                            <button class="seat" data-seat="D3">D3</button>
-                            <button class="seat" data-seat="D4">D4</button>
-                            <button class="seat" data-seat="D5">D5</button>
-                            <button class="seat occupied" data-seat="D6" disabled>D6</button>
-                            <button class="seat" data-seat="D7">D7</button>
-                            <button class="seat" data-seat="D8">D8</button>
-
-                            <!-- Row E -->
-                            <button class="seat" data-seat="E1">E1</button>
-                            <button class="seat" data-seat="E2">E2</button>
-                            <button class="seat" data-seat="E3">E3</button>
-                            <button class="seat" data-seat="E4">E4</button>
-                            <button class="seat" data-seat="E5">E5</button>
-                            <button class="seat" data-seat="E6">E6</button>
-                            <button class="seat" data-seat="E7">E7</button>
-                            <button class="seat" data-seat="E8">E8</button>
-                        </div>
-
-                        <!-- Legend -->
-                        <div class="gap-4 mt-4 d-flex justify-content-center">
-                            <div class="gap-2 d-flex align-items-center">
-                                <div class="border rounded" style="width: 1rem; height: 1rem; border-color: #6c757d!important;"></div>
-                                <span class="small">Available</span>
-                            </div>
-                            <div class="gap-2 d-flex align-items-center">
-                                <div class="rounded" style="width: 1rem; height: 1rem; background-color: #F97316;"></div>
-                                <span class="small">Selected</span>
-                            </div>
-                            <div class="gap-2 d-flex align-items-center">
-                                <div class="border rounded" style="width: 1rem; height: 1rem; background-color: #E5E7EB; border-color: #D1D5DB;"></div>
-                                <span class="small">Occupied</span>
-                            </div>
-                        </div>
+                    <div class="px-3 py-2 shadow-sm bg-white small">
+                        <strong>Tips:</strong>
+                        Drag to move • Scroll to zoom • Click seats to select
                     </div>
 
-                    <!-- Right Column: Order Summary (Styled like the screenshot) -->
-                    <div class="p-4 col-lg-4 bg-slate-50 border-start p-md-5">
+                    <div id="seatMapContainer" style="width: 100%; height: calc(100vh - 120px);"></div>
+                </div>
 
-                        <!-- Event Image -->
-                        <img src="https://placehold.co/600x400/1E1B2E/FFFFFF?text=Getting+Paid+To+Talk"
-                            alt="Event: Getting Paid to Talk"
-                            class="mb-4 img-fluid rounded-3">
+                <!-- RIGHT: TICKET TYPE + SELECTED SEATS -->
+                <div style="width: 380px;" class="border-start bg-white p-3">
 
-                        <h6 class="mb-4 fs-5 fw-semibold text-dark">Order Summary</h6>
+                    <h5 class="fw-bold mb-3">Choose Ticket Type</h5>
 
-                        <div class="gap-2 d-flex flex-column">
-                            <p class="mb-1 fw-semibold text-dark">Selected Seats:</p>
-                            <!-- List of selected seats -->
-                            <ul id="selectedSeatsList" class="mb-2 text-muted small ps-4">
-                                <!-- JS will populate this -->
-                                <li id="noSeats" class="text-muted" style="list-style: none; margin-left: -1rem;">No seats selected</li>
-                            </ul>
+                    <select id="ticketTypeSelector" class="form-select mb-4">
+                        <option value="">Select Ticket Type</option>
+                        @foreach ($ticketTypes as $ticket)
+                            <option value="{{ $ticket->id }}">
+                                {{ $ticket->name }} — ৳{{ number_format($ticket->price, 2) }}
+                            </option>
+                        @endforeach
+                    </select>
 
-                            <hr class="my-2">
+                    <h5 class="fw-bold mb-3">Selected Seats</h5>
 
-                            <!-- Totals -->
-                            <div class="d-flex justify-content-between align-items-center text-dark">
-                                <p class="mb-0">Total Tickets:</p>
-                                <p class="mb-0 fw-semibold" id="totalTickets">0</p>
-                            </div>
-                            <div class="d-flex justify-content-between align-items-center text-dark">
-                                <p class="mb-0">Price per Ticket:</p>
-                                <p class="mb-0 fw-semibold" id="ticketPrice">$44.52</p>
-                            </div>
-
-                            <!-- Final Total -->
-                            <div class="pt-2 d-flex justify-content-between align-items-center fs-5 fw-bold text-dark">
-                                <p class="mb-0">Total</p>
-                                <p class="mb-0" id="totalPrice">$0.00</p>
-                            </div>
-                        </div>
-
-                        <!-- Checkout Button -->
-                        <button type="button" id="checkoutBtn" class="py-2 mt-4 btn btn-primary w-100 fw-semibold">
-                            Proceed to Checkout
-                        </button>
+                    <div id="selectedSeatsList" class="border p-2 rounded bg-light small"
+                        style="max-height: 300px; overflow-y: auto;">
+                        <p class="text-muted m-0">No seats selected.</p>
                     </div>
+
+                    <button id="addToCartBtn" class="btn btn-primary w-100 mt-4" disabled>
+                        Add to Cart
+                    </button>
 
                 </div>
             </div>
-
         </div>
     </div>
 </div>
+
+<!-- BUTTON (already included in event page) -->
+{{-- <button id="openSeatSelectorButton" class="main-btn w-100" data-bs-toggle="modal" data-bs-target="#seatSelectorModal">Select Seats</button> --}}
+
+@push('scripts')
+    <!-- Konva JS -->
+    <script src="https://cdn.jsdelivr.net/npm/konva@9.3.3/konva.min.js"></script>
+
+    <script>
+        /* ==========================================================
+       GLOBAL STATE
+    ========================================================== */
+        let stage, layer;
+        window.SEAT_SHAPES = {};
+        window.userSelectedSeats = new Set();
+        window.seatStatusMap = @json($seatStatuses);
+
+        const EVENT_ID = "{{ $event->id }}";
+        const DESIGN_JSON = @json($designJson);
+
+        /* ==========================================================
+           INITIALIZE MAP WHEN MODAL OPENS
+        ========================================================== */
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById("openSeatSelectorButton")
+                ?.addEventListener("click", initSeatMap);
+        });
+
+        /* ==========================================================
+           INIT SEAT MAP
+        ========================================================== */
+        function initSeatMap() {
+            const container = document.getElementById("seatMapContainer");
+            if (!container) return;
+
+            container.innerHTML = "";
+
+            stage = new Konva.Stage({
+                container: "seatMapContainer",
+                width: container.offsetWidth,
+                height: container.offsetHeight,
+                draggable: true
+            });
+
+            layer = new Konva.Layer();
+            stage.add(layer);
+
+            addZoomHandlers();
+            renderMapFromJSON();
+        }
+
+        /* ==========================================================
+           RENDER MAP FROM DESIGN JSON
+        ========================================================== */
+        function renderMapFromJSON() {
+            if (!Array.isArray(DESIGN_JSON)) {
+                console.error("Invalid design_json");
+                return;
+            }
+
+            DESIGN_JSON.forEach(node => {
+                switch (node.type) {
+                    case "SECTION":
+                        drawSection(node);
+                        break;
+                    case "SEAT":
+                        drawSeat(node);
+                        break;
+                    case "LABEL":
+                        drawLabel(node);
+                        break;
+                }
+            });
+
+            layer.draw();
+        }
+
+        /* ==========================================================
+           DRAW SECTION
+        ========================================================== */
+        function drawSection(sec) {
+            layer.add(new Konva.Rect({
+                x: sec.x,
+                y: sec.y,
+                width: sec.width,
+                height: sec.height,
+                fill: 'rgba(0,0,0,0.04)',
+                stroke: '#555',
+                strokeWidth: 1,
+                cornerRadius: 4
+            }));
+
+            layer.add(new Konva.Text({
+                x: sec.x,
+                y: sec.y - 18,
+                text: sec.name ?? "Section",
+                fontSize: 14
+            }));
+        }
+
+        /* ==========================================================
+           DRAW LABEL
+        ========================================================== */
+        function drawLabel(node) {
+            layer.add(new Konva.Text({
+                x: node.x,
+                y: node.y,
+                text: node.text || "",
+                fontSize: node.fontSize || 18,
+                fontStyle: "bold",
+                fill: node.color || "#333"
+            }));
+        }
+
+        /* ==========================================================
+           DRAW SEAT
+        ========================================================== */
+        function drawSeat(node) {
+
+            const id = node.db_id;
+            if (!id) return;
+
+            const status = seatStatusMap[id] || "available";
+
+            const seat = new Konva.Circle({
+                x: node.x,
+                y: node.y,
+                radius: 10,
+                fill: seatColor(status),
+                stroke: "#222",
+                strokeWidth: 1,
+                opacity: status === "locked" ? 0.6 : 1
+            });
+
+            window.SEAT_SHAPES[id] = seat;
+
+            seat.on("mouseover", () => showTooltip(seat, node.label));
+            seat.on("mouseout", hideTooltip);
+
+            seat.on("click", () => onSeatClick(id, seat));
+
+            layer.add(seat);
+        }
+
+        /* ==========================================================
+           SEAT COLOR BASED ON STATUS
+        ========================================================== */
+        function seatColor(status) {
+            return {
+                available: "#2ecc71",
+                locked: "#f1c40f",
+                sold: "#e74c3c"
+            } [status] || "#bdc3c7";
+        }
+
+        /* ==========================================================
+           HANDLE SEAT CLICK
+        ========================================================== */
+        function onSeatClick(id, shape) {
+            const status = seatStatusMap[id];
+
+            if (status === "sold") return;
+            if (status === "locked" && !userSelectedSeats.has(id)) return;
+
+            if (userSelectedSeats.has(id)) {
+                shape.fill(seatColor("available"));
+                unselectSeat(id);
+                unlockSeat(id);
+            } else {
+                shape.fill("#3498db");
+                selectSeat(id);
+                lockSeat(id);
+            }
+
+            shape.draw();
+        }
+
+        /* ==========================================================
+           MARK SELECTED / UNSELECTED
+        ========================================================== */
+        function selectSeat(id) {
+            userSelectedSeats.add(id);
+            refreshSelectedSeatList();
+        }
+
+        function unselectSeat(id) {
+            userSelectedSeats.delete(id);
+            refreshSelectedSeatList();
+        }
+
+        /* ==========================================================
+           UPDATE SELECTED SEAT SIDEBAR
+        ========================================================== */
+        function refreshSelectedSeatList() {
+            const box = document.getElementById("selectedSeatsList");
+            const btn = document.getElementById("addToCartBtn");
+
+            if (userSelectedSeats.size === 0) {
+                box.innerHTML = `<p class="text-muted m-0">No seats selected.</p>`;
+                btn.disabled = true;
+                return;
+            }
+
+            btn.disabled = false;
+
+            let html = "";
+            userSelectedSeats.forEach(id => {
+                html += `<div class="p-2 bg-white border mb-2 rounded">Seat ID: ${id}</div>`;
+            });
+
+            box.innerHTML = html;
+        }
+
+        /* ==========================================================
+           LOCK SEAT ON SERVER
+        ========================================================== */
+        function lockSeat(id) {
+            fetch("{{ route('frontend.seat.lock', $event->id) }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    seat_id: id
+                })
+            });
+        }
+
+        /* ==========================================================
+           UNLOCK SEAT
+        ========================================================== */
+        function unlockSeat(id) {
+            fetch("{{ route('frontend.seat.unlock', $event->id) }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    seat_id: id
+                })
+            });
+        }
+
+        /* ==========================================================
+           ZOOM HANDLER
+        ========================================================== */
+        function addZoomHandlers() {
+            let scaleFactor = 1.06;
+
+            stage.on("wheel", e => {
+                e.evt.preventDefault();
+
+                let oldScale = stage.scaleX();
+                let pointer = stage.getPointerPosition();
+                let mousePoint = {
+                    x: pointer.x / oldScale - stage.x() / oldScale,
+                    y: pointer.y / oldScale - stage.y() / oldScale
+                };
+
+                let newScale = e.evt.deltaY > 0 ? oldScale / scaleFactor : oldScale * scaleFactor;
+
+                stage.scale({
+                    x: newScale,
+                    y: newScale
+                });
+
+                let newPos = {
+                    x: -(mousePoint.x - pointer.x / newScale) * newScale,
+                    y: -(mousePoint.y - pointer.y / newScale) * newScale
+                };
+
+                stage.position(newPos);
+                stage.batchDraw();
+            });
+        }
+
+        /* ==========================================================
+           TOOLTIP
+        ========================================================== */
+        let tooltipLayer = new Konva.Layer();
+        let tooltip = new Konva.Label({
+            visible: false,
+            opacity: 0.75
+        });
+
+        tooltip.add(new Konva.Tag({
+            fill: "black",
+            pointerDirection: "down",
+            pointerWidth: 10,
+            pointerHeight: 10,
+        }));
+
+        tooltip.add(new Konva.Text({
+            text: "",
+            fontSize: 14,
+            padding: 5,
+            fill: "white"
+        }));
+
+        tooltipLayer.add(tooltip);
+
+        document.addEventListener("DOMContentLoaded", () => {
+            stage?.add(tooltipLayer);
+        });
+
+        function showTooltip(shape, text) {
+            tooltip.visible(true);
+            tooltip.position({
+                x: shape.x(),
+                y: shape.y() - 22
+            });
+            tooltip.getText().text(text || "Seat");
+            tooltipLayer.batchDraw();
+        }
+
+        function hideTooltip() {
+            tooltip.visible(false);
+            tooltipLayer.batchDraw();
+        }
+
+        /* ==========================================================
+           ADD TO CART
+        ========================================================== */
+        document.getElementById("addToCartBtn").addEventListener("click", () => {
+            const ticketType = document.getElementById("ticketTypeSelector").value;
+
+            if (!ticketType) {
+                alert("Select a ticket type first.");
+                return;
+            }
+
+            userSelectedSeats.forEach(id => {
+                fetch("{{ route('frontend.cart.add', $event->id) }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify({
+                        seat_id: id,
+                        ticket_type: ticketType
+                    })
+                });
+            });
+
+            window.location.href = "{{ route('frontend.cart') }}";
+        });
+    </script>
+@endpush
