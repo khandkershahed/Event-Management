@@ -32,7 +32,11 @@ class SeatingSection extends Model
 
     public function seatingPlan()
     {
-        return $this->belongsTo(SeatingPlan::class);
+        return $this->belongsTo(SeatingPlan::class, 'seating_plan_id');
+    }
+    public function plan()
+    {
+        return $this->belongsTo(SeatingPlan::class, 'seating_plan_id');
     }
 
     public function seats()

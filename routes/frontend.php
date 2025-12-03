@@ -22,7 +22,7 @@ Route::post('/event/{event}/seat/lock', [TicketOrderController::class, 'lockSeat
 Route::post('/event/{event}/seat/unlock', [TicketOrderController::class, 'unlockSeat'])->name('event.seat.unlock');
 
 // Cart
-Route::post('/event/{event}/cart/add', [TicketOrderController::class, 'addToCart'])->name('event.cart.add');
+Route::post('/event/{event}/cart/add', [TicketOrderController::class, 'addToCart'])->name('frontend.cart.add');
 Route::post('/event/{event}/cart/remove', [TicketOrderController::class, 'removeFromCart'])->name('event.cart.remove');
 // Cart
 Route::get('/cart', [TicketOrderController::class, 'showCart'])->name('frontend.cart');
@@ -37,6 +37,8 @@ Route::get('/ticket/{ticket}/download', [TicketOrderController::class, 'download
 Route::get('/event/{event}/select-seats', [TicketOrderController::class, 'selectSeatsPage'])->name('frontend.seats.select');
 // Get structured map
 Route::get('/event/{event}/seat-map',[SeatMapController::class, 'getStructuredMap'])->name('frontend.seat.map');
+Route::get('/event/{event}/seat-lock',[SeatMapController::class, 'seatLock'])->name('frontend.seat.lock');
+Route::get('/event/{event}/seat-unlock',[SeatMapController::class, 'seatUnLock'])->name('frontend.seat.unlock');
 
 // Get seats for a section only
 Route::get('/event/{event}/section/{section}/seats',[SeatMapController::class, 'getSectionSeats'])->name('frontend.section.seats');

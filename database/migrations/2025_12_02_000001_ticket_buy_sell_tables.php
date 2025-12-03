@@ -113,7 +113,7 @@ return new class extends Migration
         */
         Schema::create('order_tickets', function (Blueprint $table) {
             $table->id();
-
+            $table->foreignId('event_id')->nullable()->constrained('events')->onDelete('cascade');
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('order_item_id')->constrained()->onDelete('cascade');
 

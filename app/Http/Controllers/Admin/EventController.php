@@ -176,7 +176,7 @@ class EventController extends Controller
             'event'         => $event,
             'event_types'   => EventType::latest()->active()->get(),
             'venues'        => Venue::orderBy('name')->get(),
-            'seating_plans' => SeatingPlan::where('venue_id', $event->venue_id)->get(),
+            'seatingPlans' => SeatingPlan::where('venue_id', $event->venue_id)->get(),
         ]);
     }
 

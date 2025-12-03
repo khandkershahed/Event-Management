@@ -31,9 +31,8 @@ class SeatingSeat extends Model
 
     public function section()
     {
-        return $this->belongsTo(SeatingSection::class);
+        return $this->belongsTo(SeatingSection::class, 'section_id');
     }
-
     public function locks()
     {
         return $this->hasMany(SeatLock::class, 'seat_id');

@@ -20,36 +20,118 @@ class TicketOrderController extends Controller
     /**
      * STEP 1 — Show Event Details + Seat Map + Ticket Types
      */
+
     public function showEvent($slug)
     {
-        $event = Event::with([
-            'images',
-            'eventType',
-            'seatingPlan.sections.seats' // <-- This loads everything
-        ])
+        $event = Event::with(['eventType'])
             ->where('slug', $slug)
-            ->where('status', 'active')
             ->firstOrFail();
 
-        // Load ticket types
+        // 1. Get Ticket Types
         $ticketTypes = EventTicket::where('event_id', $event->id)
+            ->where('is_active', 1)
             ->orderBy('price', 'ASC')
             ->get();
 
-        // Seating plan
-        $plan = $event->seatingPlan;
+        // 2. Get Seating Data
+        $sections = [];
+        $seats = [];
+        $designJson = [];
+        $seatStatuses = [];
 
-        // Prepare seat availability map
-        $seatStatuses = $this->getSeatStatusMap($event->id);
+        if ($event->seating_plan_id) {
+            $plan = SeatingPlan::find($event->seating_plan_id);
+
+            // Pass the raw visual design
+            $designJson = $plan->design_json;
+
+            // Get DB Sections to map Names to IDs
+            $sections = SeatingSection::where('seating_plan_id', $plan->id)->get();
+
+            // Get DB Seats to map visual seats to DB IDs
+            $seats = SeatingSeat::whereIn('section_id', $sections->pluck('id'))->get();
+
+            // Calculate Availability (Sold/Locked)
+            $seatStatuses = $this->getSeatStatusMap($event->id);
+        }
+
+        $relatedEvents = Event::where('id', '!=', $event->id)->latest()->take(6)->get();
 
         return view('frontend.pages.eventDetails', [
-            'event'        => $event,
-            'plan'         => $plan,
-            'ticketTypes'  => $ticketTypes,
-            'seatStatuses' => $seatStatuses, // used by JS
-            'designJson'   => $plan->design_json ?? [],
+            'event'         => $event,
+            'ticketTypes'   => $ticketTypes,
+            'sections'      => $sections,      // Needed for ID mapping
+            'seats'         => $seats,         // Needed for ID mapping
+            'seatStatuses'  => $seatStatuses,  // Needed for Gray/Yellow coloring
+            'designJson'    => $designJson,    // The Visual Layout
+            'relatedEvents' => $relatedEvents,
         ]);
     }
+
+    // ... keep your getSeatStatusMap, addToCart, etc functions as they were ...
+
+    private function getSeatStatusMap($eventId)
+    {
+        $map = [];
+        // Get all potential seats
+        $seats = SeatingSeat::whereHas('section.seatingPlan.events', function ($q) use ($eventId) {
+            $q->where('id', $eventId);
+        })->get();
+
+        foreach ($seats as $seat) {
+            $map[$seat->id] = 'available';
+        }
+
+        // Locks
+        $locks = SeatLock::where('event_id', $eventId)->where('expires_at', '>', now())->get();
+        foreach($locks as $lock) {
+            // If locked by current user, it's 'selected', else 'locked'
+            if($lock->session_id === session()->getId()) {
+                $map[$lock->seat_id] = 'selected'; // We treat own locks as selection
+            } else {
+                $map[$lock->seat_id] = 'locked';
+            }
+        }
+
+        // Sold
+        $sold = OrderTicket::where('event_id', $eventId)->get();
+        foreach($sold as $t) {
+            $map[$t->seat_id] = 'sold';
+        }
+
+        return $map;
+    }
+
+    // public function showEvent($slug)
+    // {
+    //     $event = Event::with([
+    //         'images',
+    //         'eventType',
+    //         'seatingPlan.sections.seats' // <-- This loads everything
+    //     ])
+    //         ->where('slug', $slug)
+    //         ->where('status', 'active')
+    //         ->firstOrFail();
+
+    //     // Load ticket types
+    //     $ticketTypes = EventTicket::where('event_id', $event->id)
+    //         ->orderBy('price', 'ASC')
+    //         ->get();
+
+    //     // Seating plan
+    //     $plan = $event->seatingPlan;
+
+    //     // Prepare seat availability map
+    //     $seatStatuses = $this->getSeatStatusMap($event->id);
+
+    //     return view('frontend.pages.eventDetails', [
+    //         'event'        => $event,
+    //         'plan'         => $plan,
+    //         'ticketTypes'  => $ticketTypes,
+    //         'seatStatuses' => $seatStatuses, // used by JS
+    //         'designJson'   => $plan->design_json ?? [],
+    //     ]);
+    // }
 
     /**
      * STEP 1b — Seat Availability (AJAX)
@@ -106,41 +188,46 @@ class TicketOrderController extends Controller
 
 
 
-    private function getSeatStatusMap($eventId)
-    {
-        $map = [];
+    // private function getSeatStatusMap($eventId)
+    // {
+    //     $map = [];
 
-        // 1. Get all seats in the event’s seating plan
-        $seats = SeatingSeat::whereHas('section.plan.event', function ($q) use ($eventId) {
-            $q->where('id', $eventId);
-        })->get();
+    //     // 1. Get all seats in the event’s seating plan
+    //     // $seats = SeatingSeat::whereHas('section.plan.event', function ($q) use ($eventId) {
+    //     //     $q->where('id', $eventId);
+    //     // })->get();
 
-        foreach ($seats as $seat) {
-            $map[$seat->id] = 'available';
-        }
+    //     $seats = SeatingSeat::whereHas('section.seatingPlan.events', function ($q) use ($eventId) {
+    //         $q->where('id', $eventId);
+    //     })->get();
 
-        // 2. Apply LOCKED status
-        $activeLocks = SeatLock::where('event_id', $eventId)
-            ->where('expires_at', '>', Carbon::now())
-            ->get();
 
-        foreach ($activeLocks as $lock) {
-            if (isset($map[$lock->seat_id])) {
-                $map[$lock->seat_id] = 'locked';
-            }
-        }
+    //     foreach ($seats as $seat) {
+    //         $map[$seat->id] = 'available';
+    //     }
 
-        // 3. Apply SOLD status
-        $soldTickets = OrderTicket::where('event_id', $eventId)->get();
+    //     // 2. Apply LOCKED status
+    //     $activeLocks = SeatLock::where('event_id', $eventId)
+    //         ->where('expires_at', '>', Carbon::now())
+    //         ->get();
 
-        foreach ($soldTickets as $t) {
-            if (isset($map[$t->seat_id])) {
-                $map[$t->seat_id] = 'sold';
-            }
-        }
+    //     foreach ($activeLocks as $lock) {
+    //         if (isset($map[$lock->seat_id])) {
+    //             $map[$lock->seat_id] = 'locked';
+    //         }
+    //     }
 
-        return $map;
-    }
+    //     // 3. Apply SOLD status
+    //     $soldTickets = OrderTicket::where('event_id', $eventId)->get();
+
+    //     foreach ($soldTickets as $t) {
+    //         if (isset($map[$t->seat_id])) {
+    //             $map[$t->seat_id] = 'sold';
+    //         }
+    //     }
+
+    //     return $map;
+    // }
 
     /**
      * STEP 2 — Lock Selected Seats

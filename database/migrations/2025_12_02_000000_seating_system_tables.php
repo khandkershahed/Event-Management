@@ -113,9 +113,14 @@ return new class extends Migration
         */
         Schema::table('events', function (Blueprint $table) {
             if (!Schema::hasColumn('events', 'seating_plan_id')) {
-                $table->foreignId('seating_plan_id')
+                $table->foreignId('venue_id')
                     ->nullable()
                     ->after('venue')
+                    ->constrained('venues')
+                    ->nullOnDelete();  // event can be unlinked if plan deleted
+                $table->foreignId('seating_plan_id')
+                    ->nullable()
+                    ->after('venue_id')
                     ->constrained('seating_plans')
                     ->nullOnDelete();  // event can be unlinked if plan deleted
             }
@@ -128,18 +133,24 @@ return new class extends Migration
         */
         Schema::create('event_tickets', function (Blueprint $table) {
             $table->id();
-
             $table->foreignId('event_id')
                 ->constrained('events')
                 ->onDelete('cascade');
-
-            $table->string('name'); // VIP, Early Bird
-            $table->decimal('price', 10, 2);
+            // Core data
+            $table->string('name');
+            $table->decimal('price', 10, 2)->default(0);
             $table->integer('quantity')->nullable();
+            $table->text('description')->nullable();
+            // Seating restrictions
+            $table->json('valid_section_ids')->nullable();
+            // Ticket availability
+            $table->boolean('is_active')->default(true);
+            $table->integer('min_per_order')->default(1);
+            $table->integer('max_per_order')->nullable();
+            // Optional time-based pricing
+            $table->timestamp('early_bird_ends_at')->nullable();
 
-            $table->json('valid_section_ids')->nullable(); // [1,2,3]
-
-            // useful index
+            // Index
             $table->index(['event_id', 'price']);
 
             $table->timestamps();

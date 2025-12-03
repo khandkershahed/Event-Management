@@ -52,7 +52,7 @@ class VenueController extends Controller
             'image'        => $request->image ?? null,
         ]);
 
-        return redirect()->route('admin.venues.index')
+        return redirect()->route('admin.venue.index')
             ->with('success', 'Venue created successfully.');
     }
 
@@ -89,7 +89,7 @@ class VenueController extends Controller
             'description' => $request->description,
         ]);
 
-        return redirect()->route('admin.venues.index')
+        return redirect()->route('admin.venue.index')
             ->with('success', 'Venue updated successfully.');
     }
 

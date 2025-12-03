@@ -97,10 +97,10 @@
                                             <div class="col-12">
                                                 <x-metronic.label for="terms_and_conditions">Terms &
                                                     Conditions</x-metronic.label>
-                                                <x-metronic.textarea id="terms_and_conditions"
+                                                <textarea class="form-control" id="terms_and_conditions"
                                                     name="terms_and_conditions" rows="4">
                                                     {{ old('terms_and_conditions', $event->terms_and_conditions) }}
-                                                </x-metronic.textarea>
+                                                </textarea>
                                             </div>
 
                                         </div>
@@ -208,7 +208,7 @@
 
                                         <div class="mb-5">
                                             <x-metronic.label>Description</x-metronic.label>
-                                            <textarea name="description" class="ckeditor" rows="6">
+                                            <textarea class="form-control" name="description" class="ckeditor" rows="6">
                                                 {{ old('description', $event->description) }}
                                             </textarea>
                                         </div>
@@ -276,7 +276,7 @@
                                             <div class="col-md-6">
                                                 <x-metronic.label for="venue_id" class="required">Select
                                                     Venue</x-metronic.label>
-                                                <x-metronic.select-option id="venue_id" name="venue_id" required>
+                                                <select class="form-select" data-control="select2" data-placeholder="Select" id="venue_id" name="venue_id" required>
                                                     <option value="">Choose venue</option>
                                                     @foreach ($venues as $venue)
                                                         <option value="{{ $venue->id }}"
@@ -284,7 +284,7 @@
                                                             {{ $venue->name }}
                                                         </option>
                                                     @endforeach
-                                                </x-metronic.select-option>
+                                                </select>
                                             </div>
 
 
@@ -293,7 +293,7 @@
                                                 <x-metronic.label for="seating_plan_id" class="required">Seating
                                                     Plan</x-metronic.label>
 
-                                                <x-metronic.select-option id="seating_plan_id" name="seating_plan_id"
+                                                <select class="form-select" data-control="select2" data-placeholder="Select" id="seating_plan_id" name="seating_plan_id"
                                                     required>
                                                     <option value="">Select seating plan</option>
 
@@ -303,7 +303,7 @@
                                                             {{ $plan->name }}
                                                         </option>
                                                     @endforeach
-                                                </x-metronic.select-option>
+                                                </select>
 
                                                 {{-- Designer Button --}}
                                                 @if ($event->seating_plan_id)
@@ -319,9 +319,9 @@
                                             {{-- VENUE DESCRIPTION --}}
                                             <div class="col-12">
                                                 <x-metronic.label for="venue">Venue Description</x-metronic.label>
-                                                <x-metronic.textarea id="venue" name="venue" rows="2">
+                                                <textarea class="form-control" id="venue" name="venue" rows="2">
                                                     {{ old('venue', $event->venue) }}
-                                                </x-metronic.textarea>
+                                                </textarea>
                                             </div>
 
                                             {{-- ORGANIZER DETAILS --}}
@@ -378,7 +378,7 @@
                         <div class="card shadow-sm border">
                             <div class="card-body">
                                 <h6 class="fw-semibold mb-2">Status</h6>
-                                <x-metronic.select-option id="status" name="status">
+                                <select class="form-select" data-control="select2" data-placeholder="Select" id="status" name="status">
                                     <option value="active" {{ $event->status === 'active' ? 'selected' : '' }}>
                                         Active
                                     </option>
@@ -386,7 +386,7 @@
                                     <option value="inactive" {{ $event->status === 'inactive' ? 'selected' : '' }}>
                                         Inactive
                                     </option>
-                                </x-metronic.select-option>
+                                </select>
                             </div>
                         </div>
 
@@ -394,12 +394,12 @@
                         <div class="card shadow-sm border mt-4">
                             <div class="card-body">
                                 <h6 class="fw-semibold mb-2">Featured Event</h6>
-                                <x-metronic.select-option id="is_featured" name="is_featured">
+                                <select class="form-select" data-control="select2" data-placeholder="Select" id="is_featured" name="is_featured">
                                     <option value="0" {{ $event->is_featured == 0 ? 'selected' : '' }}>No
                                     </option>
                                     <option value="1" {{ $event->is_featured == 1 ? 'selected' : '' }}>Yes
                                     </option>
-                                </x-metronic.select-option>
+                                </select>
                             </div>
                         </div>
 
@@ -407,7 +407,7 @@
                         <div class="card shadow-sm border mt-4">
                             <div class="card-body">
                                 <h6 class="fw-semibold mb-2">Event Type</h6>
-                                <x-metronic.select-option id="event_type_id" name="event_type_id" required>
+                                <select class="form-select" data-control="select2" data-placeholder="Select" id="event_type_id" name="event_type_id" required>
                                     <option value="">Select Type</option>
                                     @foreach ($event_types as $t)
                                         <option value="{{ $t->id }}"
@@ -415,7 +415,7 @@
                                             {{ $t->name }}
                                         </option>
                                     @endforeach
-                                </x-metronic.select-option>
+                                </select>
                             </div>
                         </div>
 
@@ -470,7 +470,7 @@
                 });
             });
         </script>
-        
+
     @endpush
 
 </x-admin-app-layout>

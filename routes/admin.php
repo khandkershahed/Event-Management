@@ -87,8 +87,6 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
 
             'blog-category'  => BlogCategoryController::class,
             'blog-post'      => BlogPostController::class,
-            'venue'          => VenueController::class,
-            'seating-plan'   => SeatingPlanController::class,
 
             'contact'        => ContactController::class,
             'subscription'   => SubscriptionController::class,
@@ -105,14 +103,11 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
     );
 
 
-
+    Route::resource('venue', VenueController::class);
     Route::get('/venue/{venue}/seating-plans', function ($venueId) {
         return \App\Models\SeatingPlan::where('venue_id', $venueId)->get();
     });
-
-
-
-        /*
+    /*
         |--------------------------------------------------------------------------
         | EVENT TICKET TYPES (Admin)
         |--------------------------------------------------------------------------
@@ -162,14 +157,12 @@ Route::middleware('auth:admin')->prefix('admin')->name('admin.')->group(function
         )->name('ticket-types.destroy');
     });
 
-
-    Route::resource('venues', VenueController::class)->names('venue');
-
-        /*
+    /*
         |--------------------------------------------------------------------------
         | SEATING PLANS (CRUD)
         |--------------------------------------------------------------------------
         */
+
     Route::resource('seating-plans', SeatingPlanController::class)->names('seating-plans');
 
     /*

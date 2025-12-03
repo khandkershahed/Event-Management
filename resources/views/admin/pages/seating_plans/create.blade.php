@@ -26,12 +26,12 @@
 
                             <div class="mb-5">
                                 <x-metronic.label for="venue_id" class="required">Venue</x-metronic.label>
-                                <x-metronic.select-option name="venue_id" required>
+                                <select class="form-select" data-control="select2" data-placeholder="Select Venue" name="venue_id" required>
                                     <option></option>
                                     @foreach($venues as $venue)
                                         <option value="{{ $venue->id }}">{{ $venue->name }}</option>
                                     @endforeach
-                                </x-metronic.select-option>
+                                </select>
                             </div>
 
                         </div>

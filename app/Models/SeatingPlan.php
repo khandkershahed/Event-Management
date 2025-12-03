@@ -26,6 +26,10 @@ class SeatingPlan extends Model
     |--------------------------------------------------------------------------
     */
 
+    // public function venue()
+    // {
+    //     return $this->belongsTo(Venue::class);
+    // }
     public function venue()
     {
         return $this->belongsTo(Venue::class);
@@ -33,9 +37,12 @@ class SeatingPlan extends Model
 
     public function sections()
     {
-        return $this->hasMany(SeatingSection::class);
+        return $this->hasMany(SeatingSection::class, 'seating_plan_id');
     }
-
+    public function events()
+    {
+        return $this->hasMany(Event::class, 'seating_plan_id');
+    }
     public function seats()
     {
         return $this->hasManyThrough(

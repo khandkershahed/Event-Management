@@ -1,408 +1,348 @@
-<!-- ===========================
-     SEAT SELECTOR MODAL
-=========================== -->
 <div class="modal fade" id="seatSelectorModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
-
-            <!-- HEADER -->
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold">Select Your Seats</h5>
+            <div class="modal-header border-0 shadow-sm" style="z-index:1050; background:#fff;">
+                <div class="d-flex align-items-center gap-4">
+                    <h5 class="modal-title fw-bold">Select Seats</h5>
+                    <div class="d-flex gap-3 small">
+                        <div class="d-flex align-items-center"><span class="badge rounded-circle bg-success me-1" style="width:10px;height:10px;"></span> Available</div>
+                        <div class="d-flex align-items-center"><span class="badge rounded-circle bg-secondary me-1" style="width:10px;height:10px;"></span> Sold/Locked</div>
+                        <div class="d-flex align-items-center"><span class="badge rounded-circle bg-primary me-1" style="width:10px;height:10px;"></span> Selected</div>
+                    </div>
+                </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <!-- BODY -->
-            <div class="modal-body p-0 d-flex">
+            <div class="modal-body p-0 position-relative" style="background: #f8fafc; overflow: hidden;">
 
-                <!-- LEFT: SEAT MAP -->
-                <div class="flex-grow-1 bg-light position-relative">
-
-                    <div class="px-3 py-2 shadow-sm bg-white small">
-                        <strong>Tips:</strong>
-                        Drag to move • Scroll to zoom • Click seats to select
-                    </div>
-
-                    <div id="seatMapContainer" style="width: 100%; height: calc(100vh - 120px);"></div>
+                <div id="seatMapViewport" style="width:100%; height:100%; cursor:grab; touch-action:none;">
+                    <div id="seatMapCanvas" style="position:absolute; top:0; left:0; transform-origin:0 0;"></div>
                 </div>
 
-                <!-- RIGHT: TICKET TYPE + SELECTED SEATS -->
-                <div style="width: 380px;" class="border-start bg-white p-3">
-
-                    <h5 class="fw-bold mb-3">Choose Ticket Type</h5>
-
-                    <select id="ticketTypeSelector" class="form-select mb-4">
-                        <option value="">Select Ticket Type</option>
-                        @foreach ($ticketTypes as $ticket)
-                            <option value="{{ $ticket->id }}">
-                                {{ $ticket->name }} — ৳{{ number_format($ticket->price, 2) }}
-                            </option>
-                        @endforeach
-                    </select>
-
-                    <h5 class="fw-bold mb-3">Selected Seats</h5>
-
-                    <div id="selectedSeatsList" class="border p-2 rounded bg-light small"
-                        style="max-height: 300px; overflow-y: auto;">
-                        <p class="text-muted m-0">No seats selected.</p>
+                <div id="seat-popover" class="card shadow-lg position-absolute" style="display:none; width:240px; z-index:2000; border:none;">
+                    <div class="card-header bg-dark text-white py-2 d-flex justify-content-between">
+                        <span id="pop-title" class="fw-bold small">Seat</span>
+                        <button type="button" class="btn-close btn-close-white btn-sm" onclick="closePopover()"></button>
                     </div>
-
-                    <button id="addToCartBtn" class="btn btn-primary w-100 mt-4" disabled>
-                        Add to Cart
-                    </button>
-
+                    <div class="card-body p-2 bg-white">
+                        <div id="pop-tickets" class="d-grid gap-2"></div>
+                    </div>
                 </div>
+
+                <div id="seat-tooltip" style="position:fixed; display:none; background:rgba(0,0,0,0.8); color:#fff; padding:4px 8px; border-radius:4px; font-size:12px; pointer-events:none; z-index:9999;"></div>
+            </div>
+
+            <div class="modal-footer justify-content-between bg-white border-top">
+                <div>
+                    <small class="text-muted d-block">Selected Seats</small>
+                    <div id="ui-selected-count" class="fw-bold text-primary" style="font-size:1.1rem;">0</div>
+                </div>
+                <a href="{{ route('frontend.cart') }}" class="btn btn-primary px-5 fw-bold">
+                    Go to Checkout <i class="fa fa-arrow-right ms-2"></i>
+                </a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- BUTTON (already included in event page) -->
-{{-- <button id="openSeatSelectorButton" class="main-btn w-100" data-bs-toggle="modal" data-bs-target="#seatSelectorModal">Select Seats</button> --}}
+<style>
+    #seatMapViewport {
+        background-image: linear-gradient(#e4e6ef 1px, transparent 1px), linear-gradient(90deg, #e4e6ef 1px, transparent 1px);
+        background-size: 20px 20px;
+    }
+    .sp-item {
+        position: absolute; border: 1px solid #3b5fff; background: rgba(59, 95, 255, 0.06);
+        border-radius: 6px; box-sizing: border-box;
+    }
+    .sp-item h6 {
+        margin: 0; padding: 4px; background: #eef1ff; border-bottom: 1px solid #d0d6ff;
+        text-align: center; font-size: 11px; font-weight:700; color:#333; pointer-events: none;
+        overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+    }
+    /* Special Types */
+    .sp-stage { border-color: #ff9800; background: rgba(255, 153, 0, 0.10); }
+    .sp-stage h6 { background: #fff4e0; border-bottom-color: #ffcc80; }
+    .sp-ga { border-color: #28a745; background: rgba(40, 167, 69, 0.10); }
+    .sp-ga h6 { background: #e3f9e5; border-bottom-color: #a3cfbb; }
+    .sp-table { border-color: #8e44ad; background: rgba(142, 68, 173, 0.10); border-radius: 50%; }
+    .sp-table h6 { display: none; }
+
+    /* Seat Nodes */
+    .sp-seat {
+        position: absolute; width: 32px; height: 32px; border-radius: 50%;
+        background: #28a745; color: #fff; font-size: 9px; font-weight: 600;
+        display: flex; align-items: center; justify-content: center;
+        cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        transition: transform 0.1s; white-space: nowrap; overflow: hidden;
+    }
+    .sp-seat:hover { transform: scale(1.15); z-index: 100; border: 2px solid #fff; }
+
+    /* Status Colors */
+    .sp-seat.sold { background: #dcdcdc !important; color: #999; cursor: default; pointer-events: none; }
+    .sp-seat.locked { background: #95a5a6 !important; cursor: default; pointer-events: none; }
+    .sp-seat.selected { background: #007bff !important; box-shadow: 0 0 0 2px #fff, 0 0 5px #007bff; }
+
+    /* Popover Arrow */
+    #seat-popover::after {
+        content: ''; position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+        border-width: 6px 6px 0; border-style: solid; border-color: #fff transparent transparent transparent;
+    }
+</style>
 
 @push('scripts')
-    <!-- Konva JS -->
-    <script src="https://cdn.jsdelivr.net/npm/konva@9.3.3/konva.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
 
-    <script>
-        /* ==========================================================
-       GLOBAL STATE
-    ========================================================== */
-        let stage, layer;
-        window.SEAT_SHAPES = {};
-        window.userSelectedSeats = new Set();
-        window.seatStatusMap = @json($seatStatuses);
+    // --- DATA INJECTION ---
+    const rawDesign = {!! json_encode($designJson) !!};
+    // Ensure we handle both raw array and wrapped object formats
+    const designItems = Array.isArray(rawDesign) ? rawDesign : (rawDesign?.sections || []);
 
-        const EVENT_ID = "{{ $event->id }}";
-        const DESIGN_JSON = @json($designJson);
+    const dbSections = @json($sections); // [{id:21, name:"VIP"}, ...]
+    const dbSeats = @json($seats);       // [{id:647, label:"A1", section_id:21}, ...]
+    const seatStatus = @json($seatStatuses); // {647: "available", ...}
+    const ticketTypes = @json($ticketTypes); // [{id:1, name:"VIP", price:120, valid_section_ids:["21"]}, ...]
 
-        /* ==========================================================
-           INITIALIZE MAP WHEN MODAL OPENS
-        ========================================================== */
-        document.addEventListener("DOMContentLoaded", () => {
-            document.getElementById("openSeatSelectorButton")
-                ?.addEventListener("click", initSeatMap);
+    // --- STATE ---
+    let scale = 1, panX = 0, panY = 0, isPanning = false, startX = 0, startY = 0;
+    let selectedCount = 0;
+
+    // --- DOM ELEMENTS ---
+    const canvas = document.getElementById('seatMapCanvas');
+    const viewport = document.getElementById('seatMapViewport');
+    const popover = document.getElementById('seat-popover');
+    const tooltip = document.getElementById('seat-tooltip');
+    const countDisplay = document.getElementById('ui-selected-count');
+    const btnOpen = document.getElementById('openSeatSelectorButton');
+
+    // Initialize if modal button exists
+    if(btnOpen) {
+        btnOpen.addEventListener('click', () => {
+            setTimeout(() => {
+                // Center map logic could go here
+            }, 200);
         });
+    }
 
-        /* ==========================================================
-           INIT SEAT MAP
-        ========================================================== */
-        function initSeatMap() {
-            const container = document.getElementById("seatMapContainer");
-            if (!container) return;
+    // --- 1. RENDER MAP ---
+    function initMap() {
+        canvas.innerHTML = ''; // Clear
 
-            container.innerHTML = "";
-
-            stage = new Konva.Stage({
-                container: "seatMapContainer",
-                width: container.offsetWidth,
-                height: container.offsetHeight,
-                draggable: true
-            });
-
-            layer = new Konva.Layer();
-            stage.add(layer);
-
-            addZoomHandlers();
-            renderMapFromJSON();
+        if(!designItems || designItems.length === 0) {
+            canvas.innerHTML = '<div class="p-5 text-center text-muted">No layout found for this event.</div>';
+            return;
         }
 
-        /* ==========================================================
-           RENDER MAP FROM DESIGN JSON
-        ========================================================== */
-        function renderMapFromJSON() {
-            if (!Array.isArray(DESIGN_JSON)) {
-                console.error("Invalid design_json");
-                return;
-            }
+        designItems.forEach(item => {
+            // Create Section Box
+            const el = document.createElement('div');
+            el.classList.add('sp-item');
+            if(item.type === 'stage') el.classList.add('sp-stage');
+            if(item.type === 'general_admission') el.classList.add('sp-ga');
+            if(item.type === 'table') el.classList.add('sp-table');
 
-            DESIGN_JSON.forEach(node => {
-                switch (node.type) {
-                    case "SECTION":
-                        drawSection(node);
-                        break;
-                    case "SEAT":
-                        drawSeat(node);
-                        break;
-                    case "LABEL":
-                        drawLabel(node);
-                        break;
-                }
-            });
+            el.style.left = item.x + 'px';
+            el.style.top = item.y + 'px';
+            el.style.width = item.width + 'px';
+            el.style.height = item.height + 'px';
+            el.style.transform = `rotate(${item.rotation || 0}deg)`;
 
-            layer.draw();
-        }
-
-        /* ==========================================================
-           DRAW SECTION
-        ========================================================== */
-        function drawSection(sec) {
-            layer.add(new Konva.Rect({
-                x: sec.x,
-                y: sec.y,
-                width: sec.width,
-                height: sec.height,
-                fill: 'rgba(0,0,0,0.04)',
-                stroke: '#555',
-                strokeWidth: 1,
-                cornerRadius: 4
-            }));
-
-            layer.add(new Konva.Text({
-                x: sec.x,
-                y: sec.y - 18,
-                text: sec.name ?? "Section",
-                fontSize: 14
-            }));
-        }
-
-        /* ==========================================================
-           DRAW LABEL
-        ========================================================== */
-        function drawLabel(node) {
-            layer.add(new Konva.Text({
-                x: node.x,
-                y: node.y,
-                text: node.text || "",
-                fontSize: node.fontSize || 18,
-                fontStyle: "bold",
-                fill: node.color || "#333"
-            }));
-        }
-
-        /* ==========================================================
-           DRAW SEAT
-        ========================================================== */
-        function drawSeat(node) {
-
-            const id = node.db_id;
-            if (!id) return;
-
-            const status = seatStatusMap[id] || "available";
-
-            const seat = new Konva.Circle({
-                x: node.x,
-                y: node.y,
-                radius: 10,
-                fill: seatColor(status),
-                stroke: "#222",
-                strokeWidth: 1,
-                opacity: status === "locked" ? 0.6 : 1
-            });
-
-            window.SEAT_SHAPES[id] = seat;
-
-            seat.on("mouseover", () => showTooltip(seat, node.label));
-            seat.on("mouseout", hideTooltip);
-
-            seat.on("click", () => onSeatClick(id, seat));
-
-            layer.add(seat);
-        }
-
-        /* ==========================================================
-           SEAT COLOR BASED ON STATUS
-        ========================================================== */
-        function seatColor(status) {
-            return {
-                available: "#2ecc71",
-                locked: "#f1c40f",
-                sold: "#e74c3c"
-            } [status] || "#bdc3c7";
-        }
-
-        /* ==========================================================
-           HANDLE SEAT CLICK
-        ========================================================== */
-        function onSeatClick(id, shape) {
-            const status = seatStatusMap[id];
-
-            if (status === "sold") return;
-            if (status === "locked" && !userSelectedSeats.has(id)) return;
-
-            if (userSelectedSeats.has(id)) {
-                shape.fill(seatColor("available"));
-                unselectSeat(id);
-                unlockSeat(id);
+            // Label
+            if(item.type !== 'table') {
+                const h6 = document.createElement('h6');
+                h6.innerText = item.name;
+                el.appendChild(h6);
             } else {
-                shape.fill("#3498db");
-                selectSeat(id);
-                lockSeat(id);
+                // Tables often have name in middle
+                el.title = item.name;
             }
 
-            shape.draw();
-        }
+            // --- SEATS ---
+            if(item.seats && item.seats.length > 0) {
+                // 1. Find Database Section ID using Name Match
+                const dbSec = dbSections.find(s => s.name === item.name);
+                const dbSecId = dbSec ? dbSec.id : null;
 
-        /* ==========================================================
-           MARK SELECTED / UNSELECTED
-        ========================================================== */
-        function selectSeat(id) {
-            userSelectedSeats.add(id);
-            refreshSelectedSeatList();
-        }
+                item.seats.forEach(visualSeat => {
+                    if(visualSeat.dead) return; // Skip hidden seats
 
-        function unselectSeat(id) {
-            userSelectedSeats.delete(id);
-            refreshSelectedSeatList();
-        }
+                    const seatEl = document.createElement('div');
+                    seatEl.classList.add('sp-seat');
+                    seatEl.style.left = visualSeat.x + 'px';
+                    seatEl.style.top = visualSeat.y + 'px';
+                    seatEl.innerText = visualSeat.label;
 
-        /* ==========================================================
-           UPDATE SELECTED SEAT SIDEBAR
-        ========================================================== */
-        function refreshSelectedSeatList() {
-            const box = document.getElementById("selectedSeatsList");
-            const btn = document.getElementById("addToCartBtn");
+                    // 2. Find Database Seat ID
+                    // We match Visual Label + DB Section ID
+                    const dbSeat = dbSeats.find(s => s.label === visualSeat.label && s.section_id === dbSecId);
 
-            if (userSelectedSeats.size === 0) {
-                box.innerHTML = `<p class="text-muted m-0">No seats selected.</p>`;
-                btn.disabled = true;
-                return;
-            }
+                    if(dbSeat) {
+                        const sId = dbSeat.id;
+                        const status = seatStatus[sId] || 'available';
 
-            btn.disabled = false;
+                        if(status === 'sold') seatEl.classList.add('sold');
+                        if(status === 'locked') seatEl.classList.add('locked');
+                        if(status === 'selected') {
+                            seatEl.classList.add('selected');
+                            selectedCount++;
+                        }
 
-            let html = "";
-            userSelectedSeats.forEach(id => {
-                html += `<div class="p-2 bg-white border mb-2 rounded">Seat ID: ${id}</div>`;
-            });
+                        // Events
+                        if(status === 'available' || status === 'selected') {
+                            seatEl.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                handleSeatClick(seatEl, dbSeat, item.name, dbSecId);
+                            });
 
-            box.innerHTML = html;
-        }
+                            // Tooltip
+                            seatEl.addEventListener('mouseenter', (e) => showTooltip(e, item.name, visualSeat.label));
+                            seatEl.addEventListener('mouseleave', hideTooltip);
+                        }
+                    } else {
+                        // Visual only (orphaned seat?)
+                        seatEl.classList.add('sold'); // Disable interaction
+                    }
 
-        /* ==========================================================
-           LOCK SEAT ON SERVER
-        ========================================================== */
-        function lockSeat(id) {
-            fetch("{{ route('frontend.seat.lock', $event->id) }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    seat_id: id
-                })
-            });
-        }
-
-        /* ==========================================================
-           UNLOCK SEAT
-        ========================================================== */
-        function unlockSeat(id) {
-            fetch("{{ route('frontend.seat.unlock', $event->id) }}", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                body: JSON.stringify({
-                    seat_id: id
-                })
-            });
-        }
-
-        /* ==========================================================
-           ZOOM HANDLER
-        ========================================================== */
-        function addZoomHandlers() {
-            let scaleFactor = 1.06;
-
-            stage.on("wheel", e => {
-                e.evt.preventDefault();
-
-                let oldScale = stage.scaleX();
-                let pointer = stage.getPointerPosition();
-                let mousePoint = {
-                    x: pointer.x / oldScale - stage.x() / oldScale,
-                    y: pointer.y / oldScale - stage.y() / oldScale
-                };
-
-                let newScale = e.evt.deltaY > 0 ? oldScale / scaleFactor : oldScale * scaleFactor;
-
-                stage.scale({
-                    x: newScale,
-                    y: newScale
+                    el.appendChild(seatEl);
                 });
-
-                let newPos = {
-                    x: -(mousePoint.x - pointer.x / newScale) * newScale,
-                    y: -(mousePoint.y - pointer.y / newScale) * newScale
-                };
-
-                stage.position(newPos);
-                stage.batchDraw();
-            });
-        }
-
-        /* ==========================================================
-           TOOLTIP
-        ========================================================== */
-        let tooltipLayer = new Konva.Layer();
-        let tooltip = new Konva.Label({
-            visible: false,
-            opacity: 0.75
-        });
-
-        tooltip.add(new Konva.Tag({
-            fill: "black",
-            pointerDirection: "down",
-            pointerWidth: 10,
-            pointerHeight: 10,
-        }));
-
-        tooltip.add(new Konva.Text({
-            text: "",
-            fontSize: 14,
-            padding: 5,
-            fill: "white"
-        }));
-
-        tooltipLayer.add(tooltip);
-
-        document.addEventListener("DOMContentLoaded", () => {
-            stage?.add(tooltipLayer);
-        });
-
-        function showTooltip(shape, text) {
-            tooltip.visible(true);
-            tooltip.position({
-                x: shape.x(),
-                y: shape.y() - 22
-            });
-            tooltip.getText().text(text || "Seat");
-            tooltipLayer.batchDraw();
-        }
-
-        function hideTooltip() {
-            tooltip.visible(false);
-            tooltipLayer.batchDraw();
-        }
-
-        /* ==========================================================
-           ADD TO CART
-        ========================================================== */
-        document.getElementById("addToCartBtn").addEventListener("click", () => {
-            const ticketType = document.getElementById("ticketTypeSelector").value;
-
-            if (!ticketType) {
-                alert("Select a ticket type first.");
-                return;
             }
 
-            userSelectedSeats.forEach(id => {
-                fetch("{{ route('frontend.cart.add', $event->id) }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        seat_id: id,
-                        ticket_type: ticketType
-                    })
-                });
-            });
-
-            window.location.href = "{{ route('frontend.cart') }}";
+            canvas.appendChild(el);
         });
-    </script>
+        updateCounter();
+    }
+
+    // --- 2. INTERACTION: CLICK SEAT ---
+    function handleSeatClick(el, dbSeat, sectionName, sectionId) {
+        // If already selected, unselect (unlock)
+        if(el.classList.contains('selected')) {
+            unlockSeat(dbSeat.id, el);
+            return;
+        }
+
+        // Find tickets valid for this section
+        // Note: ticket.valid_section_ids is array of strings ["21", "22"]
+        const validTickets = ticketTypes.filter(t => {
+            if(!t.valid_section_ids) return false;
+            // Convert both to string to be safe
+            return t.valid_section_ids.includes(String(sectionId));
+        });
+
+        if(validTickets.length === 0) {
+            alert('No tickets configured for this section.');
+            return;
+        }
+
+        // Show Popover
+        showPopover(el, dbSeat, sectionName, validTickets);
+    }
+
+    // --- 3. POPOVER ---
+    function showPopover(el, dbSeat, secName, tickets) {
+        const rect = el.getBoundingClientRect();
+        const popX = rect.left + (rect.width/2) - 110; // Center 220px popover
+        const popY = rect.top - 10; // Above seat
+
+        // Adjust for scroll if modal scrolls
+        // (Since modal-fullscreen uses fixed logic usually, clientRect is good)
+        popover.style.left = popX + 'px';
+        popover.style.top = (popY - popover.offsetHeight) + 'px';
+        popover.style.display = 'block';
+
+        document.getElementById('pop-title').innerText = `${secName} - ${dbSeat.label}`;
+        const container = document.getElementById('pop-tickets');
+        container.innerHTML = '';
+
+        tickets.forEach(t => {
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm btn-outline-dark d-flex justify-content-between align-items-center';
+            btn.innerHTML = `<span>${t.name}</span> <strong>$${t.price}</strong>`;
+            btn.onclick = () => {
+                lockSeat(dbSeat.id, t.id, el);
+                closePopover();
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    window.closePopover = function() { popover.style.display = 'none'; }
+
+    // --- 4. BACKEND CALLS ---
+    function lockSeat(seatId, ticketId, el) {
+        // UI Optimistic
+        el.classList.add('selected');
+        selectedCount++;
+        updateCounter();
+
+        fetch(`{{ url('/events/' . $event->id . '/cart/add') }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ seat_id: seatId, ticket_type: ticketId })
+        })
+        .then(r => r.json())
+        .then(res => {
+            if(res.status !== 'success') {
+                alert(res.message);
+                el.classList.remove('selected');
+                selectedCount--;
+                updateCounter();
+            }
+        });
+    }
+
+    function unlockSeat(seatId, el) {
+        el.classList.remove('selected');
+        selectedCount--;
+        updateCounter();
+
+        fetch(`{{ url('/events/' . $event->id . '/cart/remove') }}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+            body: JSON.stringify({ seat_id: seatId })
+        });
+    }
+
+    function updateCounter() {
+        countDisplay.innerText = selectedCount > 0 ? `${selectedCount} Selected` : 'None';
+    }
+
+    // --- 5. UTILS: TOOLTIP & ZOOM ---
+    function showTooltip(e, sec, lbl) {
+        tooltip.innerText = `${sec} - ${lbl}`;
+        tooltip.style.display = 'block';
+        tooltip.style.left = (e.clientX + 10) + 'px';
+        tooltip.style.top = (e.clientY + 10) + 'px';
+    }
+    function hideTooltip() { tooltip.style.display = 'none'; }
+
+    viewport.addEventListener('wheel', e => {
+        e.preventDefault();
+        scale += e.deltaY * -0.001;
+        scale = Math.min(Math.max(.4, scale), 3);
+        canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+        closePopover();
+    });
+
+    viewport.addEventListener('mousedown', e => {
+        isPanning = true; startX = e.clientX - panX; startY = e.clientY - panY;
+        viewport.style.cursor = 'grabbing';
+        closePopover();
+    });
+
+    window.addEventListener('mousemove', e => {
+        if(!isPanning) return;
+        e.preventDefault();
+        panX = e.clientX - startX; panY = e.clientY - startY;
+        canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    });
+
+    window.addEventListener('mouseup', () => { isPanning = false; viewport.style.cursor = 'grab'; });
+
+    // Run
+    initMap();
+});
+</script>
 @endpush

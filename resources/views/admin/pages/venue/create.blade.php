@@ -4,14 +4,14 @@
         <div class="card-header mt-6 d-flex justify-content-between">
             <h3 class="card-title">Create Venue</h3>
             <div>
-                <a href="{{ route('admin.venues.index') }}" class="btn btn-light-info">
+                <a href="{{ route('admin.venue.index') }}" class="btn btn-light-info">
                     <i class="fas fa-arrow-left"></i> Back
                 </a>
             </div>
         </div>
 
         <div class="card-body pt-0">
-            <form action="{{ route('admin.venues.store') }}" method="POST">
+            <form action="{{ route('admin.venue.store') }}" method="POST">
                 @csrf
 
                 <div class="row">
@@ -24,11 +24,11 @@
                                 <x-metronic.input type="text" name="name" placeholder="Enter venue name" required />
                             </div>
 
-                            <div class="mb-5">
+                            {{-- <div class="mb-5">
                                 <x-metronic.label for="slug">Slug</x-metronic.label>
                                 <x-metronic.input type="text" name="slug" placeholder="venue-slug" />
                                 <small class="text-muted">Leave empty to auto-generate.</small>
-                            </div>
+                            </div> --}}
 
                             <div class="mb-5">
                                 <x-metronic.label for="capacity">Capacity</x-metronic.label>
@@ -37,7 +37,7 @@
 
                             <div class="mb-5">
                                 <x-metronic.label for="address">Address</x-metronic.label>
-                                <x-metronic.textarea name="address" rows="3" placeholder="Venue address..."></x-metronic.textarea>
+                                <textarea class="form-control" name="address" rows="3" placeholder="Venue address..."></textarea>
                             </div>
 
                         </div>
@@ -47,10 +47,10 @@
                         <div class="card border p-5 card-flush">
                             <h5 class="fw-bold mb-4">Status</h5>
 
-                            <x-metronic.select-option name="status" data-hide-search="true">
+                            <select class="form-select" data-control="select2" name="status" data-hide-search="true">
                                 <option value="active" selected>Active</option>
                                 <option value="inactive">Inactive</option>
-                            </x-metronic.select-option>
+                            </select>
 
                         </div>
                     </div>

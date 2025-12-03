@@ -29,8 +29,8 @@
                         <td>{{ $key + 1 }}</td>
                         <td>{{ $plan->name }}</td>
                         <td>{{ optional($plan->venue)->name }}</td>
-                        <td>{{ $plan->sections_count }}</td>
-                        <td>{{ $plan->seats_count }}</td>
+                        <td>{{ optional($plan->sections)->count() }}</td>
+                        <td>{{ optional($plan->seats)->count() }}</td>
 
                         <td>
                             <a href="{{ route('admin.seating-plans.designer', $plan->id) }}" class="btn btn-light-info btn-sm">

@@ -37,7 +37,7 @@
                         {{-- Description --}}
                         <div class="col-12">
                             <x-metronic.label>Description</x-metronic.label>
-                            <x-metronic.textarea name="description" rows="3"></x-metronic.textarea>
+                            <textarea class="form-control" name="description" rows="3"></textarea>
                         </div>
 
                         {{-- Sections --}}
@@ -104,7 +104,7 @@
                         {{-- Description --}}
                         <div class="col-12">
                             <x-metronic.label>Description</x-metronic.label>
-                            <x-metronic.textarea id="edit_description" name="description"></x-metronic.textarea>
+                            <textarea class="form-control" id="edit_description" name="description"></textarea>
                         </div>
 
                         {{-- Sections --}}
