@@ -2,230 +2,260 @@
 
     <style>
         :root {
-            --grid: 20px;
-            --seat-size: 32px;
-            /* Increased to fit 3 digits */
+            --grid-size: 20px;
+            --seat-min: 14px;
+            --seat-max: 38px;
+            --seat-base: 32px;
             --primary: #009ef7;
             --danger: #f1416c;
+            --border-soft: #e4e6ef;
         }
 
-        /* WRAPPER */
+        /* ------------------------------------------------------------
+            WRAPPER AREA
+            ------------------------------------------------------------ */
         #seatmap-designer-wrapper {
             position: relative;
             width: 100%;
-            height: 650px;
-            border: 1px solid #dcdcdc;
+            height: 720px;
+            border: 1px solid var(--border-soft);
             background: #f8fafc;
-            /* Pixel Grid Background */
+
+            /* Pixel-grid background for layout aligning */
             background-image:
                 linear-gradient(#e4e6ef 1px, transparent 1px),
                 linear-gradient(90deg, #e4e6ef 1px, transparent 1px);
-            background-size: 20px 20px;
+            background-size: var(--grid-size) var(--grid-size);
+
             overflow: hidden;
+            user-select: none;
         }
 
-        /* ITEM (Section / Stage / GA / Table) */
+        /* ------------------------------------------------------------
+            BLOCKS (Sections, Stage, GA, Table)
+            ------------------------------------------------------------ */
         .sp-item {
             position: absolute;
             border: 1px solid #3b5fff;
             background: rgba(59, 95, 255, 0.06);
             border-radius: 6px;
             box-sizing: border-box;
-            user-select: none;
-            /* Shadow for depth */
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            cursor: default;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            z-index: 10;
         }
 
+        /* When dragging */
         .sp-item.ui-draggable-dragging {
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-            z-index: 1000 !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            z-index: 999 !important;
         }
 
-        /* HEADER (The Drag Handle) */
-        .sp-item h6 {
+        /* HEADER (Drag handle) */
+        .sp-item>h6 {
             margin: 0;
-            padding: 5px;
-            background: #eef1ff;
-            border-bottom: 1px solid #d0d6ff;
+            padding: 6px 5px;
             text-align: center;
             font-size: 12px;
             font-weight: 600;
-            color: #333;
-            user-select: none;
-            /* FIX: Must be auto to capture mouse events for dragging */
-            pointer-events: auto;
+            background: #eef1ff;
+            border-bottom: 1px solid #d0d6ff;
+            border-radius: 6px 6px 0 0;
             cursor: move;
-            border-radius: 5px 5px 0 0;
+            pointer-events: auto;
+            user-select: none;
+            color: #333;
         }
 
-        /* SPECIAL TYPES */
+        /* ------------------------------------------------------------
+            SPECIAL BLOCK TYPES
+            ------------------------------------------------------------ */
         .sp-stage {
-            border-color: #ff9800;
-            background: rgba(255, 153, 0, 0.10);
+            border-color: #ffa726;
+            background: rgba(255, 167, 38, 0.15);
         }
 
-        .sp-stage h6 {
-            background: #fff4e0;
+        .sp-stage>h6 {
+            background: #fff3e0;
             border-bottom-color: #ffcc80;
         }
 
         .sp-ga {
             border-color: #28a745;
-            background: rgba(40, 167, 69, 0.10);
+            background: rgba(40, 167, 69, 0.12);
         }
 
-        .sp-ga h6 {
-            background: #e3f9e5;
-            border-bottom-color: #a3cfbb;
+        .sp-ga>h6 {
+            background: #e8f5e9;
+            border-bottom-color: #a5d6a7;
         }
 
         .sp-table {
             border-color: #8e44ad;
-            background: rgba(142, 68, 173, 0.10);
+            background: rgba(142, 68, 173, 0.15);
+            border-radius: 50%;
         }
 
-        .sp-table h6 {
+        .sp-table>h6 {
             background: #f3e5f5;
-            border-bottom-color: #e1bee7;
+            border-bottom-color: #ce93d8;
         }
 
-        /* ROTATION HANDLE */
+        /* ------------------------------------------------------------
+                ROTATION HANDLE
+                ------------------------------------------------------------ */
         .sp-rotate-handle {
             position: absolute;
             width: 16px;
             height: 16px;
-            background: #ffffff;
-            border: 1px solid #333;
-            border-radius: 50%;
             right: -8px;
             top: 50%;
             transform: translateY(-50%);
+            background: #fff;
+            border: 1px solid #333;
+            border-radius: 50%;
             cursor: grab;
-            z-index: 10;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            z-index: 20;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
-        /* SEAT */
+        /* ------------------------------------------------------------
+            SMART HYBRID SCALING — Seat Size Controlled via JS
+            ------------------------------------------------------------ */
         .sp-seat {
             position: absolute;
-            width: var(--seat-size);
-            height: var(--seat-size);
-            border-radius: 50%;
+            min-width: var(--seat-min);
+            min-height: var(--seat-min);
+            max-width: var(--seat-max);
+            max-height: var(--seat-max);
+
+            width: var(--seat-base);
+            height: var(--seat-base);
+
             background: #28a745;
+            border-radius: 50%;
             color: #fff;
-            font-size: 9px;
-            /* Slightly smaller font for 3 digits (e.g. B100) */
+            font-size: 10px;
             font-weight: 600;
-            text-align: center;
-            line-height: var(--seat-size);
-            /* Center vertically */
-            cursor: pointer;
-            user-select: none;
-            white-space: nowrap;
-            /* Prevent text wrapping */
-            overflow: hidden;
-            z-index: 5;
-            /* Clip if too long */
-        }
-
-        .sp-seat.selected {
-            background: #007bff;
-            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
-        }
-
-        .sp-seat.dead {
-            background: #ccc !important;
-            opacity: 0.5;
-        }
-
-        /* CONTEXT MENU */
-        .sp-context-menu {
-            position: fixed;
-            /* Fixed ensures it appears on top of everything */
-            display: none;
-            z-index: 99999;
-            min-width: 160px;
-            background: #fff;
-            border: 1px solid #e4e6ef;
-            list-style: none;
-            padding: 5px 0;
-            border-radius: 6px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, .1);
-        }
-
-        .sp-context-menu li {
-            padding: 8px 15px;
-            cursor: pointer;
-            font-size: 13px;
-            color: #3f4254;
+            line-height: 1;
             display: flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+
+            cursor: pointer;
+            user-select: none;
+            overflow: hidden;
+            white-space: nowrap;
+            z-index: 20;
+            transition: background .1s, transform .1s;
         }
 
-        .sp-context-menu li:hover {
-            background: #f4f6fa;
-            color: #009ef7;
+        /* Selected */
+        .sp-seat.selected {
+            background: var(--primary) !important;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--primary);
+            z-index: 30;
         }
 
-        /* RESIZE HANDLES (Essential for jQuery UI) */
+        /* Disabled */
+        .sp-seat.disabled {
+            background: #6c757d !important;
+            opacity: 0.75;
+            border: 1px solid #444;
+        }
+
+        .sp-seat.disabled::after {
+            content: "✕";
+            font-size: 9px;
+            font-weight: bold;
+            color: #fff;
+            position: absolute;
+            top: -3px;
+            right: -2px;
+        }
+
+        /* ------------------------------------------------------------
+            RESIZE HANDLES (jQuery UI)
+            ------------------------------------------------------------ */
         .ui-resizable-handle {
             position: absolute;
-            font-size: 0.1px;
             display: block;
-            z-index: 90;
             opacity: 0;
-            /* Hidden by default, visible on hover */
-            transition: opacity 0.2s;
+            z-index: 90;
+            transition: opacity .2s;
         }
 
         .sp-item:hover .ui-resizable-handle {
             opacity: 1;
         }
 
+        /* Bottom-right handle */
         .ui-resizable-se {
             cursor: se-resize;
             width: 12px;
             height: 12px;
-            right: 1px;
-            bottom: 1px;
             background: #3b5fff;
+            right: 0;
+            bottom: 0;
         }
 
+        /* East / South handles */
         .ui-resizable-e {
             cursor: e-resize;
-            width: 7px;
-            right: -5px;
+            width: 8px;
+            right: -4px;
             top: 0;
             height: 100%;
         }
 
         .ui-resizable-s {
             cursor: s-resize;
-            height: 7px;
-            bottom: -5px;
+            height: 8px;
+            bottom: -4px;
             left: 0;
             width: 100%;
         }
 
-        /* --- ADD TO YOUR CSS --- */
-
-        /* The Blue Drag Box */
+        /* ------------------------------------------------------------
+        SELECTION MARQUEE (blue drag box)
+        ------------------------------------------------------------ */
         .selection-marquee {
-            position: absolute;
-            border: 1px dashed #009ef7;
-            background-color: rgba(0, 158, 247, 0.15);
-            z-index: 99999;
+            position: fixed;
+            border: 1px dashed var(--primary);
+            background: rgba(0, 158, 247, 0.15);
             pointer-events: none;
-            /* Clicks pass through */
             display: none;
+            z-index: 99999;
         }
 
-        /* Highlight selected seats */
-        .sp-seat.selected {
-            background-color: #009ef7 !important;
-            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #009ef7;
-            z-index: 10;
+        /* ------------------------------------------------------------
+            CONTEXT MENUS
+            ------------------------------------------------------------ */
+        .sp-context-menu {
+            position: fixed;
+            z-index: 999999;
+            display: none;
+            background: #fff;
+            border: 1px solid var(--border-soft);
+            border-radius: 6px;
+            min-width: 170px;
+            padding: 6px 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .sp-context-menu li {
+            padding: 8px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sp-context-menu li:hover {
+            background: #f1f5f9;
+            color: var(--primary);
         }
     </style>
 
@@ -262,13 +292,24 @@
     </div>
 
     <ul id="menu-section" class="sp-context-menu">
-        <li data-action="rename"><i class="fa fa-pen text-muted"></i> Rename</li>
-        <li data-action="bg-color"><i class="fa fa-fill-drip text-muted"></i> Background</li>
-        <li data-action="generate-rows"><i class="fa fa-th text-muted"></i> Generate Rows</li>
-        <li data-action="add-seat"><i class="fa fa-plus-circle text-muted"></i> Add Seat</li>
-        <li data-action="duplicate"><i class="fa fa-clone text-muted"></i> Duplicate</li>
+        <li data-action="rename"><i class="fa fa-pen"></i> Rename</li>
+        <li data-action="bg-color"><i class="fa fa-fill-drip"></i> Background</li>
+        <li data-action="generate-rows"><i class="fa fa-th"></i> Generate Rows</li>
+        <li data-action="add-seat"><i class="fa fa-plus-circle"></i> Add Seat</li>
+
+        <li class="border-top mt-1" style="height:1px;background:#eee;"></li>
+
+        <li data-action="disable-selected-seats"><i class="fa fa-ban text-danger"></i> Disable Selected Seats</li>
+        <li data-action="enable-selected-seats"><i class="fa fa-check text-success"></i> Enable Selected Seats</li>
+        <li data-action="disable-all-seats"><i class="fa fa-ban text-danger"></i> Disable ALL Seats</li>
+        <li data-action="enable-all-seats"><i class="fa fa-check text-success"></i> Enable ALL Seats</li>
+
+        <li class="border-top mt-1" style="height:1px;background:#eee;"></li>
+
+        <li data-action="duplicate"><i class="fa fa-clone"></i> Duplicate</li>
         <li data-action="delete" class="text-danger"><i class="fa fa-trash"></i> Delete</li>
     </ul>
+
 
     <ul id="menu-stage" class="sp-context-menu">
         <li data-action="rename"><i class="fa fa-pen text-muted"></i> Rename</li>
@@ -291,533 +332,512 @@
     </ul>
 
     <ul id="menu-seat-item" class="sp-context-menu">
-        <li data-action="rename-seat"><i class="fa fa-pen text-muted"></i> Rename Seat</li>
+        <li data-action="rename-seat"><i class="fa fa-pen"></i> Rename Seat</li>
+        <li data-action="toggle-disable-seat"><i class="fa fa-ban"></i> Disable / Enable Seat</li>
         <li data-action="delete-seat" class="text-danger"><i class="fa fa-trash"></i> Delete Seat</li>
     </ul>
 
+
     @push('scripts')
+        <script>
+            // Pass loaded JSON from PHP backend:
+            window.LOADED_DESIGN = {!! $designJson !!};
+
+            // Save URL:
+            window.SAVE_URL = "{{ route('admin.seating-plans.designer.save', $plan->id) }}";
+        </script>
+
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
+
         <script>
-            $(function() {
+            (function() {
 
-                // ========================================================================
-                // GLOBAL VARIABLES
-                // ========================================================================
+                // GLOBAL ROOT ELEMENT
                 const WRAPPER = $("#seatmap-designer-wrapper");
-                let CURRENT = null; // currently right-clicked item
-                let ROW_GEN_TARGET = null; // section selected for row generator
-                let LOADED = {!! $designJson !!}; // loaded JSON from database
 
-                // --- ADD TO GLOBALS ---
-                const $selectionMarquee = $('<div class="selection-marquee"></div>').appendTo('body');
-                // ========================================================================
-                // UTILITY: Unique ID
-                // ========================================================================
+                // ------------------------------------------------------------
+                // UTILS
+                // ------------------------------------------------------------
+
                 function uid(prefix = "id") {
                     return prefix + "-" + Math.random().toString(36).substring(2, 10);
                 }
 
-
-                // ========================================================================
-                // CREATE BLOCK (Section, Stage, GA, Table)
-                // ========================================================================
-                function createBlock(type, label, x = 50, y = 50, w = 160, h = 100, rotation = 0, seats = []) {
-
-                    let className = "sp-item";
-                    if (type === "stage") className += " sp-stage";
-                    if (type === "general_admission") className += " sp-ga";
-                    if (type === "table") className += " sp-table";
-
-                    const id = uid(type);
-
-                    const el = $(`
-                        <div class="${className}" data-id="${id}" data-type="${type}" data-label="${label}"
-                            style="left:${x}px; top:${y}px; width:${w}px; height:${h}px; transform:rotate(${rotation}deg)">
-
-                            <h6>${label}</h6>
-                            <div class="sp-rotate-handle"></div>
-                        </div>
-                    `);
-
-                    WRAPPER.append(el);
-
-                    // Apply Interactions
-                    makeDraggable(el);
-                    makeResizable(el);
-                    makeRotatable(el);
-                    bindContextMenu(el);
-                    bringToFront(el); // Initial z-index boost
-
-                    if (type === 'seat' || type === 'table') {
-                        enableMarqueeSelection(el);
-                    }
-                    // Load seats if any exist
-                    seats.forEach(s => {
-                        addSeat(el, s.x, s.y, s.label, s.id, s.dead);
-                    });
-
-                    return el;
-                }
-
-
-                // --- ADD THIS NEW FUNCTION ---
-                function enableMarqueeSelection($element) {
-                    $element.on('mousedown', function(e) {
-                        // 1. Ignore if clicking dragging handle (h6) or an existing seat
-                        if ($(e.target).is('h6') || $(e.target).hasClass('sp-seat') || $(e.target).hasClass(
-                                'sp-rotate-handle')) {
-                            return;
-                        }
-
-                        // 2. If Ctrl is NOT held, clear previous selection
-                        if (!e.ctrlKey && !e.shiftKey) {
-                            $element.find('.sp-seat').removeClass('selected');
-                        }
-
-                        // 3. Start Drawing Box
-                        e.preventDefault(); // Prevent text highlight
-
-                        // Disable dragging of the section temporarily so we can draw
-                        if ($element.data('ui-draggable')) $element.draggable('disable');
-
-                        const startX = e.pageX;
-                        const startY = e.pageY;
-
-                        $selectionMarquee.css({
-                            top: startY,
-                            left: startX,
-                            width: 0,
-                            height: 0,
-                            display: 'block'
-                        });
-
-                        // 4. Mouse Move (Expand Box & Detect Collision)
-                        $(document).on('mousemove.marquee', function(ev) {
-                            const currentX = ev.pageX;
-                            const currentY = ev.pageY;
-
-                            const width = Math.abs(currentX - startX);
-                            const height = Math.abs(currentY - startY);
-                            const newX = (currentX < startX) ? currentX : startX;
-                            const newY = (currentY < startY) ? currentY : startY;
-
-                            $selectionMarquee.css({
-                                width: width,
-                                height: height,
-                                top: newY,
-                                left: newX
-                            });
-
-                            // Detect Overlap with Seats
-                            $element.find('.sp-seat').each(function() {
-                                const $seat = $(this);
-                                const seatOff = $seat.offset();
-
-                                // Box Coordinates
-                                const boxRight = newX + width;
-                                const boxBottom = newY + height;
-
-                                // Seat Coordinates
-                                const seatRight = seatOff.left + $seat.width();
-                                const seatBottom = seatOff.top + $seat.height();
-
-                                // Collision Check
-                                if (newX < seatRight && boxRight > seatOff.left &&
-                                    newY < seatBottom && boxBottom > seatOff.top) {
-                                    $seat.addClass('selected');
-                                }
-                            });
-                        });
-
-                        // 5. Mouse Up (Finish)
-                        $(document).on('mouseup.marquee', function() {
-                            $selectionMarquee.hide();
-                            $(document).off('mousemove.marquee mouseup.marquee');
-
-                            // Re-enable dragging of the section
-                            if ($element.data('ui-draggable')) $element.draggable('enable');
-                        });
-                    });
-                }
-
-                // ========================================================================
-                // DRAGGABLE (Fixed Logic)
-                // ========================================================================
-                function makeDraggable(el) {
-                    el.draggable({
-                        containment: WRAPPER,
-                        handle: "h6", // Drag by header
-                        start: function() {
-                            bringToFront($(this));
-                            $(".sp-context-menu").hide();
-                        },
-                        stop: saveDesign
-                    });
-
-                    // Bring to front on click
-                    el.on('mousedown', function() {
-                        bringToFront($(this));
-                    });
-                }
-
-                function bringToFront(el) {
-                    // Reset others
-                    $(".sp-item").css("z-index", 10);
-                    // Boost current
-                    el.css("z-index", 50);
-                }
-
-
-                // ========================================================================
-                // RESIZABLE
-                // ========================================================================
-                // function makeResizable(el) {
-                //     // Tables shouldn't resize freely usually, but allowing it for flexibility
-                //     el.resizable({
-                //         containment: WRAPPER,
-                //         handles: "n,e,s,w,ne,se,sw,nw",
-                //         stop: function() {
-                //             enforceSeatBounds(el);
-                //             saveDesign();
-                //         }
-                //     });
-                // }
-
-                function makeResizable(el) {
-                    // Tables and Sections resize differently
-                    const type = el.data('type');
-
-                    el.resizable({
-                        containment: WRAPPER,
-                        handles: "all", // Enables all resize handles
-                        minWidth: 50,
-                        minHeight: 50,
-                        stop: function(e, ui) {
-                            // If table, keep circle shape
-                            if (type === 'table') {
-                                const s = Math.max(ui.size.width, ui.size.height);
-                                el.css({
-                                    width: s,
-                                    height: s,
-                                    borderRadius: '50%'
-                                });
-                                // Auto-adjust seats to new circle
-                                const seats = el.find('.sp-seat');
-                                if (seats.length > 0) generateCircularSeats(el, seats.length);
-                            }
-
-                            // If Section, enforce bounds
-                            if (type === 'seat') {
-                                enforceSeatBounds(el);
-                            }
-
-                            saveDesign();
-                        }
-                    });
-                }
-
-
-                // ========================================================================
-                // ROTATABLE
-                // ========================================================================
-                function makeRotatable(el) {
-                    const handle = el.find(".sp-rotate-handle");
-
-                    handle.on("mousedown", function(e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-
-                        const startX = e.pageX;
-                        const startAngle = getRotation(el);
-
-                        $(document).on("mousemove.rotate", function(ev) {
-                            const dx = ev.pageX - startX;
-                            const angle = startAngle + dx * 0.7;
-                            el.css("transform", `rotate(${angle}deg)`);
-                        });
-
-                        $(document).on("mouseup.rotate", function() {
-                            $(document).off("mousemove.rotate mouseup.rotate");
-                            saveDesign();
-                        });
-                    });
-                }
-
                 function getRotation(el) {
-                    let tf = el.css("transform");
+                    const tf = el.css("transform");
                     if (!tf || tf === "none") return 0;
 
-                    let v = tf.split("(")[1].split(")")[0].split(",");
-                    let a = parseFloat(v[0]);
-                    let b = parseFloat(v[1]);
+                    const v = tf.split("(")[1].split(")")[0].split(",");
+                    const a = parseFloat(v[0]);
+                    const b = parseFloat(v[1]);
 
                     return Math.round(Math.atan2(b, a) * (180 / Math.PI));
                 }
 
-
-                // ========================================================================
-                // SEATS
-                // ========================================================================
-                // function addSeat(section, x, y, label = null, id = null, dead = false) {
-
-                //     const count = section.find(".sp-seat").length + 1;
-                //     const seatLabel = label || "S" + count;
-                //     const seatId = id || uid("seat");
-
-                //     const seat = $(`
-        //         <div class="sp-seat ${dead ? 'dead' : ''}" data-id="${seatId}" data-label="${seatLabel}" data-dead="${dead ? 1 : 0}"
-        //             style="left:${x}px; top:${y}px;">
-        //             <span>${seatLabel}</span>
-        //         </div>
-        //     `);
-
-                //     section.append(seat);
-
-                //     // Draggable
-                //     seat.draggable({
-                //         containment: section,
-                //         stop: saveDesign
-                //     });
-
-                //     // Select
-                //     seat.on("click", function(e) {
-                //         e.stopPropagation();
-                //         $(this).toggleClass("selected");
-                //     });
-
-                //     // Delete on double click
-                //     seat.on("dblclick", function(e) {
-                //         e.stopPropagation();
-                //         if (confirm("Delete seat?")) {
-                //             $(this).remove();
-                //             saveDesign();
-                //         }
-                //     });
-
-                //     return seat;
-                // }
-
-                // function addSeat(section, x, y, label = null, id = null, dead = false) {
-                //     const count = section.find(".sp-seat").length + 1;
-                //     const seatLabel = label || "S" + count;
-                //     const seatId = id || uid("seat");
-
-                //     const seat = $(`
-        //             <div class="sp-seat ${dead ? 'dead' : ''}"
-        //                 data-id="${seatId}"
-        //                 data-label="${seatLabel}"
-        //                 data-dead="${dead ? 1 : 0}"
-        //                 style="left:${x}px; top:${y}px;">
-        //                 <span class="seat-lbl">${seatLabel}</span>
-        //             </div>
-        //         `);
-
-                //     section.append(seat);
-
-                //     // Draggable
-                //     seat.draggable({
-                //         containment: section,
-                //         stop: saveDesign
-                //     });
-
-                //     // Select (Left Click)
-                //     seat.on("click", function(e) {
-                //         e.stopPropagation();
-                //         // Handle Multi-select (Ctrl key)
-                //         if (e.ctrlKey || e.metaKey) {
-                //             $(this).toggleClass("selected");
-                //         } else {
-                //             // If clicking without Ctrl, select only this one?
-                //             // Or keep standard behavior. For now, toggle is safest.
-                //             $(this).toggleClass("selected");
-                //         }
-                //     });
-
-                //     // Right Click (Context Menu) - NEW ADDITION
-                //     seat.on("contextmenu", function(e) {
-                //         e.preventDefault();
-                //         e.stopPropagation(); // Prevent section menu from showing
-                //         $(".sp-context-menu").hide(); // Hide other menus
-
-                //         // Store the seat being edited in the menu's data
-                //         $("#menu-seat-item").data("target", $(this));
-
-                //         $("#menu-seat-item").css({
-                //             left: e.clientX, // Fixed positioning
-                //             top: e.clientY
-                //         }).show();
-                //     });
-
-                //     return seat;
-                // }
-
-                // ========================================================================
-                // SEATS (Updated for Tooltip + Multi-Drag)
-                // ========================================================================
-                function addSeat(section, x, y, label = null, id = null, dead = false) {
-
-                    const count = section.find(".sp-seat").length + 1;
-                    const seatLabel = label || "S" + count;
-                    const seatId = id || uid("seat");
-
-                    // 1. Added 'title' attribute for native browser Tooltip
-                    const seat = $(`
-                                <div class="sp-seat ${dead ? 'dead' : ''}"
-                                    data-id="${seatId}"
-                                    data-label="${seatLabel}"
-                                    data-dead="${dead ? 1 : 0}"
-                                    title="${seatLabel}"
-                                    style="left:${x}px; top:${y}px;">
-                                    <span>${seatLabel}</span>
-                                </div>
-                            `);
-
-                    section.append(seat);
-
-                    // 2. Updated Draggable Logic for Multi-Select Moving
-                    seat.draggable({
-                        containment: section,
-                        start: function(e, ui) {
-                            // If dragging an unselected seat, select it (and deselect others unless Ctrl pressed)
-                            if (!$(this).hasClass('selected')) {
-                                if (!e.ctrlKey) section.find('.sp-seat').removeClass('selected');
-                                $(this).addClass('selected');
-                            }
-
-                            // Record start positions of ALL selected seats relative to the section
-                            section.find('.sp-seat.selected').each(function() {
-                                const el = $(this);
-                                el.data('startPos', el.position());
-                            });
-                        },
-                        drag: function(e, ui) {
-                            // Calculate how much the "leader" (dragged seat) moved
-                            const dt = ui.position.top - ui.originalPosition.top;
-                            const dl = ui.position.left - ui.originalPosition.left;
-
-                            // Move all other selected seats by the same amount
-                            section.find('.sp-seat.selected').not(this).each(function() {
-                                const el = $(this);
-                                const start = el.data('startPos');
-                                if (start) {
-                                    el.css({
-                                        top: start.top + dt,
-                                        left: start.left + dl
-                                    });
-                                }
-                            });
-                        },
-                        stop: saveDesign
-                    });
-
-                    // Select Logic
-                    seat.on("click", function(e) {
-                        e.stopPropagation();
-                        // Allow multi-select with Ctrl key, otherwise toggle single
-                        if (e.ctrlKey || e.metaKey) {
-                            $(this).toggleClass("selected");
-                        } else {
-                            // If clicking a seat that is already selected (and dragging), don't clear
-                            // But for a pure click:
-                            const wasSelected = $(this).hasClass('selected');
-                            // Optional: Clear others if not holding Ctrl?
-                            // section.find('.sp-seat').removeClass('selected');
-                            $(this).toggleClass("selected");
-                        }
-                    });
-
-                    // Delete on double click
-                    seat.on("dblclick", function(e) {
-                        e.stopPropagation();
-                        if (confirm("Delete seat?")) {
-                            $(this).remove();
-                            saveDesign();
-                        }
-                    });
-
-                    // Right Click (Context Menu) - NEW ADDITION
-                    seat.on("contextmenu", function(e) {
-                        e.preventDefault();
-                        e.stopPropagation(); // Prevent section menu from showing
-                        $(".sp-context-menu").hide(); // Hide other menus
-
-                        // Store the seat being edited in the menu's data
-                        $("#menu-seat-item").data("target", $(this));
-
-                        $("#menu-seat-item").css({
-                            left: e.clientX, // Fixed positioning
-                            top: e.clientY
-                        }).show();
-                    });
-
-                    return seat;
+                function clamp(v, min, max) {
+                    return Math.max(min, Math.min(max, v));
                 }
 
-                // Keep seats inside section box
-                function enforceSeatBounds(section) {
-                    const sw = section.width();
-                    const sh = section.height();
+                // ------------------------------------------------------------
+                // SMART HYBRID AUTO-SCALING ENGINE
+                // ------------------------------------------------------------
+                const AutoScale = {
+                    computeSeatSize(blockEl, seatCount) {
 
-                    section.find(".sp-seat").each(function() {
-                        let s = $(this);
-                        let x = parseFloat(s.css("left"));
-                        let y = parseFloat(s.css("top"));
-                        const w = s.outerWidth();
-                        const h = s.outerHeight();
+                        if (seatCount === 0) return 32;
 
-                        if (x < 0) x = 0;
-                        if (y < 0) y = 0;
-                        if (x > sw - w) x = sw - w;
-                        if (y > sh - h) y = sh - h;
+                        const w = blockEl.width();
+                        const h = blockEl.height();
+                        const S = Math.sqrt(seatCount);
 
-                        s.css({
-                            left: x,
-                            top: y
+                        // Hybrid scaling formula
+                        let size = (Math.min(w, h) / S) * 1.15;
+
+                        size = clamp(size, 14, 38);
+                        return size;
+                    },
+
+                    applySeatSize(blockEl) {
+                        const seats = blockEl.find(".sp-seat");
+                        const seatCount = seats.length;
+
+                        const newSize = this.computeSeatSize(blockEl, seatCount);
+
+                        seats.css({
+                            width: newSize + "px",
+                            height: newSize + "px",
+                            "line-height": newSize + "px",
+                            "font-size": (newSize * 0.32) + "px"
                         });
-                    });
+                    }
+                };
+
+                // ------------------------------------------------------------
+                // SEAT MANAGER
+                // Handles adding, selecting, moving, disabling, deleting seats
+                // ------------------------------------------------------------
+                const SeatManager = {
+
+                    createSeat(blockEl, x, y, label, id, disabled = false) {
+
+                        const seatId = id || uid("seat");
+                        const safeLabel = label || "S";
+
+                        const seat = $(`
+                            <div class="sp-seat ${disabled ? 'disabled' : ''}"
+                                data-id="${seatId}"
+                                data-label="${safeLabel}"
+                                data-disabled="${disabled ? 1 : 0}"
+                                style="left:${x}px; top:${y}px;">
+                                ${safeLabel}
+                            </div>
+                        `);
+
+                        blockEl.append(seat);
+                        this.makeDraggable(seat, blockEl);
+
+                        seat.on("click", (e) => {
+                            e.stopPropagation();
+                            if (e.ctrlKey || e.metaKey) {
+                                seat.toggleClass("selected");
+                            } else {
+                                // toggle selected without clearing others
+                                seat.toggleClass("selected");
+                            }
+                        });
+
+                        AutoScale.applySeatSize(blockEl);
+
+                        return seat;
+                    },
+
+                    makeDraggable(seat, blockEl) {
+                        seat.draggable({
+                            containment: blockEl,
+                            drag: () => {},
+                            stop: () => {
+                                saveDesign();
+                            }
+                        });
+                    },
+
+                    disableSelected(blockEl) {
+                        blockEl.find(".sp-seat.selected").each(function() {
+                            $(this).addClass("disabled").attr("data-disabled", 1);
+                        });
+                        AutoScale.applySeatSize(blockEl);
+                    },
+
+                    enableSelected(blockEl) {
+                        blockEl.find(".sp-seat.selected").each(function() {
+                            $(this).removeClass("disabled").attr("data-disabled", 0);
+                        });
+                        AutoScale.applySeatSize(blockEl);
+                    },
+
+                    disableAll(blockEl) {
+                        blockEl.find(".sp-seat").each(function() {
+                            $(this).addClass("disabled").attr("data-disabled", 1);
+                        });
+                        AutoScale.applySeatSize(blockEl);
+                    },
+
+                    enableAll(blockEl) {
+                        blockEl.find(".sp-seat").each(function() {
+                            $(this).removeClass("disabled").attr("data-disabled", 0);
+                        });
+                        AutoScale.applySeatSize(blockEl);
+                    },
+
+                    deleteSelected(blockEl) {
+                        blockEl.find(".sp-seat.selected").remove();
+                        AutoScale.applySeatSize(blockEl);
+                    }
+                };
+
+                // ------------------------------------------------------------
+                // BLOCK MANAGER
+                // Handles creation, duplication, dragging, resizing, rotation
+                // ------------------------------------------------------------
+                const BlockManager = {
+
+                    create(type, label, x, y, w, h, rotation = 0, seats = []) {
+
+                        let className = "sp-item";
+                        if (type === "stage") className += " sp-stage";
+                        if (type === "general_admission") className += " sp-ga";
+                        if (type === "table") className += " sp-table";
+
+                        const id = uid(type);
+
+                        const el = $(`
+                            <div class="${className}"
+                                data-id="${id}"
+                                data-type="${type}"
+                                data-label="${label}"
+                                style="left:${x}px; top:${y}px;
+                                        width:${w}px; height:${h}px;
+                                        transform:rotate(${rotation}deg)">
+                                <h6>${label}</h6>
+                                <div class="sp-rotate-handle"></div>
+                            </div>
+                        `);
+
+                        WRAPPER.append(el);
+
+                        this.makeDraggable(el);
+                        this.makeResizable(el);
+                        this.makeRotatable(el);
+                        this.enableMarqueeSelection(el);
+                        bringToFront(el);
+
+                        seats.forEach(s => {
+                            SeatManager.createSeat(
+                                el,
+                                s.x,
+                                s.y,
+                                s.label,
+                                s.id,
+                                s.disabled == 1
+                            );
+                        });
+
+                        AutoScale.applySeatSize(el);
+
+                        return el;
+                    },
+
+                    makeDraggable(el) {
+                        el.draggable({
+                            containment: WRAPPER,
+                            handle: "h6",
+                            start: () => {
+                                bringToFront(el);
+                                $(".sp-context-menu").hide();
+                            },
+                            stop: () => saveDesign()
+                        });
+
+                        el.on("mousedown", () => bringToFront(el));
+                    },
+
+                    makeResizable(el) {
+
+                        el.resizable({
+                            containment: WRAPPER,
+                            handles: "all",
+                            minWidth: 60,
+                            minHeight: 60,
+                            stop: () => {
+                                AutoScale.applySeatSize(el);
+                                saveDesign();
+                            }
+                        });
+
+                        if (el.data("type") === "table") {
+                            el.resizable("option", "aspectRatio", 1);
+                        }
+                    },
+
+                    makeRotatable(el) {
+                        const handle = el.find(".sp-rotate-handle");
+
+                        handle.on("mousedown", function(e) {
+                            e.preventDefault();
+                            e.stopPropagation();
+
+                            const startX = e.pageX;
+                            const startAngle = getRotation(el);
+
+                            $(document).on("mousemove.rotate", function(ev) {
+                                const dx = ev.pageX - startX;
+                                const angle = startAngle + dx * 0.8;
+                                el.css("transform", `rotate(${angle}deg)`);
+                            });
+
+                            $(document).on("mouseup.rotate", function() {
+                                $(document).off("mousemove.rotate mouseup.rotate");
+                                saveDesign();
+                            });
+                        });
+                    },
+
+                    enableMarqueeSelection(el) {
+
+                        el.on("mousedown", function(e) {
+                            if ($(e.target).is("h6") || $(e.target).hasClass("sp-seat") || $(e.target).hasClass(
+                                    "sp-rotate-handle"))
+                                return;
+
+                            const marquee = $(".selection-marquee");
+                            marquee.show();
+
+                            const startX = e.pageX;
+                            const startY = e.pageY;
+
+                            if (el.data("ui-draggable"))
+                                el.draggable("disable");
+
+                            $(document).on("mousemove.marquee", function(ev) {
+                                const mx = Math.min(ev.pageX, startX);
+                                const my = Math.min(ev.pageY, startY);
+
+                                const w = Math.abs(ev.pageX - startX);
+                                const h = Math.abs(ev.pageY - startY);
+
+                                marquee.css({
+                                    left: mx,
+                                    top: my,
+                                    width: w,
+                                    height: h
+                                });
+
+                                el.find(".sp-seat").each(function() {
+                                    const seat = $(this);
+                                    const off = seat.offset();
+
+                                    const sx = off.left;
+                                    const sy = off.top;
+                                    const sw = seat.width();
+                                    const sh = seat.height();
+
+                                    if (mx < sx + sw &&
+                                        mx + w > sx &&
+                                        my < sy + sh &&
+                                        my + h > sy) {
+                                        seat.addClass("selected");
+                                    }
+                                });
+                            });
+
+                            $(document).on("mouseup.marquee", function() {
+                                marquee.hide();
+                                marquee.width(0);
+                                marquee.height(0);
+
+                                $(document).off(".marquee");
+                                if (el.data("ui-draggable"))
+                                    el.draggable("enable");
+                            });
+                        });
+                    },
+
+                    duplicate(el) {
+
+                        const type = el.data("type");
+                        const label = el.data("label") + " (Copy)";
+                        const pos = el.position();
+                        const w = el.width();
+                        const h = el.height();
+                        const rot = getRotation(el);
+
+                        const seatsData = [];
+
+                        el.find(".sp-seat").each(function() {
+                            const s = $(this);
+
+                            seatsData.push({
+                                id: uid("seat"),
+                                label: s.data("label"),
+                                x: parseFloat(s.css("left")),
+                                y: parseFloat(s.css("top")),
+                                disabled: s.attr("data-disabled") == "1"
+                            });
+                        });
+
+                        const newEl = this.create(
+                            type,
+                            label,
+                            pos.left + 40,
+                            pos.top + 40,
+                            w,
+                            h,
+                            rot,
+                            seatsData
+                        );
+
+                        bringToFront(newEl);
+                        saveDesign();
+                    }
+                };
+
+                // ------------------------------------------------------------
+                // Z-INDEX CONTROL
+                // ------------------------------------------------------------
+                function bringToFront(el) {
+                    $(".sp-item").css("z-index", 10);
+                    el.css("z-index", 50);
                 }
 
+                // ------------------------------------------------------------
+                // GLOBAL DESIGN SERIALIZATION
+                // ------------------------------------------------------------
+                window.buildRawJSON = function() {
 
-                // ========================================================================
-                // CONTEXT MENU BINDING (Fixed Positioning)
-                // ========================================================================
-                function bindContextMenu(el) {
-                    el.on("contextmenu", function(e) {
-                        e.preventDefault();
-                        $(".sp-context-menu").hide();
+                    const out = [];
 
-                        CURRENT = el;
+                    $("#seatmap-designer-wrapper .sp-item").each(function() {
+                        const el = $(this);
+
+                        const block = {
+                            id: el.data("id"),
+                            type: el.data("type"),
+                            name: el.data("label"),
+                            x: parseFloat(el.css("left")),
+                            y: parseFloat(el.css("top")),
+                            width: el.outerWidth(),
+                            height: el.outerHeight(),
+                            rotation: getRotation(el),
+                            seats: []
+                        };
+
+                        el.find(".sp-seat").each(function() {
+                            const s = $(this);
+
+                            block.seats.push({
+                                id: s.data("id"),
+                                label: s.data("label"),
+                                disabled: s.attr("data-disabled") == "1" ? 1 : 0,
+                                x: parseFloat(s.css("left")),
+                                y: parseFloat(s.css("top"))
+                            });
+                        });
+
+                        out.push(block);
+                    });
+
+                    return out;
+                };
+
+                window.buildCleanSections = function() {
+
+                    const out = [];
+
+                    $("#seatmap-designer-wrapper .sp-item").each(function() {
+                        const el = $(this);
+
                         const type = el.data("type");
 
-                        let menu = $("#menu-section");
-                        if (type === "stage") menu = $("#menu-stage");
-                        if (type === "table") menu = $("#menu-table");
-                        if (type === "general_admission") menu = $("#menu-ga");
+                        const sec = {
+                            name: el.data("label"),
+                            type,
+                            capacity: type === "general_admission" ?
+                                parseInt(el.attr("data-capacity") || 0) : el.find(".sp-seat").length,
+                            x: parseFloat(el.css("left")),
+                            y: parseFloat(el.css("top")),
+                            rotation: getRotation(el),
+                            seats: []
+                        };
 
-                        menu.css({
-                            left: e.clientX + 'px', // Use ClientX for Fixed Pos
-                            top: e.clientY + 'px'
-                        }).show();
+                        el.find(".sp-seat").each(function() {
+                            const s = $(this);
+                            const L = s.data("label");
+
+                            const row = L.match(/[A-Za-z]+/)?.[0] || null;
+                            const num = L.match(/\d+/)?.[0] || null;
+
+                            sec.seats.push({
+                                label: L,
+                                row_label: row,
+                                seat_number: num,
+                                disabled: s.attr("data-disabled") == "1",
+                                x: Math.round(parseFloat(s.css("left"))),
+                                y: Math.round(parseFloat(s.css("top")))
+                            });
+                        });
+
+                        out.push(sec);
                     });
-                }
 
-                $(document).on("click", function() {
-                    $(".sp-context-menu").hide();
-                });
+                    return out;
+                };
 
+                // ------------------------------------------------------------
+                // GLOBAL SAVE HOOK FOR OUTER SCRIPT
+                // ------------------------------------------------------------
+                window.saveDesign = function() {
+                    $("#seatmap_raw").val(JSON.stringify(buildRawJSON()));
+                    $("#seatmap_sections").val(JSON.stringify(buildCleanSections()));
+                };
 
-                // ========================================================================
-                // LOAD EXISTING JSON
-                // ========================================================================
+                // ------------------------------------------------------------
+                // EXPORT CORE FOR USE IN PART 3
+                // ------------------------------------------------------------
+                window.BlockManager = BlockManager;
+                window.SeatManager = SeatManager;
+                window.AutoScale = AutoScale;
+
+            })();
+        </script>
+        {{-- UI LOGIC LAYER --}}
+        <script>
+            $(function() {
+
+                // ROOT WRAPPER
+                const WRAPPER = $("#seatmap-designer-wrapper");
+
+                // Loaded JSON (from backend)
+                const LOADED = window.LOADED_DESIGN || [];
+
+                // Context menu target
+                let CURRENT = null;
+                let ROW_GEN_TARGET = null;
+                let renameTarget = null;
+                let colorTarget = null;
+                let gaTarget = null;
+
+                // ------------------------------------------------------------
+                // LOAD EXISTING DESIGN
+                // ------------------------------------------------------------
                 function loadExisting() {
-                    if (!LOADED || !Array.isArray(LOADED)) return;
+                    if (!Array.isArray(LOADED)) return;
 
                     LOADED.forEach(item => {
-                        createBlock(
+                        window.BlockManager.create(
                             item.type,
                             item.name,
                             item.x,
@@ -831,87 +851,114 @@
                 }
                 loadExisting();
 
-
-                // ========================================================================
-                // SAVE DESIGN
-                // ========================================================================
-                function saveDesign() {
-                    $("#seatmap_raw").val(JSON.stringify(buildRawJSON()));
-                    $("#seatmap_sections").val(JSON.stringify(buildCleanSections()));
-                }
-
-                window.saveDesign = saveDesign;
-
-
-                // ========================================================================
+                // ------------------------------------------------------------
                 // TOOLBAR BUTTONS
-                // ========================================================================
-                $("#btn-add-section").click(() => createBlock("seat", "Section", 80, 80));
-                $("#btn-add-stage").click(() => createBlock("stage", "Stage", 150, 60, 260, 80));
-                $("#btn-add-ga").click(() => createBlock("general_admission", "GA", 120, 120, 220, 160));
-                $("#btn-add-table").click(() => createBlock("table", "Table", 200, 150, 120, 120));
+                // ------------------------------------------------------------
+                $("#btn-add-section").click(() =>
+                    BlockManager.create("seat", "Section", 80, 80, 160, 120, 0, [])
+                );
 
-                /* ============================================================================
-                   PART 3 — CONTEXT MENU ACTIONS + ROW EDITOR + SAVE TO CONTROLLER
-                   ============================================================================ */
+                $("#btn-add-stage").click(() =>
+                    BlockManager.create("stage", "Stage", 120, 60, 260, 80, 0, [])
+                );
 
-                // =========================================================================
-                // HELPER: Modal
-                // =========================================================================
-                function showModal(id) {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        const modal = bootstrap.Modal.getOrCreateInstance(el);
-                        modal.show();
-                    }
+                $("#btn-add-ga").click(() =>
+                    BlockManager.create("general_admission", "GA", 100, 120, 220, 160, 0, [])
+                );
+
+                $("#btn-add-table").click(() =>
+                    BlockManager.create("table", "Table", 200, 150, 140, 140, 0, [])
+                );
+
+                // ------------------------------------------------------------
+                // CONTEXT MENU BINDING FOR BLOCKS
+                // ------------------------------------------------------------
+                function bindContextMenu(el) {
+                    el.on("contextmenu", function(e) {
+                        e.preventDefault();
+                        $(".sp-context-menu").hide();
+
+                        CURRENT = el;
+                        const type = el.data("type");
+
+                        let menu = $("#menu-section");
+                        if (type === "stage") menu = $("#menu-stage");
+                        if (type === "table") menu = $("#menu-table");
+                        if (type === "general_admission") menu = $("#menu-ga");
+
+                        menu
+                            .css({
+                                left: e.clientX,
+                                top: e.clientY
+                            })
+                            .show();
+                    });
                 }
 
-                function hideModal(id) {
-                    const el = document.getElementById(id);
-                    if (el) {
-                        const modal = bootstrap.Modal.getOrCreateInstance(el);
-                        modal.hide();
-                    }
-                }
+                // Attach menu to each block on creation
+                // Attach context menu to all blocks (dynamic)
+                $(document).on("contextmenu", ".sp-item", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                // =========================================================================
-                // GLOBAL TARGETS
-                // =========================================================================
-                window.renameTarget = null;
-                window.colorTarget = null;
-                window.gaTarget = null;
+                    CURRENT = $(this);
+                    $(".sp-context-menu").hide();
 
-                // =========================================================================
-                // CONTEXT MENU ACTION HANDLER
-                // =========================================================================
-                $(".sp-context-menu li").on("click", function(e) {
+                    let type = CURRENT.data("type");
+
+                    let menu = $("#menu-section");
+                    if (type === "stage") menu = $("#menu-stage");
+                    if (type === "table") menu = $("#menu-table");
+                    if (type === "general_admission") menu = $("#menu-ga");
+
+                    menu.css({
+                        left: e.clientX,
+                        top: e.clientY
+                    }).show();
+                });
+
+
+                $(document).on("click", function() {
+                    $(".sp-context-menu").hide();
+                });
+
+                // ------------------------------------------------------------
+                // CONTEXT MENU ACTIONS FOR BLOCKS
+                // ------------------------------------------------------------
+                $("#menu-section li, #menu-stage li, #menu-table li, #menu-ga li").on("click", function(e) {
                     e.stopPropagation();
                     $(".sp-context-menu").hide();
 
                     const action = $(this).data("action");
                     if (!CURRENT) return;
-                    const type = CURRENT.attr("data-type");
+
+                    const type = CURRENT.data("type");
 
                     switch (action) {
+
+                        // ----------------------------------------------------
                         case "rename":
                             renameTarget = CURRENT;
-                            $("#modal-rename-input").val(renameTarget.attr("data-label"));
-                            showModal('modal-rename');
+                            $("#modal-rename-input").val(renameTarget.data("label"));
+                            showModal("modal-rename");
                             break;
 
+                            // ----------------------------------------------------
                         case "bg-color":
                             colorTarget = CURRENT;
                             $("#modal-bgcolor-input").val(rgbToHex(colorTarget.css("background-color")));
-                            showModal('modal-bgcolor');
+                            showModal("modal-bgcolor");
                             break;
 
+                            // ----------------------------------------------------
                         case "ga-capacity":
                             if (type !== "general_admission") return;
                             gaTarget = CURRENT;
                             $("#modal-ga-input").val(gaTarget.attr("data-capacity") || 0);
-                            showModal('modal-ga');
+                            showModal("modal-ga");
                             break;
 
+                            // ----------------------------------------------------
                         case "delete":
                             if (confirm("Delete this item?")) {
                                 CURRENT.remove();
@@ -919,241 +966,246 @@
                             }
                             break;
 
+                            // ----------------------------------------------------
                         case "duplicate":
-                            duplicateItem(CURRENT);
+                            BlockManager.duplicate(CURRENT);
                             break;
 
+                            // ----------------------------------------------------
                         case "add-seat":
-                            alert("Click inside section to place seat.");
+                            alert("Click inside the section to place a seat.");
                             CURRENT.one("click.addSeat", function(ev) {
                                 const off = CURRENT.offset();
-                                const x = ev.pageX - off.left - 10;
-                                const y = ev.pageY - off.top - 10;
-                                addSeat(CURRENT, x, y);
+                                const x = ev.pageX - off.left - 16;
+                                const y = ev.pageY - off.top - 16;
+                                SeatManager.createSeat(CURRENT, x, y);
                                 saveDesign();
                             });
                             break;
 
+                            // ----------------------------------------------------
                         case "generate-rows":
                             ROW_GEN_TARGET = CURRENT;
-                            showModal('modal-generate-rows');
+                            showModal("modal-generate-rows");
                             break;
 
+                            // ----------------------------------------------------
                         case "table-auto-seats":
                             if (type !== "table") return;
                             const count = parseInt(prompt("Number of seats?", "8"));
-                            if (!isNaN(count) && count > 0) generateCircularSeats(CURRENT, count);
+                            if (!isNaN(count) && count > 0) {
+                                generateCircularSeats(CURRENT, count);
+                                saveDesign();
+                            }
+                            break;
+
+                            // ----------------------------------------------------
+                        case "disable-selected-seats":
+                            SeatManager.disableSelected(CURRENT);
+                            saveDesign();
+                            break;
+
+                        case "enable-selected-seats":
+                            SeatManager.enableSelected(CURRENT);
+                            saveDesign();
+                            break;
+
+                        case "disable-all-seats":
+                            SeatManager.disableAll(CURRENT);
+                            saveDesign();
+                            break;
+
+                        case "enable-all-seats":
+                            SeatManager.enableAll(CURRENT);
                             saveDesign();
                             break;
                     }
                 });
 
-                // --- SEAT CONTEXT MENU ACTIONS ---
+                // ------------------------------------------------------------
+                // SEAT CONTEXT MENU
+                // ------------------------------------------------------------
                 $("#menu-seat-item li").on("click", function(e) {
                     e.stopPropagation();
                     $("#menu-seat-item").hide();
 
                     const action = $(this).data("action");
-                    const $seat = $("#menu-seat-item").data("target");
+                    const seat = $("#menu-seat-item").data("target");
+                    if (!seat) return;
 
-                    if (!$seat) return;
+                    switch (action) {
 
-                    if (action === "rename-seat") {
-                        const oldLabel = $seat.data("label"); // Use .data() for consistency
-                        const newLabel = prompt("Enter Seat Label:", oldLabel);
+                        case "rename-seat":
+                            const old = seat.data("label");
+                            const nl = prompt("Seat Label:", old);
+                            if (nl) {
+                                seat.data("label", nl);
+                                seat.attr("data-label", nl);
+                                seat.text(nl);
+                                saveDesign();
+                            }
+                            break;
 
-                        if (newLabel && newLabel.trim() !== "") {
-                            // 1. Update Visual Text
-                            $seat.find("span").text(newLabel);
-
-                            // 2. Update HTML Attribute (for inspection)
-                            $seat.attr("data-label", newLabel);
-
-                            // 3. CRITICAL: Update jQuery Data Cache (This is what saveDesign reads!)
-                            $seat.data("label", newLabel);
-
+                        case "toggle-disable-seat":
+                            const isDis = seat.attr("data-disabled") == "1";
+                            if (isDis) {
+                                seat.removeClass("disabled").attr("data-disabled", 0);
+                            } else {
+                                seat.addClass("disabled").attr("data-disabled", 1);
+                            }
                             saveDesign();
-                        }
-                    }
+                            break;
 
-                    if (action === "delete-seat") {
-                        if (confirm("Delete this seat?")) {
-                            $seat.remove();
-                            saveDesign();
-                        }
+                        case "delete-seat":
+                            if (confirm("Delete this seat?")) {
+                                seat.remove();
+                                saveDesign();
+                            }
+                            break;
                     }
                 });
 
-                // function duplicateItem(el) {
-                //     const copy = el.clone();
-                //     const newId = "item-" + Math.random().toString(36).substring(2, 9);
-                //     copy.attr("data-id", newId);
-                //     let pos = el.position();
-                //     copy.css({
-                //         left: pos.left + 20,
-                //         top: pos.top + 20
-                //     });
+                // Right-click seat binding
+                $(document).on("contextmenu", ".sp-seat", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
 
-                //     copy.find('.sp-seat').remove();
-                //     el.find('.sp-seat').each(function() {
-                //         const s = $(this);
-                //         addSeat(copy, parseFloat(s.css("left")), parseFloat(s.css("top")), s.attr("data-label"),
-                //             "seat-" + Math.random().toString(36).substring(2, 9), s.attr("data-dead") == "1"
-                //         );
-                //     });
+                    $(".sp-context-menu").hide();
 
-                //     WRAPPER.append(copy);
-                //     makeDraggable(copy);
-                //     makeResizable(copy);
-                //     makeRotatable(copy);
-                //     bindContextMenu(copy);
-                //     saveDesign();
-                // }
+                    $("#menu-seat-item")
+                        .data("target", $(this))
+                        .css({
+                            left: e.clientX,
+                            top: e.clientY
+                        })
+                        .show();
+                });
 
-                function duplicateItem(el) {
-                    // 1. Extract Data from Original
-                    const type = el.data('type');
-                    const label = el.data('label') + ' (Copy)';
+                // ------------------------------------------------------------
+                // ROW GENERATOR
+                // ------------------------------------------------------------
+                $("#btn-apply-row-gen").click(function() {
 
-                    // Get dimensions and position
-                    const width = el.width();
-                    const height = el.height();
-                    const pos = el.position();
-                    const rotation = getRotation(el); // Keep rotation
+                    if (!ROW_GEN_TARGET) return;
 
-                    // 2. Extract Seats Data
-                    const seats = [];
-                    el.find('.sp-seat').each(function() {
-                        const s = $(this);
-                        seats.push({
-                            x: parseFloat(s.css('left')),
-                            y: parseFloat(s.css("top")),
-                            label: s.attr('data-label'), // Use attr to get current value
-                            id: null, // Generate new ID in addSeat
-                            dead: s.hasClass('dead')
-                        });
-                    });
+                    const rows = parseInt($("#gen-rows").val()) || 5;
+                    const cols = parseInt($("#gen-cols").val()) || 10;
+                    const dir = $("#gen-dir").val();
 
-                    // 3. Create New Clean Block
-                    // We offset x/y by 30px so it doesn't perfectly overlap
-                    const newEl = createBlock(
-                        type,
-                        label,
-                        pos.left + 30,
-                        pos.top + 30,
-                        width,
-                        height,
-                        rotation,
-                        seats
-                    );
+                    const size = parseInt($("#gen-size").val()) || 32;
+                    const gap = parseInt($("#gen-gap").val()) || 6;
 
-                    // 4. Select the new item
-                    // (Optional: Trigger click to visually select it)
-                    // newEl.trigger('mousedown');
+                    const sec = ROW_GEN_TARGET;
 
+                    sec.find(".sp-seat").remove();
+
+                    const W = sec.width();
+                    const H = sec.height();
+
+                    const totalW = cols * size + (cols - 1) * gap;
+                    const totalH = rows * size + (rows - 1) * gap;
+
+                    const startX = Math.max(0, (W - totalW) / 2);
+                    const startY = Math.max(0, (H - totalH) / 2);
+
+                    let rowLabel = "A";
+
+                    for (let r = 0; r < rows; r++) {
+                        let leftToRight = dir === "ltr";
+                        let baseY = startY + r * (size + gap);
+
+                        for (let c = 0; c < cols; c++) {
+                            const col = leftToRight ? c : cols - 1 - c;
+                            const x = startX + col * (size + gap);
+                            const y = baseY;
+                            const label = rowLabel + (c + 1);
+                            SeatManager.createSeat(sec, x, y, label);
+                        }
+
+                        rowLabel = String.fromCharCode(rowLabel.charCodeAt(0) + 1);
+                    }
+
+                    hideModal("modal-generate-rows");
                     saveDesign();
+                });
+
+                // ------------------------------------------------------------
+                // TABLE CIRCULAR SEAT GENERATOR
+                // ------------------------------------------------------------
+                function generateCircularSeats(tableEl, count) {
+
+                    tableEl.find(".sp-seat").remove();
+
+                    const r = tableEl.width() / 2 - 20;
+                    const cx = tableEl.width() / 2;
+                    const cy = tableEl.height() / 2;
+
+                    for (let i = 0; i < count; i++) {
+                        const angle = (2 * Math.PI * i) / count;
+                        const x = cx + r * Math.cos(angle) - 16;
+                        const y = cy + r * Math.sin(angle) - 16;
+                        SeatManager.createSeat(tableEl, x, y, "T" + (i + 1));
+                    }
                 }
 
+                // ------------------------------------------------------------
+                // MODALS UTILITIES
+                // ------------------------------------------------------------
+                function showModal(id) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).show();
+                }
+
+                function hideModal(id) {
+                    bootstrap.Modal.getOrCreateInstance(document.getElementById(id)).hide();
+                }
+
+                // ------------------------------------------------------------
+                // RENAME, COLOR, GA CAPACITY
+                // ------------------------------------------------------------
                 $("#modal-rename-save").click(function() {
                     if (!renameTarget) return;
                     const newName = $("#modal-rename-input").val().trim();
                     if (newName) {
                         renameTarget.attr("data-label", newName);
                         renameTarget.find("h6").text(newName);
-                        hideModal('modal-rename');
-                        saveDesign();
                     }
+                    hideModal("modal-rename");
+                    saveDesign();
                 });
 
                 $("#modal-bgcolor-save").click(function() {
                     if (!colorTarget) return;
-                    const newColor = $("#modal-bgcolor-input").val().trim();
-                    colorTarget.css("background-color", newColor);
-                    hideModal('modal-bgcolor');
+                    const nc = $("#modal-bgcolor-input").val();
+                    colorTarget.css("background-color", nc);
+                    hideModal("modal-bgcolor");
                     saveDesign();
                 });
 
                 $("#modal-ga-save").click(function() {
                     if (!gaTarget) return;
                     const cap = parseInt($("#modal-ga-input").val());
-                    if (!isNaN(cap)) gaTarget.attr("data-capacity", cap);
-                    hideModal('modal-ga');
+                    if (!isNaN(cap)) {
+                        gaTarget.attr("data-capacity", cap);
+                    }
+                    hideModal("modal-ga");
                     saveDesign();
                 });
 
-                function generateCircularSeats(tableEl, count) {
-                    tableEl.find(".sp-seat").remove();
-                    let radius = Math.min(tableEl.width(), tableEl.height()) / 2 - 18;
-                    let cx = tableEl.width() / 2;
-                    let cy = tableEl.height() / 2;
-                    for (let i = 0; i < count; i++) {
-                        let angle = (2 * Math.PI * i) / count;
-                        let x = cx + radius * Math.cos(angle) - 10;
-                        let y = cy + radius * Math.sin(angle) - 10;
-                        addSeat(tableEl, x, y, "T" + (i + 1));
-                    }
-                }
-
-                $("#btn-apply-row-gen").click(function() {
-                    if (!ROW_GEN_TARGET) return;
-                    let rows = parseInt($("#gen-rows").val());
-                    let cols = parseInt($("#gen-cols").val());
-                    let dir = $("#gen-dir").val();
-                    let size = parseInt($("#gen-size").val());
-                    let gap = parseInt($("#gen-gap").val());
-
-                    const sec = ROW_GEN_TARGET;
-                    sec.find(".sp-seat").remove();
-
-                    const W = sec.width();
-                    const H = sec.height();
-                    const totalW = cols * size + (cols - 1) * gap;
-                    const totalH = rows * size + (rows - 1) * gap;
-                    const startX = (W - totalW) / 2;
-                    const startY = (H - totalH) / 2;
-
-                    let rowLabel = "A";
-                    for (let r = 0; r < rows; r++) {
-                        let leftToRight = (dir === "ltr");
-                        let baseY = startY + r * (size + gap);
-                        for (let c = 0; c < cols; c++) {
-                            let col = (leftToRight) ? c : (cols - 1 - c);
-                            let x = startX + col * (size + gap);
-                            let y = baseY;
-                            let label = rowLabel + (c + 1);
-                            addSeat(sec, x, y, label);
-                        }
-                        rowLabel = nextRowLabel(rowLabel);
-                    }
-                    hideModal('modal-generate-rows');
-                    saveDesign();
-                });
-
-                function nextRowLabel(c) {
-                    return String.fromCharCode(c.charCodeAt(0) + 1);
-                }
-
-                function rgbToHex(rgb) {
-                    if (!rgb) return "#ffffff";
-                    let m = rgb.match(/\d+/g);
-                    if (!m) return "#ffffff";
-                    return "#" + ("0" + parseInt(m[0]).toString(16)).slice(-2) + ("0" + parseInt(m[1]).toString(16))
-                        .slice(-2) + ("0" + parseInt(m[2]).toString(16)).slice(-2);
-                }
-
-                // =========================================================================
+                // ------------------------------------------------------------
                 // SAVE BUTTON
-                // =========================================================================
+                // ------------------------------------------------------------
                 $("#btn-save-map").click(async function() {
+
                     const raw = buildRawJSON();
                     const sections = buildCleanSections();
+
                     $("#seatmap_raw").val(JSON.stringify(raw));
                     $("#seatmap_sections").val(JSON.stringify(sections));
 
                     try {
-                        await axios.post("{{ route('admin.seating-plans.designer.save', $plan->id) }}", {
+                        await axios.post(SAVE_URL, {
                             design_json: raw,
-                            sections: sections
+                            sections
                         });
                         alert("Saved!");
                     } catch (e) {
@@ -1162,88 +1214,93 @@
                     }
                 });
 
-                // =========================================================================
-                // DATA BUILDERS
-                // =========================================================================
-                window.buildRawJSON = function() {
-                    const out = [];
-                    $("#seatmap-designer-wrapper .sp-item").each(function() {
-                        const el = $(this);
-                        const r = {
-                            id: el.data("id"),
-                            type: el.data("type"),
-                            name: el.data("label"),
-                            x: parseFloat(el.css("left")),
-                            y: parseFloat(el.css("top")),
-                            width: el.outerWidth(),
-                            height: el.outerHeight(),
-                            rotation: getRotation(el),
-                            seats: []
-                        };
-                        el.find(".sp-seat").each(function() {
-                            const s = $(this);
-                            r.seats.push({
-                                id: s.data("id"),
-                                label: s.data("label"),
-                                dead: s.data("dead"),
-                                x: parseFloat(s.css("left")),
-                                y: parseFloat(s.css("top"))
-                            });
-                        });
-                        out.push(r);
-                    });
-                    return out;
-                };
+                // ------------------------------------------------------------
+                // RGB TO HEX (for color picker)
+                // ------------------------------------------------------------
+                function rgbToHex(rgb) {
+                    if (!rgb) return "#ffffff";
+                    const m = rgb.match(/\d+/g);
+                    if (!m) return "#ffffff";
+                    return (
+                        "#" +
+                        ("0" + parseInt(m[0]).toString(16)).slice(-2) +
+                        ("0" + parseInt(m[1]).toString(16)).slice(-2) +
+                        ("0" + parseInt(m[2]).toString(16)).slice(-2)
+                    );
+                }
 
-                window.buildCleanSections = function() {
-                    const out = [];
-                    $("#seatmap-designer-wrapper .sp-item").each(function() {
-                        const el = $(this);
-                        const sec = {
-                            name: el.data("label"),
-                            type: el.data("type"),
-                            capacity: el.attr("data-type") === "general_admission" ? parseInt(el.attr(
-                                    "data-capacity") || 0) : el.find(".sp-seat").not("[data-dead=1]")
-                                .length,
-                            x: parseFloat(el.css("left")),
-                            y: parseFloat(el.css("top")),
-                            rotation: getRotation(el),
-                            seats: []
-                        };
-                        el.find(".sp-seat").each(function() {
-                            const s = $(this);
-                            if (s.data("dead") == 1) return;
-                            const L = s.data("label");
-                            const row = L.match(/[A-Za-z]+/)?.[0] || null;
-                            const num = L.match(/\d+/)?.[0] || null;
-                            sec.seats.push({
-                                label: L,
-                                row_label: row,
-                                seat_number: num,
-                                x: Math.round(parseFloat(s.css("left"))),
-                                y: Math.round(parseFloat(s.css("top")))
-                            });
-                        });
-                        out.push(sec);
-                    });
-                    return out;
-                };
-
-                // Global Delete Key Handler
-                $(document).on('keydown', function(e) {
-                    if (e.key === 'Delete' || e.key === 'Backspace') {
-                        const selectedSeats = $('.sp-seat.selected');
-                        if (selectedSeats.length > 0) {
-                            if (confirm(`Delete ${selectedSeats.length} selected seats?`)) {
-                                selectedSeats.remove();
-                                saveDesign(); // Update your hidden inputs
+                // ------------------------------------------------------------
+                // GLOBAL DELETE KEY (Seat Delete)
+                // ------------------------------------------------------------
+                $(document).on("keydown", function(e) {
+                    if (e.key === "Delete" || e.key === "Backspace") {
+                        const selected = $(".sp-seat.selected");
+                        if (selected.length > 0) {
+                            if (confirm(`Delete ${selected.length} selected seats?`)) {
+                                selected.remove();
+                                saveDesign();
                             }
                         }
                     }
                 });
+
+                // ------------------------------------------------------------
+                // KEYBOARD MOVEMENT (Arrow Keys)
+                // ------------------------------------------------------------
+                $(document).on("keydown", function(e) {
+                    const seats = $(".sp-seat.selected");
+                    if (seats.length === 0) return;
+
+                    let dx = 0,
+                        dy = 0;
+
+                    switch (e.key) {
+                        case "ArrowUp":
+                            dy = -1;
+                            break;
+                        case "ArrowDown":
+                            dy = 1;
+                            break;
+                        case "ArrowLeft":
+                            dx = -1;
+                            break;
+                        case "ArrowRight":
+                            dx = 1;
+                            break;
+                        default:
+                            return;
+                    }
+
+                    if (e.shiftKey) {
+                        dx *= 10;
+                        dy *= 10;
+                    }
+
+                    seats.each(function() {
+                        const seat = $(this);
+                        const parent = seat.closest(".sp-item");
+
+                        let x = parseFloat(seat.css("left")) + dx;
+                        let y = parseFloat(seat.css("top")) + dy;
+
+                        const maxX = parent.width() - seat.width();
+                        const maxY = parent.height() - seat.height();
+
+                        x = Math.max(0, Math.min(maxX, x));
+                        y = Math.max(0, Math.min(maxY, y));
+
+                        seat.css({
+                            left: x,
+                            top: y
+                        });
+                    });
+
+                    saveDesign();
+                });
+
             });
         </script>
     @endpush
-
     @include('admin.pages.seating_plans.partials.designer_modals')
+
 </x-admin-app-layout>

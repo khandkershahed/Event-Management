@@ -95,7 +95,8 @@ return new class extends Migration
             $table->string('label');            // “A-4”
             $table->string('row_label')->nullable();
             $table->integer('seat_number')->nullable();
-
+            $table->boolean('is_disabled')->default(false);
+            $table->boolean('is_researved')->default(false);
             $table->integer('x');
             $table->integer('y');
 

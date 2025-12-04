@@ -113,7 +113,7 @@
 
                 <div class="mb-3">
                     <label>Gap Between Seats</label>
-                    <input type="number" id="gen-gap" class="form-control" value="6">
+                    <input type="number" id="gen-gap" class="form-control" value="15">
                 </div>
 
             </div>

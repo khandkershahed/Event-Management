@@ -79,14 +79,18 @@ class TicketOrderController extends Controller
         })->get();
 
         foreach ($seats as $seat) {
-            $map[$seat->id] = 'available';
+            if ($seat->is_disabled) {
+                $map[$seat->id] = 'sold'; // Treat as sold (grayed out/unclickable)
+            } else {
+                $map[$seat->id] = 'available';
+            }
         }
 
         // Locks
         $locks = SeatLock::where('event_id', $eventId)->where('expires_at', '>', now())->get();
-        foreach($locks as $lock) {
+        foreach ($locks as $lock) {
             // If locked by current user, it's 'selected', else 'locked'
-            if($lock->session_id === session()->getId()) {
+            if ($lock->session_id === session()->getId()) {
                 $map[$lock->seat_id] = 'selected'; // We treat own locks as selection
             } else {
                 $map[$lock->seat_id] = 'locked';
@@ -95,7 +99,7 @@ class TicketOrderController extends Controller
 
         // Sold
         $sold = OrderTicket::where('event_id', $eventId)->get();
-        foreach($sold as $t) {
+        foreach ($sold as $t) {
             $map[$t->seat_id] = 'sold';
         }
 

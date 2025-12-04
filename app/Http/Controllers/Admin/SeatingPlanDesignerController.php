@@ -90,6 +90,7 @@ class SeatingPlanDesignerController extends Controller
                             $bulk[] = [
                                 'section_id'  => $section->id,
                                 'label'       => $seat['label'] ?? 'Seat',
+                                'is_disabled' => $seat['disabled'] ?? false,
                                 'row_label'   => $seat['row_label'] ?? null,
                                 'seat_number' => $seat['seat_number'] ?? null,
                                 'x'           => $seat['x'],

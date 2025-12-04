@@ -1,310 +1,1177 @@
-<x-admin-app-layout :title="'Seat Map Designer'">
+<x-admin-app-layout :title="'Seat Map Designer: ' . $plan->name">
 
-    <!-- ===================== STYLES ===================== -->
     <style>
-        #designerCanvas {
-            width: 100%;
-            height: 650px;
-            border: 2px dashed #d1d1d1;
-            background: #fafafa;
-            position: relative;
+        :root {
+            --grid: 20px;
+            --seat-size: 32px;
+            /* Increased to fit 3 digits */
+            --primary: #009ef7;
+            --danger: #f1416c;
         }
 
-        .tool-btn { margin-right: 10px; }
-        .selected { stroke: #ff0000 !important; stroke-width: 2 !important; }
+        /* WRAPPER */
+        #seatmap-designer-wrapper {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            border: 1px solid #dcdcdc;
+            background: #f8fafc;
+            /* Pixel Grid Background */
+            background-image:
+                linear-gradient(#e4e6ef 1px, transparent 1px),
+                linear-gradient(90deg, #e4e6ef 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden;
+        }
+
+        /* ITEM (Section / Stage / GA / Table) */
+        .sp-item {
+            position: absolute;
+            border: 1px solid #3b5fff;
+            background: rgba(59, 95, 255, 0.06);
+            border-radius: 6px;
+            box-sizing: border-box;
+            user-select: none;
+            /* Shadow for depth */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .sp-item.ui-draggable-dragging {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            z-index: 1000 !important;
+        }
+
+        /* HEADER (The Drag Handle) */
+        .sp-item h6 {
+            margin: 0;
+            padding: 5px;
+            background: #eef1ff;
+            border-bottom: 1px solid #d0d6ff;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #333;
+            user-select: none;
+            /* FIX: Must be auto to capture mouse events for dragging */
+            pointer-events: auto;
+            cursor: move;
+            border-radius: 5px 5px 0 0;
+        }
+
+        /* SPECIAL TYPES */
+        .sp-stage {
+            border-color: #ff9800;
+            background: rgba(255, 153, 0, 0.10);
+        }
+
+        .sp-stage h6 {
+            background: #fff4e0;
+            border-bottom-color: #ffcc80;
+        }
+
+        .sp-ga {
+            border-color: #28a745;
+            background: rgba(40, 167, 69, 0.10);
+        }
+
+        .sp-ga h6 {
+            background: #e3f9e5;
+            border-bottom-color: #a3cfbb;
+        }
+
+        .sp-table {
+            border-color: #8e44ad;
+            background: rgba(142, 68, 173, 0.10);
+        }
+
+        .sp-table h6 {
+            background: #f3e5f5;
+            border-bottom-color: #e1bee7;
+        }
+
+        /* ROTATION HANDLE */
+        .sp-rotate-handle {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #ffffff;
+            border: 1px solid #333;
+            border-radius: 50%;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: grab;
+            z-index: 10;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        /* SEAT */
+        .sp-seat {
+            position: absolute;
+            width: var(--seat-size);
+            height: var(--seat-size);
+            border-radius: 50%;
+            background: #28a745;
+            color: #fff;
+            font-size: 9px;
+            /* Slightly smaller font for 3 digits (e.g. B100) */
+            font-weight: 600;
+            text-align: center;
+            line-height: var(--seat-size);
+            /* Center vertically */
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+            /* Prevent text wrapping */
+            overflow: hidden;
+            z-index: 5;
+            /* Clip if too long */
+        }
+
+        .sp-seat.selected {
+            background: #007bff;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #007bff;
+        }
+
+        .sp-seat.dead {
+            background: #ccc !important;
+            opacity: 0.5;
+        }
+
+        /* CONTEXT MENU */
+        .sp-context-menu {
+            position: fixed;
+            /* Fixed ensures it appears on top of everything */
+            display: none;
+            z-index: 99999;
+            min-width: 160px;
+            background: #fff;
+            border: 1px solid #e4e6ef;
+            list-style: none;
+            padding: 5px 0;
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+        }
+
+        .sp-context-menu li {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 13px;
+            color: #3f4254;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sp-context-menu li:hover {
+            background: #f4f6fa;
+            color: #009ef7;
+        }
+
+        /* RESIZE HANDLES (Essential for jQuery UI) */
+        .ui-resizable-handle {
+            position: absolute;
+            font-size: 0.1px;
+            display: block;
+            z-index: 90;
+            opacity: 0;
+            /* Hidden by default, visible on hover */
+            transition: opacity 0.2s;
+        }
+
+        .sp-item:hover .ui-resizable-handle {
+            opacity: 1;
+        }
+
+        .ui-resizable-se {
+            cursor: se-resize;
+            width: 12px;
+            height: 12px;
+            right: 1px;
+            bottom: 1px;
+            background: #3b5fff;
+        }
+
+        .ui-resizable-e {
+            cursor: e-resize;
+            width: 7px;
+            right: -5px;
+            top: 0;
+            height: 100%;
+        }
+
+        .ui-resizable-s {
+            cursor: s-resize;
+            height: 7px;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+        }
+
+        /* --- ADD TO YOUR CSS --- */
+
+        /* The Blue Drag Box */
+        .selection-marquee {
+            position: absolute;
+            border: 1px dashed #009ef7;
+            background-color: rgba(0, 158, 247, 0.15);
+            z-index: 99999;
+            pointer-events: none;
+            /* Clicks pass through */
+            display: none;
+        }
+
+        /* Highlight selected seats */
+        .sp-seat.selected {
+            background-color: #009ef7 !important;
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #009ef7;
+            z-index: 10;
+        }
+
+        /* Deactivated Seat Style */
+        .sp-seat.disabled {
+            background-color: #6c757d !important;
+            /* Grey */
+            color: #fff;
+            opacity: 0.7;
+            border: 1px solid #444;
+        }
+
+        .sp-seat.disabled::after {
+            content: 'Ø';
+            /* Symbol for disabled */
+            font-size: 8px;
+            position: absolute;
+            top: -6px;
+            right: -4px;
+            color: #000;
+            font-weight: bold;
+        }
     </style>
 
-    <!-- ===================== CARD WRAPPER ===================== -->
-    <div class="card card-flash">
-
-        <div class="card-header mt-6 d-flex justify-content-between align-items-center">
-            <h3 class="card-title">{{ $plan->name }} — Seat Map Designer</h3>
+    <div class="card card-flush mb-6">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">Seat Map Designer</h3>
 
             <div>
-                <button id="saveDesignBtn" class="btn btn-primary">
-                    <i class="fas fa-save me-1"></i> Save Layout
+                <button class="btn btn-light-primary btn-sm" id="btn-add-section">
+                    <i class="fa fa-th-large me-1"></i> Section
                 </button>
-                <a href="{{ route('admin.seating-plans.index') }}" class="btn btn-light-secondary ms-2">
-                    <i class="fas fa-arrow-left"></i> Back
-                </a>
+                <button class="btn btn-light-secondary btn-sm" id="btn-add-stage">
+                    <i class="fa fa-vector-square me-1"></i> Stage
+                </button>
+                <button class="btn btn-light-warning btn-sm" id="btn-add-ga">
+                    <i class="fa fa-users me-1"></i> GA
+                </button>
+                <button class="btn btn-light-info btn-sm" id="btn-add-table">
+                    <i class="fa fa-dot-circle me-1"></i> Table
+                </button>
+
+                <button class="btn btn-success btn-sm ms-4" id="btn-save-map">
+                    <i class="fa fa-save me-1"></i> Save
+                </button>
             </div>
         </div>
 
         <div class="card-body">
+            <div id="seatmap-designer-wrapper"></div>
 
-            <!-- ===================== TOOLS ===================== -->
-            <div class="mb-4">
-                <button class="btn btn-light border tool-btn" id="openCreateSectionModal">
-                    <i class="fas fa-layer-group me-1"></i> Add Section
-                </button>
-
-                <button class="btn btn-light border tool-btn" id="addSeatBtn">
-                    <i class="fas fa-chair me-1"></i> Add Seat
-                </button>
-
-                <button class="btn btn-light border tool-btn" id="deleteBtn">
-                    <i class="fas fa-trash me-1"></i> Delete
-                </button>
-            </div>
-
-            <!-- ===================== CANVAS ===================== -->
-            <div id="designerCanvas"></div>
-
+            <input type="hidden" id="seatmap_raw" name="design_json">
+            <input type="hidden" id="seatmap_sections" name="sections">
         </div>
-
     </div>
 
-    <!-- ===================== CREATE SECTION MODAL ===================== -->
-    @include('admin.pages.seating_plans.partials.section-create-modal')
+    <ul id="menu-section" class="sp-context-menu">
+        <li data-action="rename"><i class="fa fa-pen"></i> Rename</li>
+        <li data-action="bg-color"><i class="fa fa-fill-drip"></i> Background</li>
+        <li data-action="generate-rows"><i class="fa fa-th"></i> Generate Rows</li>
+        <li data-action="add-seat"><i class="fa fa-plus-circle"></i> Add Seat</li>
 
-    <!-- ===================== EDIT SECTION MODAL ===================== -->
-    @include('admin.pages.seating_plans.partials.section-edit-modal')
+        <li class="border-top mt-1" style="height:1px;background:#eee;"></li>
+
+        <li data-action="disable-selected-seats"><i class="fa fa-ban text-danger"></i> Disable Selected Seats</li>
+        <li data-action="enable-selected-seats"><i class="fa fa-check text-success"></i> Enable Selected Seats</li>
+        <li data-action="disable-all-seats"><i class="fa fa-ban text-danger"></i> Disable ALL Seats</li>
+        <li data-action="enable-all-seats"><i class="fa fa-check text-success"></i> Enable ALL Seats</li>
+
+        <li class="border-top mt-1" style="height:1px;background:#eee;"></li>
+
+        <li data-action="duplicate"><i class="fa fa-clone"></i> Duplicate</li>
+        <li data-action="delete" class="text-danger"><i class="fa fa-trash"></i> Delete</li>
+    </ul>
 
 
-    <!-- ===================== SCRIPTS ===================== -->
+    <ul id="menu-stage" class="sp-context-menu">
+        <li data-action="rename"><i class="fa fa-pen text-muted"></i> Rename</li>
+        <li data-action="bg-color"><i class="fa fa-fill-drip text-muted"></i> Background</li>
+        <li data-action="delete" class="text-danger"><i class="fa fa-trash"></i> Delete</li>
+    </ul>
+
+    <ul id="menu-table" class="sp-context-menu">
+        <li data-action="rename"><i class="fa fa-pen text-muted"></i> Rename</li>
+        <li data-action="bg-color"><i class="fa fa-fill-drip text-muted"></i> Background</li>
+        <li data-action="table-auto-seats"><i class="fa fa-circle-notch text-muted"></i> Circular Seats</li>
+        <li data-action="delete" class="text-danger"><i class="fa fa-trash"></i> Delete</li>
+    </ul>
+
+    <ul id="menu-ga" class="sp-context-menu">
+        <li data-action="rename"><i class="fa fa-pen text-muted"></i> Rename</li>
+        <li data-action="bg-color"><i class="fa fa-fill-drip text-muted"></i> Background</li>
+        <li data-action="ga-capacity"><i class="fa fa-users text-muted"></i> Capacity</li>
+        <li data-action="delete" class="text-danger"><i class="fa fa-trash"></i> Delete</li>
+    </ul>
+
+    <ul id="menu-seat-item" class="sp-context-menu">
+        <li data-action="rename-seat"><i class="fa fa-pen"></i> Rename Seat</li>
+        <li data-action="toggle-disable-seat"><i class="fa fa-ban"></i> Disable / Enable Seat</li>
+        <li data-action="delete-seat" class="text-danger"><i class="fa fa-trash"></i> Delete Seat</li>
+    </ul>
+
+
     @push('scripts')
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/konva@9/konva.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
         <script>
-            // =====================================================================================
-            // GLOBALS
-            // =====================================================================================
-            let designJson = {!! $designJson !!};
-            window.__AUTO_EXTRACTED_SECTIONS = [];
+            $(function() {
 
-            let stage = new Konva.Stage({
-                container: 'designerCanvas',
-                width: document.getElementById('designerCanvas').offsetWidth,
-                height: 650,
-            });
+                // ========================================================================
+                // GLOBAL VARIABLES
+                // ========================================================================
+                const WRAPPER = $("#seatmap-designer-wrapper");
+                let CURRENT = null; // currently right-clicked item
+                let ROW_GEN_TARGET = null; // section selected for row generator
+                let LOADED = {!! $designJson !!}; // loaded JSON from database
 
-            let layer = new Konva.Layer();
-            stage.add(layer);
-
-
-            // =====================================================================================
-            // LOAD EXISTING SHAPES
-            // =====================================================================================
-            if (designJson && Array.isArray(designJson) && designJson.length > 0) {
-                Konva.Node.create({ children: designJson }, stage);
-            }
-
-
-            // =====================================================================================
-            // SECTION CREATION
-            // =====================================================================================
-            document.getElementById("openCreateSectionModal").addEventListener("click", function () {
-                new bootstrap.Modal(document.getElementById("createSectionModal")).show();
-            });
-
-            document.getElementById("createSectionBtn").addEventListener("click", function () {
-                const name = document.getElementById("new_section_name").value.trim();
-                const type = document.getElementById("new_section_type").value;
-                const capacity = parseInt(document.getElementById("new_section_capacity").value || 0);
-
-                if (!name) return alert("Section name required");
-
-                const group = new Konva.Group({
-                    x: 80,
-                    y: 80,
-                    draggable: true,
-                    name: 'section',
-                });
-
-                const rect = new Konva.Rect({
-                    width: 180,
-                    height: 100,
-                    fill: '#d0ebff',
-                    stroke: '#1c7ed6',
-                    strokeWidth: 2,
-                    name: "rect",
-                });
-
-                const text = new Konva.Text({
-                    text: name,
-                    fontSize: 16,
-                    x: 10,
-                    y: 10,
-                    fill: '#1c7ed6',
-                    name: "label",
-                });
-
-                // Attach meta data
-                group.attrs.meta = { name, type, capacity, rotation: 0 };
-
-                group.add(rect);
-                group.add(text);
-                layer.add(group);
-                layer.draw();
-
-                bootstrap.Modal.getInstance(document.getElementById("createSectionModal")).hide();
-            });
-
-
-            // =====================================================================================
-            // SEAT CREATION
-            // =====================================================================================
-            document.getElementById('addSeatBtn').onclick = function () {
-                const circle = new Konva.Circle({
-                    x: 100,
-                    y: 100,
-                    radius: 12,
-                    fill: '#fff',
-                    stroke: '#000',
-                    strokeWidth: 1,
-                    draggable: true,
-                    name: 'seat',
-                });
-
-                circle.attrs.meta = {
-                    label: "Seat",
-                };
-
-                layer.add(circle);
-                layer.draw();
-            };
-
-
-            // =====================================================================================
-            // DELETE NODE
-            // =====================================================================================
-            document.getElementById('deleteBtn').onclick = function () {
-                const selected = stage.find('.selected')[0];
-                if (!selected) return;
-                selected.destroy();
-                layer.draw();
-            };
-
-
-            // =====================================================================================
-            // SELECT SHAPE
-            // =====================================================================================
-            stage.on("click", function (e) {
-                stage.find(".selected").forEach(n => n.removeName("selected"));
-
-                if (e.target === stage) return;
-
-                e.target.addName("selected");
-                layer.draw();
-
-                if (e.target.getParent()?.attrs?.name === "section") {
-                    openEditSectionModal(e.target.getParent());
+                // --- ADD TO GLOBALS ---
+                const $selectionMarquee = $('<div class="selection-marquee"></div>').appendTo('body');
+                // ========================================================================
+                // UTILITY: Unique ID
+                // ========================================================================
+                function uid(prefix = "id") {
+                    return prefix + "-" + Math.random().toString(36).substring(2, 10);
                 }
-            });
 
 
-            // =====================================================================================
-            // OPEN EDIT MODAL
-            // =====================================================================================
-            function openEditSectionModal(sectionNode) {
-                const meta = sectionNode.attrs.meta;
+                // ========================================================================
+                // CREATE BLOCK (Section, Stage, GA, Table)
+                // ========================================================================
+                function createBlock(type, label, x = 50, y = 50, w = 160, h = 100, rotation = 0, seats = []) {
 
-                document.getElementById("edit_section_id").value = sectionNode._id;
-                document.getElementById("edit_section_name").value = meta.name;
-                document.getElementById("edit_section_type").value = meta.type;
-                document.getElementById("edit_section_capacity").value = meta.capacity;
-                document.getElementById("edit_section_rotation").value = meta.rotation;
+                    let className = "sp-item";
+                    if (type === "stage") className += " sp-stage";
+                    if (type === "general_admission") className += " sp-ga";
+                    if (type === "table") className += " sp-table";
 
-                new bootstrap.Modal(document.getElementById("editSectionModal")).show();
-            }
+                    const id = uid(type);
 
-            document.getElementById("saveSectionChangesBtn").addEventListener("click", function () {
-                const id = document.getElementById("edit_section_id").value;
-                const name = document.getElementById("edit_section_name").value.trim();
-                const type = document.getElementById("edit_section_type").value;
-                const capacity = parseInt(document.getElementById("edit_section_capacity").value || 0);
-                const rotation = parseInt(document.getElementById("edit_section_rotation").value || 0);
+                    const el = $(`
+                        <div class="${className}" data-id="${id}" data-type="${type}" data-label="${label}"
+                            style="left:${x}px; top:${y}px; width:${w}px; height:${h}px; transform:rotate(${rotation}deg)">
 
-                const node = stage.findOne(`#${id}`);
-                if (!node) return;
+                            <h6>${label}</h6>
+                            <div class="sp-rotate-handle"></div>
+                        </div>
+                    `);
 
-                node.attrs.meta = { name, type, capacity, rotation };
-                node.rotation(rotation);
+                    WRAPPER.append(el);
 
-                const label = node.findOne(".label");
-                if (label) label.text(name);
+                    // Apply Interactions
+                    makeDraggable(el);
+                    makeResizable(el);
+                    makeRotatable(el);
+                    bindContextMenu(el);
+                    bringToFront(el); // Initial z-index boost
 
-                layer.draw();
-                bootstrap.Modal.getInstance(document.getElementById("editSectionModal")).hide();
-            });
+                    if (type === 'seat' || type === 'table') {
+                        enableMarqueeSelection(el);
+                    }
+                    // Load seats if any exist
+                    seats.forEach(s => {
+                        addSeat(el, s.x, s.y, s.label, s.id, s.dead, s.disabled || false);
+                    });
+
+                    return el;
+                }
 
 
-            // =====================================================================================
-            // AUTO-EXTRACT JSON FOR SAVE
-            // =====================================================================================
-            function extractSectionsAndSeats() {
-                const sections = [];
+                // --- ADD THIS NEW FUNCTION ---
+                function enableMarqueeSelection($element) {
+                    $element.on('mousedown', function(e) {
+                        // 1. Ignore if clicking dragging handle (h6) or an existing seat
+                        if ($(e.target).is('h6') || $(e.target).hasClass('sp-seat') || $(e.target).hasClass(
+                                'sp-rotate-handle')) {
+                            return;
+                        }
 
-                stage.find("Group[name='section']").forEach(sectionNode => {
-                    const meta = sectionNode.attrs.meta;
+                        // 2. If Ctrl is NOT held, clear previous selection
+                        if (!e.ctrlKey && !e.shiftKey) {
+                            $element.find('.sp-seat').removeClass('selected');
+                        }
 
-                    const rect = sectionNode.findOne("Rect");
-                    const seats = [];
+                        // 3. Start Drawing Box
+                        e.preventDefault(); // Prevent text highlight
 
-                    stage.find("Circle[name='seat']").forEach(seat => {
-                        if (
-                            seat.x() > sectionNode.x() &&
-                            seat.x() < sectionNode.x() + rect.width() &&
-                            seat.y() > sectionNode.y() &&
-                            seat.y() < sectionNode.y() + rect.height()
-                        ) {
-                            seats.push({
-                                label: seat.attrs.meta.label,
-                                x: seat.x(),
-                                y: seat.y(),
+                        // Disable dragging of the section temporarily so we can draw
+                        if ($element.data('ui-draggable')) $element.draggable('disable');
+
+                        const startX = e.pageX;
+                        const startY = e.pageY;
+
+                        $selectionMarquee.css({
+                            top: startY,
+                            left: startX,
+                            width: 0,
+                            height: 0,
+                            display: 'block'
+                        });
+
+                        // 4. Mouse Move (Expand Box & Detect Collision)
+                        $(document).on('mousemove.marquee', function(ev) {
+                            const currentX = ev.pageX;
+                            const currentY = ev.pageY;
+
+                            const width = Math.abs(currentX - startX);
+                            const height = Math.abs(currentY - startY);
+                            const newX = (currentX < startX) ? currentX : startX;
+                            const newY = (currentY < startY) ? currentY : startY;
+
+                            $selectionMarquee.css({
+                                width: width,
+                                height: height,
+                                top: newY,
+                                left: newX
                             });
+
+                            // Detect Overlap with Seats
+                            $element.find('.sp-seat').each(function() {
+                                const $seat = $(this);
+                                const seatOff = $seat.offset();
+
+                                // Box Coordinates
+                                const boxRight = newX + width;
+                                const boxBottom = newY + height;
+
+                                // Seat Coordinates
+                                const seatRight = seatOff.left + $seat.width();
+                                const seatBottom = seatOff.top + $seat.height();
+
+                                // Collision Check
+                                if (newX < seatRight && boxRight > seatOff.left &&
+                                    newY < seatBottom && boxBottom > seatOff.top) {
+                                    $seat.addClass('selected');
+                                }
+                            });
+                        });
+
+                        // 5. Mouse Up (Finish)
+                        $(document).on('mouseup.marquee', function() {
+                            $selectionMarquee.hide();
+                            $(document).off('mousemove.marquee mouseup.marquee');
+
+                            // Re-enable dragging of the section
+                            if ($element.data('ui-draggable')) $element.draggable('enable');
+                        });
+                    });
+                }
+
+                // ========================================================================
+                // DRAGGABLE (Fixed Logic)
+                // ========================================================================
+                function makeDraggable(el) {
+                    el.draggable({
+                        containment: WRAPPER,
+                        handle: "h6", // Drag by header
+                        start: function() {
+                            bringToFront($(this));
+                            $(".sp-context-menu").hide();
+                        },
+                        stop: saveDesign
+                    });
+
+                    // Bring to front on click
+                    el.on('mousedown', function() {
+                        bringToFront($(this));
+                    });
+                }
+
+                function bringToFront(el) {
+                    // Reset others
+                    $(".sp-item").css("z-index", 10);
+                    // Boost current
+                    el.css("z-index", 50);
+                }
+
+
+
+                function makeResizable(el) {
+                    // Tables and Sections resize differently
+                    const type = el.data('type');
+
+                    el.resizable({
+                        containment: WRAPPER,
+                        handles: "all", // Enables all resize handles
+                        minWidth: 50,
+                        minHeight: 50,
+                        stop: function(e, ui) {
+                            // If table, keep circle shape
+                            if (type === 'table') {
+                                const s = Math.max(ui.size.width, ui.size.height);
+                                el.css({
+                                    width: s,
+                                    height: s,
+                                    borderRadius: '50%'
+                                });
+                                // Auto-adjust seats to new circle
+                                const seats = el.find('.sp-seat');
+                                if (seats.length > 0) generateCircularSeats(el, seats.length);
+                            }
+
+                            // If Section, enforce bounds
+                            if (type === 'seat') {
+                                enforceSeatBounds(el);
+                            }
+
+                            saveDesign();
+                        }
+                    });
+                }
+
+
+                // ========================================================================
+                // ROTATABLE
+                // ========================================================================
+                function makeRotatable(el) {
+                    const handle = el.find(".sp-rotate-handle");
+
+                    handle.on("mousedown", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        const startX = e.pageX;
+                        const startAngle = getRotation(el);
+
+                        $(document).on("mousemove.rotate", function(ev) {
+                            const dx = ev.pageX - startX;
+                            const angle = startAngle + dx * 0.7;
+                            el.css("transform", `rotate(${angle}deg)`);
+                        });
+
+                        $(document).on("mouseup.rotate", function() {
+                            $(document).off("mousemove.rotate mouseup.rotate");
+                            saveDesign();
+                        });
+                    });
+                }
+
+                function getRotation(el) {
+                    let tf = el.css("transform");
+                    if (!tf || tf === "none") return 0;
+
+                    let v = tf.split("(")[1].split(")")[0].split(",");
+                    let a = parseFloat(v[0]);
+                    let b = parseFloat(v[1]);
+
+                    return Math.round(Math.atan2(b, a) * (180 / Math.PI));
+                }
+
+
+
+                // 1. Updated addSeat with 'disabled' parameter
+                function addSeat(section, x, y, label = null, id = null, dead = false, disabled = false) {
+
+                    const count = section.find(".sp-seat").length + 1;
+                    const seatLabel = label || "S" + count;
+                    const seatId = id || uid("seat");
+
+                    // Note the ${disabled ? 'disabled' : ''} class and data-disabled attribute
+                    const seat = $(`
+                            <div class="sp-seat ${dead ? 'dead' : ''} ${disabled ? 'disabled' : ''}"
+                                data-id="${seatId}"
+                                data-label="${seatLabel}"
+                                data-dead="${dead ? 1 : 0}"
+                                data-disabled="${disabled ? 1 : 0}"
+                                title="${seatLabel}"
+                                style="left:${x}px; top:${y}px;">
+                                <span>${seatLabel}</span>
+                            </div>
+                        `);
+
+                    section.append(seat);
+
+                    // Draggable
+                    seat.draggable({
+                        containment: section,
+                        stop: saveDesign
+                    });
+
+                    // Click Select
+                    seat.on("click", function(e) {
+                        e.stopPropagation();
+                        if (e.ctrlKey || e.metaKey) {
+                            $(this).toggleClass("selected");
+                        } else {
+                            $(this).toggleClass("selected");
                         }
                     });
 
-                    sections.push({
-                        name: meta.name,
-                        type: meta.type,
-                        capacity: meta.capacity,
-                        rotation: meta.rotation,
-                        x: sectionNode.x(),
-                        y: sectionNode.y(),
-                        seats: seats,
+                    // Right Click Menu
+                    seat.on("contextmenu", function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $(".sp-context-menu").hide();
+                        $("#menu-seat-item").data("target", $(this));
+                        $("#menu-seat-item").css({
+                            left: e.clientX,
+                            top: e.clientY
+                        }).show();
                     });
-                });
 
-                return sections;
-            }
-
-
-            // =====================================================================================
-            // SAVE BUTTON
-            // =====================================================================================
-            document.getElementById("saveDesignBtn").onclick = async function () {
-
-                window.__AUTO_EXTRACTED_SECTIONS = extractSectionsAndSeats();
-
-                const json = layer.toJSON();
-
-                const response = await fetch("{{ route('admin.seating-plans.designer.save', $plan->id) }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}",
-                        "Accept": "application/json",
-                    },
-                    body: JSON.stringify({
-                        design_json: json,
-                        sections: window.__AUTO_EXTRACTED_SECTIONS,
-                    }),
-                });
-
-                const text = await response.text();
-                console.log("SAVE RESPONSE RAW:", text);
-
-                try {
-                    const data = JSON.parse(text);
-                    alert(data.message);
-                } catch (err) {
-                    alert("Error: Invalid server response. Check console.");
+                    return seat;
                 }
-            };
+                // Keep seats inside section box
+                function enforceSeatBounds(section) {
+                    const sw = section.width();
+                    const sh = section.height();
+
+                    section.find(".sp-seat").each(function() {
+                        let s = $(this);
+                        let x = parseFloat(s.css("left"));
+                        let y = parseFloat(s.css("top"));
+                        const w = s.outerWidth();
+                        const h = s.outerHeight();
+
+                        if (x < 0) x = 0;
+                        if (y < 0) y = 0;
+                        if (x > sw - w) x = sw - w;
+                        if (y > sh - h) y = sh - h;
+
+                        s.css({
+                            left: x,
+                            top: y
+                        });
+                    });
+                }
+
+
+                // ========================================================================
+                // CONTEXT MENU BINDING (Fixed Positioning)
+                // ========================================================================
+                function bindContextMenu(el) {
+                    el.on("contextmenu", function(e) {
+                        e.preventDefault();
+                        $(".sp-context-menu").hide();
+
+                        CURRENT = el;
+                        const type = el.data("type");
+
+                        let menu = $("#menu-section");
+                        if (type === "stage") menu = $("#menu-stage");
+                        if (type === "table") menu = $("#menu-table");
+                        if (type === "general_admission") menu = $("#menu-ga");
+
+                        menu.css({
+                            left: e.clientX + 'px', // Use ClientX for Fixed Pos
+                            top: e.clientY + 'px'
+                        }).show();
+                    });
+                }
+
+                $(document).on("click", function() {
+                    $(".sp-context-menu").hide();
+                });
+
+
+                // ========================================================================
+                // LOAD EXISTING JSON
+                // ========================================================================
+                function loadExisting() {
+                    if (!LOADED || !Array.isArray(LOADED)) return;
+
+                    LOADED.forEach(item => {
+                        createBlock(
+                            item.type,
+                            item.name,
+                            item.x,
+                            item.y,
+                            item.width,
+                            item.height,
+                            item.rotation,
+                            item.seats || []
+                        );
+                    });
+                }
+                loadExisting();
+
+
+                // ========================================================================
+                // SAVE DESIGN
+                // ========================================================================
+                function saveDesign() {
+                    $("#seatmap_raw").val(JSON.stringify(buildRawJSON()));
+                    $("#seatmap_sections").val(JSON.stringify(buildCleanSections()));
+                }
+
+                window.saveDesign = saveDesign;
+
+
+                // ========================================================================
+                // TOOLBAR BUTTONS
+                // ========================================================================
+                $("#btn-add-section").click(() => createBlock("seat", "Section", 80, 80));
+                $("#btn-add-stage").click(() => createBlock("stage", "Stage", 150, 60, 260, 80));
+                $("#btn-add-ga").click(() => createBlock("general_admission", "GA", 120, 120, 220, 160));
+                $("#btn-add-table").click(() => createBlock("table", "Table", 200, 150, 120, 120));
+
+                /* ============================================================================
+                   PART 3 — CONTEXT MENU ACTIONS + ROW EDITOR + SAVE TO CONTROLLER
+                   ============================================================================ */
+
+                // =========================================================================
+                // HELPER: Modal
+                // =========================================================================
+                function showModal(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(el);
+                        modal.show();
+                    }
+                }
+
+                function hideModal(id) {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        const modal = bootstrap.Modal.getOrCreateInstance(el);
+                        modal.hide();
+                    }
+                }
+
+                // =========================================================================
+                // GLOBAL TARGETS
+                // =========================================================================
+                window.renameTarget = null;
+                window.colorTarget = null;
+                window.gaTarget = null;
+
+                // =========================================================================
+                // CONTEXT MENU ACTION HANDLER
+                // =========================================================================
+                $("#menu-section li, #menu-stage li, #menu-table li, #menu-ga li").on("click", function(e) {
+                    e.stopPropagation();
+                    $(".sp-context-menu").hide();
+
+                    const action = $(this).data("action");
+                    if (!CURRENT) return;
+                    const type = CURRENT.attr("data-type");
+
+                    switch (action) {
+                        case "rename":
+                            // alert(CURRENT);
+                            renameTarget = CURRENT;
+                            $("#modal-rename-input").val(renameTarget.attr("data-label"));
+                            showModal('modal-rename');
+                            break;
+
+                        case "bg-color":
+                            colorTarget = CURRENT;
+                            $("#modal-bgcolor-input").val(rgbToHex(colorTarget.css("background-color")));
+                            showModal('modal-bgcolor');
+                            break;
+
+                        case "ga-capacity":
+                            if (type !== "general_admission") return;
+                            gaTarget = CURRENT;
+                            $("#modal-ga-input").val(gaTarget.attr("data-capacity") || 0);
+                            showModal('modal-ga');
+                            break;
+
+                        case "delete":
+                            if (confirm("Delete this item?")) {
+                                CURRENT.remove();
+                                saveDesign();
+                            }
+                            break;
+                        case "duplicate":
+                            duplicateItem(CURRENT);
+                            break;
+
+                        case "add-seat":
+                            alert("Click inside section to place seat.");
+                            CURRENT.one("click.addSeat", function(ev) {
+                                const off = CURRENT.offset();
+                                const x = ev.pageX - off.left - 10;
+                                const y = ev.pageY - off.top - 10;
+                                addSeat(CURRENT, x, y);
+                                saveDesign();
+                            });
+                            break;
+
+                        case "generate-rows":
+                            ROW_GEN_TARGET = CURRENT;
+                            showModal('modal-generate-rows');
+                            break;
+
+                        case "table-auto-seats":
+                            if (type !== "table") return;
+                            const count = parseInt(prompt("Number of seats?", "8"));
+                            if (!isNaN(count) && count > 0) generateCircularSeats(CURRENT, count);
+                            saveDesign();
+                            break;
+
+                        case "disable-selected-seats":
+                            CURRENT.find(".sp-seat.selected").each(function() {
+                                const s = $(this);
+                                s.addClass("disabled");
+                                s.attr("data-disabled", 1);
+                                s.data("disabled", 1);
+                            });
+                            saveDesign();
+                            break;
+
+                        case "enable-selected-seats":
+                            CURRENT.find(".sp-seat.selected").each(function() {
+                                const s = $(this);
+                                s.removeClass("disabled");
+                                s.attr("data-disabled", 0);
+                                s.data("disabled", 0);
+                            });
+                            saveDesign();
+                            break;
+
+                        case "disable-all-seats":
+                            CURRENT.find(".sp-seat").each(function() {
+                                const s = $(this);
+                                s.addClass("disabled");
+                                s.attr("data-disabled", 1);
+                                s.data("disabled", 1);
+                            });
+                            saveDesign();
+                            break;
+
+                        case "enable-all-seats":
+                            CURRENT.find(".sp-seat").each(function() {
+                                const s = $(this);
+                                s.removeClass("disabled");
+                                s.attr("data-disabled", 0);
+                                s.data("disabled", 0);
+                            });
+                            saveDesign();
+                            break;
+
+                    }
+                });
+
+                // --- SEAT CONTEXT MENU ACTIONS ---
+                $("#menu-seat-item li").on("click", function(e) {
+                    e.stopPropagation();
+                    $("#menu-seat-item").hide();
+
+                    const action = $(this).data("action");
+                    const $seat = $("#menu-seat-item").data("target");
+
+                    if (!$seat) return;
+
+                    // -----------------------------
+                    // RENAME SEAT
+                    // -----------------------------
+                    if (action === "rename-seat") {
+                        const oldLabel = $seat.data("label");
+                        const newLabel = prompt("Enter Seat Label:", oldLabel);
+
+                        if (newLabel && newLabel.trim() !== "") {
+                            $seat.find("span").text(newLabel);
+                            $seat.attr("data-label", newLabel);
+                            $seat.data("label", newLabel);
+                            saveDesign();
+                        }
+                        return;
+                    }
+
+                    // -----------------------------
+                    // ENABLE / DISABLE SEAT  (FIX)
+                    // -----------------------------
+                    if (action === "toggle-disable-seat") {
+                        const isDisabled = $seat.attr("data-disabled") == "1";
+
+                        if (isDisabled) {
+                            $seat.attr("data-disabled", "0");
+                            $seat.removeClass("disabled");
+                            $seat.data("disabled", 0);
+                        } else {
+                            $seat.attr("data-disabled", "1");
+                            $seat.addClass("disabled");
+                            $seat.data("disabled", 1);
+                        }
+                        saveDesign();
+                    }
+
+                    // -----------------------------
+                    // DELETE SEAT
+                    // -----------------------------
+                    if (action === "delete-seat") {
+                        if (confirm("Delete this seat?")) {
+                            $seat.remove();
+                            saveDesign();
+                        }
+                        return;
+                    }
+                });
+
+
+
+                function duplicateItem(el) {
+
+                    const type = el.data('type');
+                    const label = el.data('label') + ' (Copy)';
+
+                    const width = el.width();
+                    const height = el.height();
+                    const pos = el.position();
+                    const rotation = getRotation(el);
+
+                    const seats = [];
+
+                    // Inside duplicateItem function:
+                    el.find('.sp-seat').each(function() {
+                        const s = $(this);
+                        addSeat(copy,
+                            parseFloat(s.css("left")),
+                            parseFloat(s.css("top")),
+                            s.attr("data-label"),
+                            "seat-" + Math.random().toString(36).substring(2, 9),
+                            s.attr("data-dead") == "1",
+                            s.attr("data-disabled") == "1"
+                        );
+                    });
+
+                    const newEl = createBlock(
+                        type,
+                        label,
+                        pos.left + 30,
+                        pos.top + 30,
+                        width,
+                        height,
+                        rotation,
+                        seats
+                    );
+
+                    saveDesign();
+                }
+
+
+                $("#modal-rename-save").click(function() {
+                    if (!renameTarget) return;
+                    const newName = $("#modal-rename-input").val().trim();
+                    if (newName) {
+                        renameTarget.attr("data-label", newName);
+                        renameTarget.find("h6").text(newName);
+                        hideModal('modal-rename');
+                        saveDesign();
+                    }
+                });
+
+                $("#modal-bgcolor-save").click(function() {
+                    if (!colorTarget) return;
+                    const newColor = $("#modal-bgcolor-input").val().trim();
+                    colorTarget.css("background-color", newColor);
+                    hideModal('modal-bgcolor');
+                    saveDesign();
+                });
+
+                $("#modal-ga-save").click(function() {
+                    if (!gaTarget) return;
+                    const cap = parseInt($("#modal-ga-input").val());
+                    if (!isNaN(cap)) gaTarget.attr("data-capacity", cap);
+                    hideModal('modal-ga');
+                    saveDesign();
+                });
+
+                function generateCircularSeats(tableEl, count) {
+                    tableEl.find(".sp-seat").remove();
+                    let radius = Math.min(tableEl.width(), tableEl.height()) / 2 - 18;
+                    let cx = tableEl.width() / 2;
+                    let cy = tableEl.height() / 2;
+                    for (let i = 0; i < count; i++) {
+                        let angle = (2 * Math.PI * i) / count;
+                        let x = cx + radius * Math.cos(angle) - 10;
+                        let y = cy + radius * Math.sin(angle) - 10;
+                        addSeat(tableEl, x, y, "T" + (i + 1));
+                    }
+                }
+
+                // =========================================================================
+                // ROW GENERATOR APPLY (FIXED)
+                // =========================================================================
+                $("#btn-apply-row-gen").click(function() {
+                    if (!ROW_GEN_TARGET) return;
+
+                    // Added '|| 5' etc. to prevent crashes if inputs are empty
+                    let rows = parseInt($("#gen-rows").val()) || 5;
+                    let cols = parseInt($("#gen-cols").val()) || 10;
+                    let dir = $("#gen-dir").val();
+
+                    // Fix: Default to 32 (seat size) and 5 (gap) if inputs are missing
+                    let size = parseInt($("#gen-size").val()) || 32;
+                    let gap = parseInt($("#gen-gap").val()) || 4;
+
+                    const sec = ROW_GEN_TARGET;
+
+                    // 1. Clear old seats
+                    sec.find(".sp-seat").remove();
+
+                    // 2. Calculate Center Offset
+                    const W = sec.width();
+                    const H = sec.height();
+                    const totalW = cols * size + (cols - 1) * gap;
+                    const totalH = rows * size + (rows - 1) * gap;
+
+                    // Center the grid inside the section box
+                    const startX = Math.max(0, (W - totalW) / 2);
+                    const startY = Math.max(0, (H - totalH) / 2);
+
+                    let rowLabel = "A";
+
+                    // 3. Loop and Add Seats
+                    for (let r = 0; r < rows; r++) {
+                        let leftToRight = (dir === "ltr");
+                        let baseY = startY + r * (size + gap);
+
+                        for (let c = 0; c < cols; c++) {
+                            let col = (leftToRight) ? c : (cols - 1 - c);
+
+                            let x = startX + col * (size + gap);
+                            let y = baseY;
+                            let label = rowLabel + (c + 1);
+
+                            addSeat(sec, x, y, label);
+                        }
+                        rowLabel = nextRowLabel(rowLabel);
+                    }
+
+                    hideModal('modal-generate-rows');
+                    saveDesign();
+                });
+
+                function nextRowLabel(c) {
+                    return String.fromCharCode(c.charCodeAt(0) + 1);
+                }
+
+                function rgbToHex(rgb) {
+                    if (!rgb) return "#ffffff";
+                    let m = rgb.match(/\d+/g);
+                    if (!m) return "#ffffff";
+                    return "#" + ("0" + parseInt(m[0]).toString(16)).slice(-2) + ("0" + parseInt(m[1]).toString(16))
+                        .slice(-2) + ("0" + parseInt(m[2]).toString(16)).slice(-2);
+                }
+
+                // =========================================================================
+                // SAVE BUTTON
+                // =========================================================================
+                $("#btn-save-map").click(async function() {
+                    const raw = buildRawJSON();
+                    const sections = buildCleanSections();
+                    $("#seatmap_raw").val(JSON.stringify(raw));
+                    $("#seatmap_sections").val(JSON.stringify(sections));
+
+                    try {
+                        await axios.post("{{ route('admin.seating-plans.designer.save', $plan->id) }}", {
+                            design_json: raw,
+                            sections: sections
+                        });
+                        alert("Saved!");
+                    } catch (e) {
+                        console.error(e);
+                        alert("Save failed: " + (e.response?.data?.message || e.message));
+                    }
+                });
+
+                // =========================================================================
+                // DATA BUILDERS
+                // =========================================================================
+                window.buildRawJSON = function() {
+                    const out = [];
+                    $("#seatmap-designer-wrapper .sp-item").each(function() {
+                        const el = $(this);
+                        const r = {
+                            id: el.data("id"),
+                            type: el.data("type"),
+                            name: el.data("label"),
+                            x: parseFloat(el.css("left")),
+                            y: parseFloat(el.css("top")),
+                            width: el.outerWidth(),
+                            height: el.outerHeight(),
+                            rotation: getRotation(el),
+                            seats: []
+                        };
+                        el.find(".sp-seat").each(function() {
+                            const s = $(this);
+                            r.seats.push({
+                                id: s.data("id"),
+                                label: s.data("label"),
+                                dead: s.attr("data-dead"),
+                                disabled: s.attr("data-disabled") == "1" ? 1 :
+                                0, // <--- SAVE THIS
+                                x: parseFloat(s.css("left")),
+                                y: parseFloat(s.css("top"))
+                            });
+                        });
+                        out.push(r);
+                    });
+                    return out;
+                };
+
+                window.buildCleanSections = function() {
+                    const out = [];
+                    $("#seatmap-designer-wrapper .sp-item").each(function() {
+                        const el = $(this);
+                        const sec = {
+                            name: el.data("label"),
+                            type: el.data("type"),
+                            capacity: el.attr("data-type") === "general_admission" ? parseInt(el.attr(
+                                    "data-capacity") || 0) : el.find(".sp-seat").not("[data-dead=1]")
+                                .length,
+                            x: parseFloat(el.css("left")),
+                            y: parseFloat(el.css("top")),
+                            rotation: getRotation(el),
+                            seats: []
+                        };
+                        el.find(".sp-seat").each(function() {
+                            const s = $(this);
+                            if (s.data("dead") == 1) return;
+                            const L = s.data("label");
+                            const row = L.match(/[A-Za-z]+/)?.[0] || null;
+                            const num = L.match(/\d+/)?.[0] || null;
+                            sec.seats.push({
+                                label: L,
+                                row_label: row,
+                                seat_number: num,
+                                disabled: s.attr("data-disabled") == "1" ? true : false,
+                                x: Math.round(parseFloat(s.css("left"))),
+                                y: Math.round(parseFloat(s.css("top")))
+                            });
+                        });
+                        out.push(sec);
+                    });
+                    return out;
+                };
+
+                // Global Delete Key Handler
+                $(document).on('keydown', function(e) {
+                    if (e.key === 'Delete' || e.key === 'Backspace') {
+                        const selectedSeats = $('.sp-seat.selected');
+                        if (selectedSeats.length > 0) {
+                            if (confirm(`Delete ${selectedSeats.length} selected seats?`)) {
+                                selectedSeats.remove();
+                                saveDesign(); // Update your hidden inputs
+                            }
+                        }
+                    }
+                });
+            });
         </script>
     @endpush
+    @include('admin.pages.seating_plans.partials.designer_modals')
 
 </x-admin-app-layout>
