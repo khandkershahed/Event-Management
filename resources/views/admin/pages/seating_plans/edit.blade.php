@@ -28,7 +28,7 @@
 
                             <div class="mb-5">
                                 <x-metronic.label for="venue_id" class="required">Venue</x-metronic.label>
-                                <x-metronic.select-option name="venue_id" required>
+                                <x-metronic.select-option name="venue_id" id="venue_id" required>
                                     @foreach($venues as $venue)
                                         <option value="{{ $venue->id }}" {{ $plan->venue_id == $venue->id ? 'selected' : '' }}>
                                             {{ $venue->name }}
