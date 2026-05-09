@@ -25,11 +25,14 @@ class TicketOrderController extends Controller
     {
         $event = Event::with(['eventType'])
             ->where('slug', $slug)
+            ->publiclyVisible()
             ->firstOrFail();
 
         // 1. Get Ticket Types
         $ticketTypes = EventTicket::where('event_id', $event->id)
-            ->where('is_active', 1)
+            ->active()
+            ->public()
+            ->onSale()
             ->orderBy('price', 'ASC')
             ->get();
 
@@ -55,7 +58,7 @@ class TicketOrderController extends Controller
             $seatStatuses = $this->getSeatStatusMap($event->id);
         }
 
-        $relatedEvents = Event::where('id', '!=', $event->id)->latest()->take(6)->get();
+        $relatedEvents = Event::where('id', '!=', $event->id)->publiclyVisible()->latest()->take(6)->get();
 
         return view('frontend.pages.eventDetails', [
             'event'         => $event,

@@ -37,7 +37,8 @@ return [
     'stripe' => [
         'key' => env('STRIPE_KEY'),
         'secret' => env('STRIPE_SECRET'),
-        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'), // if using webhook verification
+        'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+        'fake_checkout' => env('STRIPE_FAKE_CHECKOUT', false)
     ],
 
 

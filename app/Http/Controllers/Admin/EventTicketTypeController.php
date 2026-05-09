@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\EventTicket;
-use App\Models\SeatingSection;
+use App\Services\TicketSectionAssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class EventTicketTypeController extends Controller
 {
+    public function __construct(private TicketSectionAssignmentService $sectionAssignments)
+    {
+    }
     /**
      * Manage page (Blade view)
      */
@@ -24,11 +28,9 @@ class EventTicketTypeController extends Controller
             ->get();
 
         // Load sections belonging to the event’s seating plan
-        $sections = [];
+        $sections = collect();
         if ($event->seating_plan_id) {
-            $sections = SeatingSection::where('seating_plan_id', $event->seating_plan_id)
-                ->orderBy('name')
-                ->get();
+            $sections = $this->sectionAssignments->sectionsForEvent($event);
         }
 
         return view('admin.pages.ticket_types.index', [
@@ -70,9 +72,7 @@ class EventTicketTypeController extends Controller
             ], 422);
         }
 
-        $sections = SeatingSection::where('seating_plan_id', $event->seating_plan_id)
-            ->orderBy('name')
-            ->get();
+        $sections = $this->sectionAssignments->sectionsForEvent($event);
 
         return response()->json([
             'status'    => 'success',
@@ -93,7 +93,7 @@ class EventTicketTypeController extends Controller
             'quantity'                    => 'nullable|integer|min:1',
             'description'                 => 'nullable|string',
 
-            'section_ids'                 => 'required|array|min:1',
+            'section_ids'                 => 'nullable|array',
             'section_ids.*'               => 'integer|exists:seating_sections,id',
 
             'is_active'                   => 'nullable|boolean',
@@ -123,6 +123,15 @@ class EventTicketTypeController extends Controller
             ], 422);
         }
 
+        try {
+            $normalizedSectionIds = $this->sectionAssignments->normalizeForEvent($event, $request->input('section_ids', []), 'section_ids');
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'status' => 'validation_error',
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -133,7 +142,15 @@ class EventTicketTypeController extends Controller
                 'quantity'                    => $request->quantity,
                 'description'                 => $request->description,
 
-                'valid_section_ids'           => json_encode($request->section_ids),
+                'valid_section_ids'           => $normalizedSectionIds,
+                'ticket_type'                 => $request->price > 0 ? \App\Models\EventTicket::TYPE_PAID : \App\Models\EventTicket::TYPE_FREE,
+                'currency'                    => $request->currency ?? 'BDT',
+                'sold_quantity'               => 0,
+                'visibility'                  => \App\Models\EventTicket::VISIBILITY_PUBLIC,
+                'status'                      => ($request->is_active ?? true) ? \App\Models\EventTicket::STATUS_ACTIVE : \App\Models\EventTicket::STATUS_PAUSED,
+                'platform_fee_type'           => \App\Models\EventTicket::FEE_NONE,
+                'platform_fee_value'          => 0,
+                'organizer_absorbs_fee'       => false,
 
                 'is_active'                   => $request->is_active ?? true,
                 'min_per_order'               => $request->min_per_order ?? 1,
@@ -178,6 +195,8 @@ class EventTicketTypeController extends Controller
      */
     public function show(Event $event, EventTicket $ticket)
     {
+        $this->ensureTicketBelongsToEvent($event, $ticket);
+
         return response()->json([
             'status' => 'success',
             'ticket' => $ticket,
@@ -196,7 +215,7 @@ class EventTicketTypeController extends Controller
             'quantity'                    => 'nullable|integer|min:1',
             'description'                 => 'nullable|string',
 
-            'section_ids'                 => 'required|array|min:1',
+            'section_ids'                 => 'nullable|array',
             'section_ids.*'               => 'integer|exists:seating_sections,id',
 
             'is_active'                   => 'nullable|boolean',
@@ -226,6 +245,17 @@ class EventTicketTypeController extends Controller
             ], 422);
         }
 
+        $this->ensureTicketBelongsToEvent($event, $ticket);
+
+        try {
+            $normalizedSectionIds = $this->sectionAssignments->normalizeForEvent($event, $request->input('section_ids', []), 'section_ids');
+        } catch (ValidationException $exception) {
+            return response()->json([
+                'status' => 'validation_error',
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
         DB::beginTransaction();
 
         try {
@@ -235,7 +265,15 @@ class EventTicketTypeController extends Controller
                 'quantity'                    => $request->quantity,
                 'description'                 => $request->description,
 
-                'valid_section_ids'           => json_encode($request->section_ids),
+                'valid_section_ids'           => $normalizedSectionIds,
+                'ticket_type'                 => $request->price > 0 ? \App\Models\EventTicket::TYPE_PAID : \App\Models\EventTicket::TYPE_FREE,
+                'currency'                    => $request->currency ?? 'BDT',
+                'sold_quantity'               => $ticket->sold_quantity ?? 0,
+                'visibility'                  => \App\Models\EventTicket::VISIBILITY_PUBLIC,
+                'status'                      => ($request->is_active ?? true) ? \App\Models\EventTicket::STATUS_ACTIVE : \App\Models\EventTicket::STATUS_PAUSED,
+                'platform_fee_type'           => \App\Models\EventTicket::FEE_NONE,
+                'platform_fee_value'          => 0,
+                'organizer_absorbs_fee'       => false,
 
                 'is_active'                   => $request->is_active ?? true,
                 'min_per_order'               => $request->min_per_order ?? 1,
@@ -277,9 +315,9 @@ class EventTicketTypeController extends Controller
     /**
      * DELETE Ticket Type
      */
-    public function destroy($eventId, $ticketId)
+    public function destroy(Event $event, EventTicket $ticket)
     {
-        $ticket = EventTicket::where('event_id', $eventId)->findOrFail($ticketId);
+        $this->ensureTicketBelongsToEvent($event, $ticket);
 
         try {
             $ticket->delete();
@@ -295,5 +333,10 @@ class EventTicketTypeController extends Controller
                 'message' => 'Delete failed: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    private function ensureTicketBelongsToEvent(Event $event, EventTicket $ticket): void
+    {
+        abort_unless((int) $ticket->event_id === (int) $event->id, 404);
     }
 }

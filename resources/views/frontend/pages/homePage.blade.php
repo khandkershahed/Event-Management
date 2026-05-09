@@ -1,4 +1,4 @@
-<x-frontend-app-layout :title="'Homepage'">
+<x-frontend-app-layout :title="'Homepage'" :seo-meta="$seoMeta ?? []">
     <div class="hero-banner">
         <div class="container">
             <div class="row justify-content-center">
@@ -22,113 +22,230 @@
     </div>
     <div class="explore-events p-80">
         <div class="container">
-            <div class="row">
-                <div class="col-xl-12 col-lg-12 col-md-12">
-                    <div class="main-title">
-                        <h3>Explore Events</h3>
-                    </div>
-                </div>
-                <!-- <div class="col-xl-12 col-lg-12 col-md-12">
-                    <div class="event-filter-items">
-                        <div class="featured-controls">
-                            <div class="filter-tag">
-                                <a href="explore_events_by_date.html" class="active">All</a>
-                                <a href="explore_events_by_date.html">Today</a>
-                                <a href="explore_events_by_date.html">Tomorrow</a>
-                                <a href="explore_events_by_date.html">This Week</a>
-                                <a href="explore_events_by_date.html">This Weekend</a>
-                                <a href="explore_events_by_date.html">Next Week</a>
-                                <a href="explore_events_by_date.html">Next Weekend</a>
-                                <a href="explore_events_by_date.html">This Month</a>
-                                <a href="explore_events_by_date.html">Next Month</a>
-                                <a href="explore_events_by_date.html">This Year</a>
-                                <a href="explore_events_by_date.html">Next Year</a>
+            @auth
+                <div class="row mb-4">
+                    <div class="col-xl-12">
+                        <div class="main-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                            <div>
+                                <h3>Recommended for You</h3>
+                                <p class="mb-0 text-muted">Based on your saved events, followed organizers, and interest
+                                    history.</p>
                             </div>
-                            <div class="controls">
-                                <button type="button" class="control" data-filter="all">
-                                    All
-                                </button>
-                                @foreach ($event_types as $type)
-                                <button type="button" class="control" data-filter=".{{ $type->slug }}">
-                                    {{ $type->name }}
-                                </button>
-                                @endforeach
-                            </div>
-                            <div class="row" data-ref="event-filter-content">
-                                @foreach ($events as $event)
-                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12 mix {{ $type->slug }}"
-                                    data-ref="mixitup-target">
-                                    <div class="mt-4 main-card">
-                                        <div class="event-thumbnail">
-                                            <a href="venue_event_detail_view.html" class="thumbnail-img">
-                                                <img src="images/event-imgs/img-1.jpg" alt="" />
-                                            </a>
-                                            <span class="bookmark-icon" title="Bookmark"></span>
-                                        </div>
-                                        <div class="event-content">
-                                            <a href="venue_event_detail_view.html" class="event-title">A New Way Of
-                                                Life</a>
-                                            <div class="duration-price-remaining">
-                                                <span class="duration-price">AUD $100.00*</span>
-                                                <span class="remaining"></span>
-                                            </div>
-                                        </div>
-                                        <div class="event-footer">
-                                            <div class="event-timing">
-                                                <div class="publish-date">
-                                                    <span><i class="fa-solid fa-calendar-day me-2"></i>15
-                                                        Apr</span>
-                                                    <span class="dot"><i class="fa-solid fa-circle"></i></span>
-                                                    <span>Fri, 3.45 PM</span>
-                                                </div>
-                                                <span class="publish-time"><i
-                                                        class="fa-solid fa-clock me-2"></i>1h</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                @endforeach
-                            </div>
-                            <div class="browse-btn">
-                                <a href="explore_events.html" class="main-btn btn-hover">Browse All</a>
-                            </div>
+                            <a href="{{ route('user.discovery.index') }}" class="main-btn btn-hover">View More</a>
                         </div>
                     </div>
-                </div> -->
-                <div class="col-xl-12 col-lg-12 col-md-12">
-                    <div class="event-filter-items">
-                        <div class="featured-controls">
-                            <div class="filter-tag">
-                                <a href="#" class="date-filter active" data-value="all">All</a>
-                                <a href="#" class="date-filter" data-value="today">Today</a>
-                                <a href="#" class="date-filter" data-value="tomorrow">Tomorrow</a>
-                                <a href="#" class="date-filter" data-value="this_week">This Week</a>
-                                <a href="#" class="date-filter" data-value="this_weekend">This Weekend</a>
-                                <a href="#" class="date-filter" data-value="next_week">Next Week</a>
-                                <a href="#" class="date-filter" data-value="this_month">This Month</a>
+                </div>
+                <div class="row mb-5">
+                    @forelse (($personalizedEvents ?? collect()) as $event)
+                        @include('frontend.components.event-card', [
+                            'event' => $event,
+                            'savedEventIds' => $savedEventIds ?? [],
+                        ])
+                    @empty
+                        <div class="col-12">
+                            <div class="main-card p-4 text-center">
+                                <h4>No personalized recommendations yet.</h4>
+                                <p class="text-muted mb-3">Save a few events or follow organizers to personalize your
+                                    homepage.</p>
+                                <a href="{{ route('all.events') }}" class="main-btn btn-hover">Explore Events</a>
                             </div>
+                        </div>
+                    @endforelse
+                </div>
+            @endauth
 
-                            @if ($event_types->isNotEmpty())
-                            <div class="controls">
-                                <button type="button" class="control" data-filter="all">
-                                    All
-                                </button>
-                                @foreach ($event_types as $type)
-                                <button type="button" class="control" data-filter=".{{ $type->slug }}">
+            <div class="row mb-4">
+                <div class="col-xl-12">
+                    <div class="main-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h3>Featured Events</h3>
+                            <p class="mb-0 text-muted">Hand-picked published events from the marketplace.</p>
+                        </div>
+                        <a href="{{ route('all.events') }}" class="main-btn btn-hover">Browse All</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5" data-ref="event-filter-content">
+                @forelse (($featuredEvents ?? $events ?? collect()) as $event)
+                    @include('frontend.components.event-card', [
+                        'event' => $event,
+                        'savedEventIds' => $savedEventIds ?? [],
+                    ])
+                @empty
+                    <div class="col-12">
+                        <div class="main-card p-4 text-center">
+                            <h4>No featured events yet.</h4>
+                            <p class="text-muted mb-0">Published events marked as featured will appear here.</p>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-xl-12">
+                    <div class="main-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h3>Trending Now</h3>
+                            <p class="mb-0 text-muted">Popular events based on saves, orders, and approved reviews.</p>
+                        </div>
+                        <a href="{{ route('all.events', ['date_filter' => 'upcoming']) }}"
+                            class="main-btn btn-hover">See Trending</a>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                @forelse (($trendingEvents ?? collect()) as $event)
+                    @include('frontend.components.event-card', [
+                        'event' => $event,
+                        'savedEventIds' => $savedEventIds ?? [],
+                    ])
+                @empty
+                    <div class="col-12">
+                        <div class="main-card p-4 text-center">
+                            <h4>No trending events yet.</h4>
+                            <p class="text-muted mb-0">Events will trend as customers save, order, and review them.</p>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-xl-12 col-lg-12 mb-5">
+                    <div class="main-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h3>Online Events</h3>
+                            <p class="mb-0 text-muted">Join events from anywhere.</p>
+                        </div>
+                        <a href="{{ route('all.events', ['format' => 'online']) }}" class="main-btn btn-hover">View
+                            Online</a>
+                    </div>
+                    <div class="row">
+                        @forelse (($onlineEvents ?? collect())->take(3) as $event)
+                            @include('frontend.components.event-card', [
+                                'event' => $event,
+                                'savedEventIds' => $savedEventIds ?? [],
+                            ])
+                        @empty
+                            <div class="col-12">
+                                <div class="main-card p-4 text-center">
+                                    <h4>No online events yet.</h4>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                <div class="col-xl-12 col-lg-12 mb-5 mb-lg-5">
+                    <div class="main-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h3>Upcoming Events</h3>
+                            <p class="mb-0 text-muted">Events happening soon.</p>
+                        </div>
+                        <a href="{{ route('all.events', ['date_filter' => 'upcoming']) }}"
+                            class="main-btn btn-hover">View Upcoming</a>
+                    </div>
+                    <div class="row">
+                        @forelse (($upcomingEvents ?? collect())->take(3) as $event)
+                            @include('frontend.components.event-card', [
+                                'event' => $event,
+                                'savedEventIds' => $savedEventIds ?? [],
+                            ])
+                        @empty
+                            <div class="col-12">
+                                <div class="main-card p-4 text-center">
+                                    <h4>No upcoming events yet.</h4>
+                                </div>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row mb-5">
+                <div class="col-xl-6 col-lg-6 mb-4 mb-lg-0">
+                    <div class="main-card p-4 h-100">
+                        <div class="main-title mb-3">
+                            <h3>Browse by Category</h3>
+                            <p class="text-muted mb-0">Jump into the event types you love.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            @forelse (($eventTypes ?? $event_types ?? collect()) as $type)
+                                <a href="{{ route('all.events', ['category_slug' => $type->slug]) }}"
+                                    class="btn btn-outline-primary btn-sm">
                                     {{ $type->name }}
-                                </button>
-                                @endforeach
-                            </div>
-                            @endif
-                            <div class="row" data-ref="event-filter-content">
-                                @include('frontend.layouts.event_grid', compact('events'))
-                            </div>
-                            <div class="browse-btn">
-                                <a href="{{ route('all.events') }}" class="main-btn btn-hover">Browse All</a>
-                            </div>
+                                    <span
+                                        class="badge bg-light text-dark ms-1">{{ $type->published_events_count ?? ($type->events_count ?? 0) }}</span>
+                                </a>
+                            @empty
+                                <span class="text-muted">No active categories yet.</span>
+                            @endforelse
                         </div>
                     </div>
                 </div>
+                <div class="col-xl-6 col-lg-6">
+                    <div class="main-card p-4 h-100">
+                        <div class="main-title mb-3">
+                            <h3>Browse by City</h3>
+                            <p class="text-muted mb-0">Find local events around popular cities.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            @forelse (($cityBlocks ?? collect()) as $cityBlock)
+                                <a href="{{ route('all.events', ['city' => $cityBlock->city]) }}"
+                                    class="btn btn-outline-primary btn-sm">
+                                    {{ $cityBlock->city }}
+                                    <span class="badge bg-light text-dark ms-1">{{ $cityBlock->events_count }}</span>
+                                </a>
+                            @empty
+                                <span class="text-muted">No city-based events yet.</span>
+                            @endforelse
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-xl-12">
+                    <div class="main-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                        <div>
+                            <h3>Trusted Organizers</h3>
+                            <p class="mb-0 text-muted">Approved organizers with trust signals, followers, or strong
+                                ratings.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                @forelse (($trustedOrganizers ?? collect()) as $organizer)
+                    <div class="col-xl-3 col-lg-4 col-md-6 col-sm-12">
+                        <div class="main-card mt-4 h-100 p-4">
+                            <h4 class="mb-2">
+                                <a
+                                    href="{{ route('public.organizers.show', $organizer->slug) }}">{{ $organizer->organization_name }}</a>
+                            </h4>
+                            <p class="text-muted small mb-2">{{ $organizer->published_events_count }} published
+                                event{{ $organizer->published_events_count === 1 ? '' : 's' }} ·
+                                {{ $organizer->followers_count }}
+                                follower{{ $organizer->followers_count === 1 ? '' : 's' }}</p>
+                            @if ($organizer->ratingSummary)
+                                <p class="mb-2"><i class="fa-solid fa-star text-warning"></i>
+                                    {{ number_format((float) $organizer->ratingSummary->average_rating, 1) }} average
+                                    rating</p>
+                            @endif
+                            @foreach ($organizer->publicTrustBadges->take(3) as $badge)
+                                <span class="badge bg-success me-1 mb-1">{{ $badge->label }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-12">
+                        <div class="main-card p-4 text-center">
+                            <h4>No trusted organizer highlights yet.</h4>
+                            <p class="text-muted mb-0">Admin-managed public trust badges and approved ratings will
+                                appear here.</p>
+                        </div>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
@@ -152,7 +269,8 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/venue-events.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/venue-events.png"
+                                                alt="" />
                                         </div>
                                         <h4>Venue Events</h4>
                                         <p>
@@ -166,7 +284,8 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/webinar.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/webinar.png"
+                                                alt="" />
                                         </div>
                                         <h4>Webinar</h4>
                                         <p>
@@ -180,7 +299,8 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/training-workshop.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/training-workshop.png"
+                                                alt="" />
                                         </div>
                                         <h4>Training & Workshop</h4>
                                         <p>
@@ -194,7 +314,8 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/online-class.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/online-class.png"
+                                                alt="" />
                                         </div>
                                         <h4>Online Class</h4>
                                         <p>
@@ -208,7 +329,8 @@
                                 <div class="main-card">
                                     <div class="host-item">
                                         <div class="host-img">
-                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/talk-show.png" alt="" />
+                                            <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/talk-show.png"
+                                                alt="" />
                                         </div>
                                         <h4>Talk Show</h4>
                                         <p>
@@ -245,7 +367,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-1.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-1.png"
+                                            alt="" />
                                     </div>
                                     <h4>Online Events</h4>
                                     <p>
@@ -257,7 +380,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-2.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-2.png"
+                                            alt="" />
                                     </div>
                                     <h4>Venue Event</h4>
                                     <p>
@@ -269,7 +393,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-3.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-3.png"
+                                            alt="" />
                                     </div>
                                     <h4>Engaging Event Page</h4>
                                     <p>
@@ -281,7 +406,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-4.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-4.png"
+                                            alt="" />
                                     </div>
                                     <h4>Marketing Automation</h4>
                                     <p>
@@ -293,7 +419,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-5.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-5.png"
+                                            alt="" />
                                     </div>
                                     <h4>Sell Tickets</h4>
                                     <p>
@@ -305,7 +432,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-6.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-6.png"
+                                            alt="" />
                                     </div>
                                     <h4>Networking</h4>
                                     <p>
@@ -317,7 +445,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-7.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-7.png"
+                                            alt="" />
                                     </div>
                                     <h4>Recording</h4>
                                     <p>
@@ -329,7 +458,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-8.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-8.png"
+                                            alt="" />
                                     </div>
                                     <h4>Live Streaming</h4>
                                     <p>
@@ -341,7 +471,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-9.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-9.png"
+                                            alt="" />
                                     </div>
                                     <h4>Engagement Metrics</h4>
                                     <p>
@@ -353,7 +484,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-10.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-10.png"
+                                            alt="" />
                                     </div>
                                     <h4>Security & Support</h4>
                                     <p>
@@ -365,7 +497,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-11.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-11.png"
+                                            alt="" />
                                     </div>
                                     <h4>Reports & Analytics</h4>
                                     <p>
@@ -377,7 +510,8 @@
                             <div class="col-xl-3 col-lg-4 col-md-6">
                                 <div class="feature-item mt-46">
                                     <div class="feature-icon">
-                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-12.png" alt="" />
+                                        <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/feature-icon-12.png"
+                                            alt="" />
                                     </div>
                                     <h4>Mobile & Desktop App</h4>
                                     <p>
@@ -436,7 +570,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-1.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-1.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Sign up for free</h4>
                                             <p>
@@ -448,7 +583,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-2.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-2.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Use built-in event page template</h4>
                                             <p>
@@ -460,11 +596,14 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-3.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-3.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Customise your event page as you like</h4>
                                             <p>
-                                                Add logo, collage hero https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/ and add details to
+                                                Add logo, collage hero
+                                                https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/
+                                                and add details to
                                                 create an outstanding event page.
                                             </p>
                                         </div>
@@ -482,7 +621,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-4.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-4.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Promote your events on social media & email</h4>
                                             <p>
@@ -494,7 +634,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-5.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-5.png"
+                                                    alt="" />
                                             </div>
                                             <h4>
                                                 Use early-bird discounts, coupons & group ticketing
@@ -508,7 +649,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-6.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-6.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Get paid quickly & securely</h4>
                                             <p>
@@ -530,7 +672,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-7.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-7.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Free event hosting</h4>
                                             <p>
@@ -542,7 +685,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-8.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-8.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Built-in video conferencing platform</h4>
                                             <p>
@@ -555,7 +699,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-9.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-9.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Connect your attendees with your event</h4>
                                             <p>
@@ -576,7 +721,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-10.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-10.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Create multiple sessions & earn more</h4>
                                             <p>
@@ -588,7 +734,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-11.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-11.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Clone past event to create similar events</h4>
                                             <p>
@@ -600,7 +747,8 @@
                                     <div class="col-lg-4 col-md-6">
                                         <div class="step-item">
                                             <div class="step-icon">
-                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-12.png" alt="" />
+                                                <img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/step-icon-12.png"
+                                                    alt="" />
                                             </div>
                                             <h4>Get support like nowhere else</h4>
                                             <p>
@@ -814,37 +962,18 @@
                         <div class="owl-carousel organisations-slider owl-theme">
                             <div class="item">
                                 <div class="sponsor">
-                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-1.png" alt="" /></a>
+                                    <a href="#"><img
+                                            src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-1.png"
+                                            alt="" />
+                                    </a>
                                 </div>
                             </div>
                             <div class="item">
                                 <div class="sponsor">
-                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-2.png" alt="" /></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="sponsor">
-                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-3.png" alt="" /></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="sponsor">
-                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-4.png" alt="" /></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="sponsor">
-                                    <a href="#"><img src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-5.png" alt="" /></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="sponsor">
-                                    <a href="#"><img src="images/icons/sponsor-6.png" alt="" /></a>
-                                </div>
-                            </div>
-                            <div class="item">
-                                <div class="sponsor">
-                                    <a href="#"><img src="images/icons/sponsor-7.png" alt="" /></a>
+                                    <a href="#"><img
+                                            src="https://www.gambolthemes.net/html-items/barren-html/disable-demo-link/images/icons/sponsor-2.png"
+                                            alt="" />
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -854,60 +983,60 @@
         </div>
     </div>
     @push('scripts')
-    <script>
-        $(document).ready(function() {
-            // Keep track of filters
-            let currentDateFilter = 'all';
-            let currentCategorySlug = 'all';
+        <script>
+            $(document).ready(function() {
+                // Keep track of filters
+                let currentDateFilter = 'all';
+                let currentCategorySlug = 'all';
 
-            // Date filter click
-            $('.date-filter').on('click', function(e) {
-                e.preventDefault();
-                $('.date-filter').removeClass('active');
-                $(this).addClass('active');
-                currentDateFilter = $(this).data('value');
-                fetchEvents(1, false); // Fetch page 1, replace content
-            });
-
-            // Category filter click
-            $('.control').on('click', function(e) {
-                e.preventDefault();
-                $('.control').removeClass('active');
-                $(this).addClass('active');
-                currentCategorySlug = $(this).data('filter').replace('.', '');
-                // alert(currentCategorySlug);
-                fetchEvents(1, false);
-            });
-
-            // Fetch events via AJAX
-            function fetchEvents(page = 1, append = false) {
-                // alert(page);
-                $.ajax({
-                    url: "{{ route('events.fetch') }}",
-                    method: 'GET',
-                    data: {
-                        page: page,
-                        date_filter: currentDateFilter,
-                        category_slug: currentCategorySlug,
-                    },
-                    beforeSend: function() {
-                        $('[data-ref="event-filter-content"]').html(
-                            '<div class="py-5 text-center col-12"><h5>Loading...</h5></div>');
-                    },
-                    success: function(response) {
-                        if (!append) {
-                            $('[data-ref="event-filter-content"]').html(response.html);
-                        } else {
-                            $('[data-ref="event-filter-content"]').append(response.html);
-                        }
-                    },
-                    error: function(xhr) {
-                        console.log(xhr.responseText);
-                    }
+                // Date filter click
+                $('.date-filter').on('click', function(e) {
+                    e.preventDefault();
+                    $('.date-filter').removeClass('active');
+                    $(this).addClass('active');
+                    currentDateFilter = $(this).data('value');
+                    fetchEvents(1, false); // Fetch page 1, replace content
                 });
-            }
-        });
-    </script>
+
+                // Category filter click
+                $('.control').on('click', function(e) {
+                    e.preventDefault();
+                    $('.control').removeClass('active');
+                    $(this).addClass('active');
+                    currentCategorySlug = $(this).data('filter').replace('.', '');
+                    // alert(currentCategorySlug);
+                    fetchEvents(1, false);
+                });
+
+                // Fetch events via AJAX
+                function fetchEvents(page = 1, append = false) {
+                    // alert(page);
+                    $.ajax({
+                        url: "{{ route('events.fetch') }}",
+                        method: 'GET',
+                        data: {
+                            page: page,
+                            date_filter: currentDateFilter,
+                            category_slug: currentCategorySlug,
+                        },
+                        beforeSend: function() {
+                            $('[data-ref="event-filter-content"]').html(
+                                '<div class="py-5 text-center col-12"><h5>Loading...</h5></div>');
+                        },
+                        success: function(response) {
+                            if (!append) {
+                                $('[data-ref="event-filter-content"]').html(response.html);
+                            } else {
+                                $('[data-ref="event-filter-content"]').append(response.html);
+                            }
+                        },
+                        error: function(xhr) {
+                            console.log(xhr.responseText);
+                        }
+                    });
+                }
+            });
+        </script>
     @endpush
 
 </x-frontend-app-layout>

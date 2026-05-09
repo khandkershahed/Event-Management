@@ -1,162 +1,104 @@
 <x-frontend-app-layout>
-
     <div class="breadcrumb-block">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12 col-md-10">
-                    <div class="barren-breadcrumb">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('all.events') }}">Explore Events</a></li>
-                                <li class="breadcrumb-item"><a href="{{ route('tickets.cart') }}">Cart</a></li>
-                                <li class="breadcrumb-item active" aria-current="page">Checkout</li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ route('frontend.cart') }}">Cart</a></li>
+                <li class="breadcrumb-item active">Checkout</li>
+            </ol>
         </div>
     </div>
 
     <div class="event-dt-block p-80">
         <div class="container">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
-            <div class="row justify-content-center">
-                <div class="col-xl-10 col-lg-10 col-md-12">
-
-                    <form id="checkoutForm" method="POST" action="{{ route('tickets.checkout.confirm') }}">
-                        @csrf
-
-                        <div class="main-card p-4 mb-4">
-                            <div class="bp-title mb-4">
-                                <h4>Billing Information</h4>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-lg-6 mb-3">
-                                    <label class="form-label">Full Name</label>
-                                    <input type="text" name="name" class="form-control" required>
-                                </div>
-
-                                <div class="col-lg-6 mb-3">
-                                    <label class="form-label">Email Address</label>
-                                    <input type="email" name="email" class="form-control" required>
-                                </div>
-
-                                <div class="col-lg-6 mb-3">
-                                    <label class="form-label">Phone Number</label>
-                                    <input type="text" name="phone" class="form-control" required>
-                                </div>
-
-                                <div class="col-lg-6 mb-3">
-                                    <label class="form-label">Address</label>
-                                    <input type="text" name="address" class="form-control" required>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="main-card p-4 mb-4">
-                            <div class="bp-title mb-4">
-                                <h4>Your Tickets</h4>
-                            </div>
-
-                            <div class="table-responsive">
-                                <table class="table align-middle table-bordered">
-                                    <thead class="bg-light">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="main-card p-4">
+                        <h3 class="mb-4">Checkout Review</h3>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>Ticket</th>
+                                        <th>Seat</th>
+                                        <th class="text-center">Qty</th>
+                                        <th class="text-end">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($items as $item)
                                         <tr>
-                                            <th>Event</th>
-                                            <th>Ticket</th>
-                                            <th>Seat</th>
-                                            <th>Qty</th>
-                                            <th>Price</th>
-                                            <th>Subtotal</th>
+                                            <td>{{ $item->event?->name }}</td>
+                                            <td>{{ $item->ticketType?->name }}</td>
+                                            <td>{{ $item->seat?->label ?? 'General admission' }}</td>
+                                            <td class="text-center">{{ $item->quantity }}</td>
+                                            <td class="text-end">{{ $currency }} {{ number_format((float) $item->subtotal, 2) }}</td>
                                         </tr>
-                                    </thead>
-
-                                    <tbody>
-                                        @foreach ($items as $item)
-                                            <tr>
-                                                <td>
-                                                    <strong>{{ $item->event->name }}</strong><br>
-                                                    <small>{{ $item->event->start_date?->format('d M, Y') }}</small>
-                                                </td>
-
-                                                <td>{{ $item->ticketType->name }}</td>
-
-                                                <td>
-                                                    @if ($item->seat_id)
-                                                        <span class="badge bg-primary">{{ $item->seat->label }}</span>
-                                                    @else
-                                                        <span class="badge bg-secondary">General</span>
-                                                    @endif
-                                                </td>
-
-                                                <td>{{ $item->quantity }}</td>
-
-                                                <td>{{ number_format($item->unit_price, 2) }}</td>
-
-                                                <td>{{ number_format($item->unit_price * $item->quantity, 2) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-
-                            <div class="text-end mt-3">
-                                <h4>Total: {{ number_format($total, 2) }}</h4>
-                            </div>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
 
-                        <div class="main-card p-4 mb-4">
-                            <div class="bp-title mb-4">
-                                <h4>Payment Method</h4>
+                        <form action="{{ route('frontend.order.process') }}" method="POST" class="mt-4">
+                            @csrf
+                            <h5 class="mb-3">Customer Information</h5>
+                            <div class="row">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Name</label>
+                                    <input type="text" name="customer_name" value="{{ old('customer_name', auth()->user()?->name) }}" class="form-control">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="customer_email" value="{{ old('customer_email', auth()->user()?->email) }}" class="form-control">
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">Phone</label>
+                                    <input type="text" name="customer_phone" value="{{ old('customer_phone') }}" class="form-control">
+                                </div>
                             </div>
+                            <button type="submit" class="main-btn btn-hover">Place Order</button>
+                        </form>
+                    </div>
+                </div>
 
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="payment_method" id="paymentCOD"
-                                    value="cod" checked>
-                                <label class="form-check-label" for="paymentCOD">
-                                    Cash on Delivery (COD)
-                                </label>
-                            </div>
-
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="payment_method" id="paymentOnline"
-                                    value="online">
-                                <label class="form-check-label" for="paymentOnline">
-                                    Online Payment (SSLCommerz / Stripe)
-                                </label>
-                            </div>
-
+                <div class="col-lg-4">
+                    <div class="main-card p-4 sticky-top">
+                        <h4>Order Summary</h4>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <strong>{{ $currency }} {{ number_format((float) $subtotal, 2) }}</strong>
                         </div>
-
-                        <div class="text-end">
-                            <button type="submit" class="main-btn btn-hover px-5">
-                                Confirm Order
-                            </button>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Discount</span>
+                            <strong>{{ $currency }} {{ number_format((float) $discount_total, 2) }}</strong>
                         </div>
-
-                    </form>
-
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Fees</span>
+                            <strong>{{ $currency }} {{ number_format((float) $fee_total, 2) }}</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Total</span>
+                            <strong>{{ $currency }} {{ number_format((float) $total, 2) }}</strong>
+                        </div>
+                        <div class="alert alert-warning mb-0">
+                            Paid orders will redirect to Stripe payment after order placement. Free orders are completed immediately.
+                        </div>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                let btn = this.querySelector('button[type="submit"]');
-                btn.disabled = true;
-                btn.innerHTML = "Processing...";
-
-                this.submit();
-            });
-        </script>
-    @endpush
-
 </x-frontend-app-layout>

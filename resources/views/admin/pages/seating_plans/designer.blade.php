@@ -276,6 +276,12 @@
                 <button class="btn btn-light-info btn-sm" id="btn-add-table">
                     <i class="fa fa-dot-circle me-1"></i> Table
                 </button>
+                <button class="btn btn-light-dark btn-sm" id="btn-select-all-seats" type="button">
+                    <i class="fa fa-check-square me-1"></i> Select Seats
+                </button>
+                <button class="btn btn-light-danger btn-sm" id="btn-delete-selected-seats" type="button">
+                    <i class="fa fa-trash me-1"></i> Delete Selected
+                </button>
 
                 <button class="btn btn-success btn-sm ms-4" id="btn-save-map">
                     <i class="fa fa-save me-1"></i> Save
@@ -354,6 +360,17 @@
 
 
         <script>
+            window.rgbToHex = window.rgbToHex || function (rgb) {
+                if (!rgb) return "#ffffff";
+                if (String(rgb).charAt(0) === "#") return rgb;
+                const m = String(rgb).match(/\d+/g);
+                if (!m || m.length < 3) return "#ffffff";
+                return "#" +
+                    ("0" + parseInt(m[0], 10).toString(16)).slice(-2) +
+                    ("0" + parseInt(m[1], 10).toString(16)).slice(-2) +
+                    ("0" + parseInt(m[2], 10).toString(16)).slice(-2);
+            };
+
             (function() {
 
                 // GLOBAL ROOT ELEMENT
@@ -727,11 +744,14 @@
                             id: el.data("id"),
                             type: el.data("type"),
                             name: el.data("label"),
-                            x: parseFloat(el.css("left")),
-                            y: parseFloat(el.css("top")),
-                            width: el.outerWidth(),
-                            height: el.outerHeight(),
+                            x: Math.round(parseFloat(el.css("left")) || 0),
+                            y: Math.round(parseFloat(el.css("top")) || 0),
+                            width: Math.round(el.outerWidth() || 160),
+                            height: Math.round(el.outerHeight() || 100),
                             rotation: getRotation(el),
+                            capacity: parseInt(el.attr("data-capacity") || el.find(".sp-seat").length || 0),
+                            ticket_type_id: el.attr("data-ticket-type-id") || null,
+                            color: rgbToHex(el.css("background-color")),
                             seats: []
                         };
 
@@ -742,8 +762,8 @@
                                 id: s.data("id"),
                                 label: s.data("label"),
                                 disabled: s.attr("data-disabled") == "1" ? 1 : 0,
-                                x: parseFloat(s.css("left")),
-                                y: parseFloat(s.css("top"))
+                                x: Math.round(parseFloat(s.css("left")) || 0),
+                                y: Math.round(parseFloat(s.css("top")) || 0)
                             });
                         });
 
@@ -767,9 +787,12 @@
                             type,
                             capacity: type === "general_admission" ?
                                 parseInt(el.attr("data-capacity") || 0) : el.find(".sp-seat").length,
-                            x: parseFloat(el.css("left")),
-                            y: parseFloat(el.css("top")),
+                            x: Math.round(parseFloat(el.css("left")) || 0),
+                            y: Math.round(parseFloat(el.css("top")) || 0),
                             rotation: getRotation(el),
+                            width: Math.round(el.outerWidth() || 160),
+                            height: Math.round(el.outerHeight() || 100),
+                            ticket_type_id: el.attr("data-ticket-type-id") || null,
                             seats: []
                         };
 
@@ -1191,6 +1214,36 @@
                     saveDesign();
                 });
 
+                $("#btn-select-all-seats").click(function() {
+                    const seats = $(".sp-seat");
+                    if (seats.length === 0) {
+                        alert("No seats are available to select.");
+                        return;
+                    }
+
+                    const allSelected = seats.length === $(".sp-seat.selected").length;
+                    seats.toggleClass("selected", !allSelected);
+                });
+
+                $("#btn-delete-selected-seats").click(function() {
+                    const selected = $(".sp-seat.selected");
+                    if (selected.length === 0) {
+                        alert("Select one or more seats first.");
+                        return;
+                    }
+
+                    if (confirm(`Delete ${selected.length} selected seats?`)) {
+                        selected.each(function() {
+                            const block = $(this).closest(".sp-item");
+                            $(this).remove();
+                            if (window.AutoScale) {
+                                window.AutoScale.applySeatSize(block);
+                            }
+                        });
+                        saveDesign();
+                    }
+                });
+
                 // ------------------------------------------------------------
                 // SAVE BUTTON
                 // ------------------------------------------------------------
@@ -1218,15 +1271,7 @@
                 // RGB TO HEX (for color picker)
                 // ------------------------------------------------------------
                 function rgbToHex(rgb) {
-                    if (!rgb) return "#ffffff";
-                    const m = rgb.match(/\d+/g);
-                    if (!m) return "#ffffff";
-                    return (
-                        "#" +
-                        ("0" + parseInt(m[0]).toString(16)).slice(-2) +
-                        ("0" + parseInt(m[1]).toString(16)).slice(-2) +
-                        ("0" + parseInt(m[2]).toString(16)).slice(-2)
-                    );
+                    return window.rgbToHex(rgb);
                 }
 
                 // ------------------------------------------------------------

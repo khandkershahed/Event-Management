@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Frontend\Api;
 
 use App\Models\User;
-use App\Models\Booking;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Ichtrojan\Otp\Models\Otp;
@@ -11,7 +10,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
 use App\Mail\EmailVerificationMail;
 use App\Http\Controllers\Controller;
-use App\Models\EventSeat;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
@@ -577,32 +575,14 @@ class UserApiController extends Controller
     }
 
     // User tickets
+
+    // User tickets
     public function tickets(Request $request)
     {
-        $user = $request->user();
-
-        $bookings = Booking::with([
-                'user:id,name,email',
-                'event:id,name,start_date,start_time,venue,end_date,end_time'
-            ])
-            ->where('user_id', $user->id)
-            ->get();
-        // Attach seat details to each booking
-        $bookings->transform(function ($booking) {
-            $eventSeats = json_decode($booking->event_seats, true);
-            $seatIds = $eventSeats['seat_ids'] ?? [];
-            // Fetch seat details
-            $seats = EventSeat::whereIn('id', $seatIds)
-                ->get(['name', 'code', 'price', 'row', 'column', 'status']);
-
-            $booking->seats = $seats;
-            return $booking;
-        });
-
         return response()->json([
-            'status' => 'success',
-            'bookings' => $bookings,
-            'message' => 'User tickets retrieved successfully.'
-        ]);
+            'status' => 'disabled',
+            'tickets' => [],
+            'message' => 'Legacy booking tickets are disabled. Step 1 keeps the project on the new OrderTicket architecture.',
+        ], 202);
     }
 }

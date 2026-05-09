@@ -5,13 +5,14 @@
   </head>
 
   <body class="d-flex flex-column h-100">
+    <a class="skip-to-content" href="#main-content">Skip to main content</a>
     <!-- Header Start-->
     @include('frontend.layouts.header')
     <!-- Header End-->
     <!-- Body Start-->
-    <div class="wrapper">
+    <main class="wrapper" id="main-content" tabindex="-1">
       {{ $slot }}
-    </div>
+    </main>
     <!-- Body End-->
     <!-- Footer Start-->
     @include('frontend.layouts.footer')
@@ -26,15 +27,14 @@
     <script src="{{ asset('frontend/js/night-mode.js') }}"></script>
     @stack('scripts')
     <script>
-      var containerEl = document.querySelector(
-        '[data-ref~="event-filter-content"]'
-      );
-
-      var mixer = mixitup(containerEl, {
-        selectors: {
-          target: '[data-ref~="mixitup-target"]',
-        },
-      });
+      var containerEl = document.querySelector('[data-ref~="event-filter-content"]');
+      if (containerEl && typeof mixitup === 'function') {
+        mixitup(containerEl, {
+          selectors: {
+            target: '[data-ref~="mixitup-target"]',
+          },
+        });
+      }
     </script>
   </body>
 </html>

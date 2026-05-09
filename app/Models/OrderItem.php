@@ -2,27 +2,27 @@
 
 namespace App\Models;
 
-use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
-    use HasFactory, HasSlug;
+    use HasFactory;
 
     protected $fillable = [
         'order_id',
+        'event_ticket_id',
+        'ticket_type_id',
         'ticket_name',
         'unit_price',
         'quantity',
         'subtotal',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships
-    |--------------------------------------------------------------------------
-    */
+    protected $casts = [
+        'unit_price' => 'decimal:2',
+        'subtotal' => 'decimal:2',
+    ];
 
     public function tickets()
     {
@@ -34,4 +34,13 @@ class OrderItem extends Model
         return $this->belongsTo(Order::class);
     }
 
+    public function eventTicket()
+    {
+        return $this->belongsTo(EventTicket::class, 'event_ticket_id');
+    }
+
+    public function ticketType()
+    {
+        return $this->belongsTo(EventTicket::class, 'ticket_type_id');
+    }
 }

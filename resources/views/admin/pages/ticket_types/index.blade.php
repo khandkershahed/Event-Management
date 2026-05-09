@@ -46,15 +46,23 @@
                             <td>{{ $type->quantity }}</td>
 
                             <td>
-                                @if ($type->valid_section_ids)
-                                    @foreach (json_decode($type->valid_section_ids) as $id)
+                                @php
+                                    $sectionIds = $type->valid_section_ids;
+                                    if (is_string($sectionIds)) {
+                                        $decoded = json_decode($sectionIds, true);
+                                        $sectionIds = is_array($decoded) ? $decoded : [];
+                                    }
+                                    $sectionIds = is_array($sectionIds) ? $sectionIds : [];
+                                @endphp
+                                @if (count($sectionIds))
+                                    @foreach ($sectionIds as $id)
                                         <?php $s = $sections->firstWhere('id', $id); ?>
                                         @if ($s)
                                             <span class="badge bg-info m-1">{{ $s->name }}</span>
                                         @endif
                                     @endforeach
                                 @else
-                                    <span class="badge bg-secondary">None</span>
+                                    <span class="badge bg-secondary">All Sections</span>
                                 @endif
                             </td>
 
@@ -171,15 +179,30 @@
                                     </div>
 
                                     <div class="mb-4">
-                                        <label class="fw-bold">Linked Section(s)</label>
-                                        <select multiple class="form-select" data-control="select2"
-                                            data-placeholder="Select Seat Type" name="section_ids[]"
-                                            id="section_ids">
-                                            <option></option>
-                                            @foreach ($sections as $s)
-                                                <option value="{{ $s->id }}">{{ $s->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        <label class="fw-bold d-block">Ticket / Section Assignment Matrix</label>
+                                        <div class="border rounded p-3 bg-light">
+                                            <div class="form-check mb-3">
+                                                <input type="checkbox" class="form-check-input" id="all_sections_toggle">
+                                                <label class="form-check-label fw-semibold" for="all_sections_toggle">Valid for all sections / no restriction</label>
+                                                <div class="text-muted small">When checked, this ticket can be used in every section of this event seating plan.</div>
+                                            </div>
+
+                                            <div id="section_matrix_wrapper" class="row g-2">
+                                                @forelse ($sections as $s)
+                                                    <div class="col-md-6">
+                                                        <label class="border rounded bg-white p-2 d-flex gap-2 align-items-start h-100">
+                                                            <input type="checkbox" class="form-check-input section-checkbox" name="section_ids[]" value="{{ $s->id }}">
+                                                            <span>
+                                                                <strong>{{ $s->name }}</strong>
+                                                                <span class="d-block text-muted small">Type: {{ ucwords(str_replace('_', ' ', $s->type ?? 'section')) }} · Capacity: {{ $s->capacity ?? $s->seats_count ?? $s->seats()->count() }}</span>
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                @empty
+                                                    <div class="col-12 text-muted">No seating sections are available for this event.</div>
+                                                @endforelse
+                                            </div>
+                                        </div>
                                     </div>
 
                                 </div>
@@ -328,6 +351,8 @@
                 $("#ticketModalTitle").text("Add Ticket Type");
                 $("#ticketTypeForm")[0].reset();
                 $("#ticket_id").val("");
+                $(".section-checkbox").prop("checked", false).prop("disabled", true);
+                $("#all_sections_toggle").prop("checked", true);
 
                 TICKET_MODAL.show();
             });
@@ -359,16 +384,29 @@
                         $("#early_bird_ends_at").val(t.early_bird_ends_at ? t.early_bird_ends_at.replace(" ",
                             "T") : "");
 
-                        // Select sections
-                        $("#section_ids option").prop("selected", false);
+                        // Ticket / Section Assignment Matrix
+                        $(".section-checkbox").prop("checked", false).prop("disabled", false);
 
-                        let sections = JSON.parse(t.valid_section_ids ?? "[]");
+                        let sections = [];
+                        if (Array.isArray(t.valid_section_ids)) {
+                            sections = t.valid_section_ids;
+                        } else {
+                            try {
+                                sections = JSON.parse(t.valid_section_ids ?? "[]");
+                            } catch (e) {
+                                sections = [];
+                            }
+                        }
 
-                        sections.forEach(id => {
-                            $("#section_ids option[value='" + id + "']").prop("selected", true);
-                        });
-
-                        $("#section_ids").trigger("change"); // IMPORTANT FOR SELECT2
+                        if (sections.length === 0) {
+                            $("#all_sections_toggle").prop("checked", true);
+                            $(".section-checkbox").prop("disabled", true);
+                        } else {
+                            $("#all_sections_toggle").prop("checked", false);
+                            sections.forEach(id => {
+                                $(".section-checkbox[value='" + id + "']").prop("checked", true);
+                            });
+                        }
 
 
                         // Fees
@@ -389,6 +427,14 @@
                 });
             });
 
+
+            $("#all_sections_toggle").on("change", function () {
+                const allSections = $(this).is(":checked");
+                $(".section-checkbox").prop("disabled", allSections);
+                if (allSections) {
+                    $(".section-checkbox").prop("checked", false);
+                }
+            });
 
             // -----------------------------------------------
             // SUBMIT FORM (Create OR Update)

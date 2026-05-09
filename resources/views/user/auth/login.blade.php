@@ -62,7 +62,7 @@
                                             @enderror
                                         </div>
                                     </div>
-                                    <button class="mt-4 main-btn btn-hover w-100" type="button" onclick="window.location.href='index.html'">Sign In <i class="fas fa-sign-in-alt ms-2"></i></button>
+                                    <button class="mt-4 main-btn btn-hover w-100" type="submit">Sign In <i class="fas fa-sign-in-alt ms-2"></i></button>
                                 </form>
                                 <div class="mt-5 text-center app-top-right-link">
                                     New to Barren?<a class="sidebar-register-link" href="{{ route('register') }}">Sign up</a>

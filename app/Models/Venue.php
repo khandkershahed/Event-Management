@@ -3,16 +3,18 @@
 namespace App\Models;
 
 use App\Traits\HasSlug;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Venue extends Model
 {
     use HasFactory, SoftDeletes, HasSlug;
+
     protected $slugSourceColumn = 'name';
-    
+
     protected $fillable = [
+        'organizer_profile_id',
         'name',
         'slug',
         'address',
@@ -24,11 +26,10 @@ class Venue extends Model
         'image',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relationships
-    |--------------------------------------------------------------------------
-    */
+    public function organizerProfile()
+    {
+        return $this->belongsTo(OrganizerProfile::class);
+    }
 
     public function seatingPlans()
     {

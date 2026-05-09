@@ -63,14 +63,14 @@
                         </div>
                         @endforeach
                         @endif --}}
-                        {{ $slot }}
+                            {{ $slot }}
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            @include('admin.layouts.footer')
+                @include('admin.layouts.footer')
+            </div>
         </div>
-    </div>
     </div>
 
 

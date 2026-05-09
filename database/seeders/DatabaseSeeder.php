@@ -3,25 +3,34 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Database\Seeders\AdminSeeder;
-use Database\Seeders\EventSeatSeeder;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
-            AdminSeeder::class, // 1st
-            RolePermissionSeeder::class, // 2nd
-            SettingSeeder::class, // 2nd
-            // EventTypeSeeder::class,
-            // EventSeeder::class,
-            // EventSeatTypesSeeder::class,
-            // EventSeatSeeder::class,
+            AdminSeeder::class,
+            RolePermissionSeeder::class,
+            SettingSeeder::class,
+            OrganizerSeeder::class,
+            VenueSeeder::class,
+            SeatingPlanSeeder::class,
+            EventMarketplaceSeeder::class,
+            EventTicketSeeder::class,
+            CartSeatLockSeeder::class,
+            OrderDemoSeeder::class,
+            UserOrderTicketSeeder::class,
+            OrganizerReportSeeder::class,
+            MarketplaceFinanceSeeder::class,
+            RefundCancellationSeeder::class,
+            OrganizerTeamSeeder::class,
+            OrganizerPayoutMethodSeeder::class,
+            DemoMarketplaceSeeder::class,
+            AdvancedSeatMapDesignSeeder::class,
+            AdvancedPublicSeatSelectionSeeder::class,
+            AdvancedTicketSectionMatrixSeeder::class,
+            AdvancedDynamicDashboardSeeder::class,
+            AdvancedDashboardOperationsSeeder::class,
         ]);
-        // $this->call(UserSeeder::class);
     }
 }

@@ -97,6 +97,8 @@ return new class extends Migration
             $table->integer('seat_number')->nullable();
             $table->boolean('is_disabled')->default(false);
             $table->boolean('is_researved')->default(false);
+            // status
+            $table->string('status')->default('available')->index();
             $table->integer('x');
             $table->integer('y');
 

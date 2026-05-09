@@ -25,15 +25,16 @@ class SeatingSectionController extends Controller
     /**
      * Store a new section (AJAX)
      */
-    public function store(Request $request, $planId)
+    public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'type'      => 'required|string|max:50',
-            'capacity'  => 'nullable|integer|min:0',
-            'x'         => 'nullable|integer',
-            'y'         => 'nullable|integer',
-            'rotation'  => 'nullable|integer',
+            'seating_plan_id' => 'required|integer|exists:seating_plans,id',
+            'name'            => 'required|string|max:255',
+            'type'            => 'required|string|max:50',
+            'capacity'        => 'nullable|integer|min:0',
+            'x'               => 'nullable|integer',
+            'y'               => 'nullable|integer',
+            'rotation'        => 'nullable|integer',
         ]);
 
         if ($validator->fails()) {
@@ -43,7 +44,7 @@ class SeatingSectionController extends Controller
             ], 422);
         }
 
-        $plan = SeatingPlan::findOrFail($planId);
+        $plan = SeatingPlan::findOrFail($request->integer('seating_plan_id'));
 
         $section = SeatingSection::create([
             'seating_plan_id' => $plan->id,

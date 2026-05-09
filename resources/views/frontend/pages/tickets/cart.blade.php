@@ -1,192 +1,98 @@
 <x-frontend-app-layout>
     <div class="breadcrumb-block">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12 col-md-10">
-                    <div class="barren-breadcrumb">
-                        <nav aria-label="breadcrumb">
-                            <ol class="breadcrumb">
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('homepage') }}">Home</a>
-                                </li>
-                                <li class="breadcrumb-item">
-                                    <a href="{{ route('all.events') }}">Explore Events</a>
-                                </li>
-                                <li class="breadcrumb-item active" aria-current="page">
-                                    Cart
-                                </li>
-                            </ol>
-                        </nav>
-                    </div>
-                </div>
-            </div>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ route('homepage') }}">Home > </a></li>
+                <li class="breadcrumb-item active">Cart</li>
+            </ol>
         </div>
     </div>
 
-    <div class="p-80 event-dt-block">
+    <div class="event-dt-block p-80">
         <div class="container">
+            @if (session('success'))
+                <div class="alert alert-success">{{ session('success') }}</div>
+            @endif
+            @if (session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+            @if (session('info'))
+                <div class="alert alert-info">{{ session('info') }}</div>
+            @endif
 
-            <div class="row justify-content-center">
-                <div class="col-xl-10 col-lg-10 col-md-12">
-
+            <div class="row">
+                <div class="col-lg-8">
                     <div class="main-card p-4">
+                        <h3 class="mb-4">Your Reservation Cart</h3>
 
-                        <div class="bp-title mb-4">
-                            <h4>Your Cart</h4>
-                        </div>
-
-                        @if (count($items) == 0)
-                            <div class="text-center p-5">
-                                <h4>Your cart is empty</h4>
-                                <a href="{{ route('all.events') }}" class="main-btn btn-hover mt-3">Browse Events</a>
+                        @if ($items->isEmpty())
+                            <div class="alert alert-warning mb-0">
+                                Your cart is empty. Browse public events and add tickets to begin a reservation.
                             </div>
                         @else
                             <div class="table-responsive">
-                                <table class="table table-bordered align-middle">
-                                    <thead class="bg-light">
+                                <table class="table align-middle">
+                                    <thead>
                                         <tr>
                                             <th>Event</th>
-                                            <th>Ticket Type</th>
+                                            <th>Ticket</th>
                                             <th>Seat</th>
-                                            <th>Unit Price</th>
-                                            <th width="10%">Qty</th>
-                                            <th>Subtotal</th>
-                                            <th width="5%">Remove</th>
+                                            <th class="text-center">Qty</th>
+                                            <th class="text-end">Subtotal</th>
+                                            <th></th>
                                         </tr>
                                     </thead>
-
                                     <tbody>
                                         @foreach ($items as $item)
-                                            <tr data-id="{{ $item->id }}">
-
+                                            <tr>
                                                 <td>
-                                                    <strong>{{ $item->event->name }}</strong><br>
-                                                    <small>{{ $item->event->start_date?->format('d M, Y') }}</small>
+                                                    <strong>{{ $item->event?->name }}</strong><br>
+                                                    <small>{{ $item->event?->start_date?->format('M d, Y') }}</small>
                                                 </td>
-
-                                                <td>{{ $item->ticketType->name }}</td>
-
                                                 <td>
-                                                    @if ($item->seat_id)
-                                                        <span class="badge bg-primary">{{ $item->seat->label }}</span>
-                                                    @else
-                                                        <span class="badge bg-secondary">General</span>
-                                                    @endif
+                                                    {{ $item->ticketType?->name }}<br>
+                                                    <small>{{ $item->ticketType?->formattedPrice() }}</small>
                                                 </td>
-
-                                                <td>{{ number_format($item->unit_price, 2) }}</td>
-
-                                                <td>
-                                                    <input type="number" class="form-control cart-qty-input"
-                                                        min="1" value="{{ $item->quantity }}">
+                                                <td>{{ $item->seat?->label ?? 'General admission' }}</td>
+                                                <td class="text-center">{{ $item->quantity }}</td>
+                                                <td class="text-end">{{ $item->ticketType?->currency ?? 'BDT' }} {{ number_format((float) $item->subtotal, 2) }}</td>
+                                                <td class="text-end">
+                                                    <form action="{{ route('frontend.cart.remove') }}" method="POST">
+                                                        @csrf
+                                                        <input type="hidden" name="cart_item_id" value="{{ $item->id }}">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                                    </form>
                                                 </td>
-
-                                                <td class="cart-item-subtotal">
-                                                    {{ number_format($item->unit_price * $item->quantity, 2) }}
-                                                </td>
-
-                                                <td>
-                                                    <button class="btn btn-sm btn-danger remove-item-btn">
-                                                        <i class="fa-solid fa-trash"></i>
-                                                    </button>
-                                                </td>
-
                                             </tr>
                                         @endforeach
                                     </tbody>
-
                                 </table>
                             </div>
 
-                            <div class="text-end mt-4">
-                                <h4>Total: <span id="cartTotalDisplay">{{ number_format($total, 2) }}</span></h4>
-                            </div>
-
-                            <div class="d-flex justify-content-between mt-4">
-                                <a href="{{ route('all.events') }}" class="btn btn-secondary">
-                                    Continue Shopping
-                                </a>
-
-                                <a href="{{ route('tickets.checkout') }}" class="main-btn btn-hover">
-                                    Proceed to Checkout
-                                </a>
-                            </div>
-
+                            <form action="{{ route('frontend.cart.clear') }}" method="POST" class="mt-3">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger">Clear Cart</button>
+                            </form>
                         @endif
-
                     </div>
+                </div>
 
+                <div class="col-lg-4">
+                    <div class="main-card p-4 sticky-top">
+                        <h4>Reservation Summary</h4>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Total</span>
+                            <strong>BDT {{ number_format((float) $total, 2) }}</strong>
+                        </div>
+                        <div class="alert alert-info">
+                            Step 10 creates the order and issues ticket codes. Online payment will be added in Step 11.
+                        </div>
+                        <a href="{{ route('all.events') }}" class="main-btn btn-hover w-100 mb-2">Continue Browsing</a>
+                        <a href="{{ route('frontend.checkout') }}" class="btn btn-primary w-100 {{ $items->isEmpty() ? 'disabled' : '' }}">Proceed to Checkout</a>
+                    </div>
                 </div>
             </div>
-
         </div>
     </div>
-
-    @push('scripts')
-        <script>
-            /**
-             * Update quantity and cart price
-             */
-            document.querySelectorAll('.cart-qty-input').forEach(input => {
-                input.addEventListener('change', function() {
-
-                    const qty = parseInt(this.value);
-                    if (qty <= 0) return;
-
-                    const row = this.closest('tr');
-                    const id = row.dataset.id;
-
-                    fetch(`/tickets/cart/update/${id}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({
-                                quantity: qty
-                            })
-                        })
-                        .then(res => res.json())
-                        .then(res => {
-                            if (res.status === "success") {
-                                row.querySelector('.cart-item-subtotal').innerHTML = res.item_subtotal;
-                                document.getElementById('cartTotalDisplay').innerHTML = res.total;
-                            }
-                        });
-                });
-            });
-
-
-            /**
-             * Remove item
-             */
-            document.querySelectorAll('.remove-item-btn').forEach(btn => {
-                btn.addEventListener('click', function() {
-
-                    const row = this.closest('tr');
-                    const id = row.dataset.id;
-
-                    fetch(`/tickets/cart/remove/${id}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            }
-                        })
-                        .then(res => res.json())
-                        .then(res => {
-                            if (res.status === "success") {
-                                row.remove();
-                                document.getElementById('cartTotalDisplay').innerHTML = res.total;
-
-                                if (res.total == 0) {
-                                    location.reload();
-                                }
-                            }
-                        });
-
-                });
-            });
-        </script>
-    @endpush
-
 </x-frontend-app-layout>

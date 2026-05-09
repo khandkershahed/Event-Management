@@ -1,79 +1,111 @@
-<x-frontend-app-layout :title="'All Events'">
+<x-frontend-app-layout :title="'Explore Events'" :seo-meta="$seoMeta ?? []">
     <div class="hero-banner">
         <div class="container">
             <div class="row justify-content-center">
-                <div class="col-xl-8 col-lg-8 col-md-10">
+                <div class="col-xl-10 col-lg-10 col-md-12">
                     <div class="hero-banner-content">
-                        <h2>Discover Events For All The Things You Love</h2>
+                        <h2>Discover events for all the things you love</h2>
+                        <p class="text-white-50 mb-4">Search public, published marketplace events by category, date, city, format, and price.</p>
 
-                        {{-- Wrap in a form for easy access --}}
-                        <form class="search-form main-form" id="event-filter-form">
+                        <form class="search-form main-form" id="event-filter-form" method="GET" action="{{ route('all.events') }}">
                             <div class="row g-3">
-                                <div class="col-lg-5 col-md-12">
+                                <div class="col-lg-4 col-md-12">
+                                    <div class="form-group search-input">
+                                        <input type="text" name="search" value="{{ request('search') }}" class="form-control h_50" placeholder="Search event, organizer, venue, city..." id="event-search-input" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
                                     <div class="form-group">
-                                        {{-- Add an ID for jQuery --}}
-                                        <select class="selectpicker" data-width="100%" data-size="5"
-                                            data-live-search="true" id="event-type-select">
-                                            <option value="0" selected>All Types</option>
+                                        <select class="form-select h_50" name="event_type_id" id="event-type-select">
+                                            <option value="0">All Categories</option>
                                             @foreach ($event_types as $event_type)
-                                                <option value="{{ $event_type->id }}">{{ $event_type->name }}</option>
+                                                <option value="{{ $event_type->id }}" @selected((string) request('event_type_id') === (string) $event_type->id)>{{ $event_type->name }}</option>
                                             @endforeach
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-lg-5 col-md-12">
-                                    <div class="form-group search-input">
-                                        {{-- Add an ID for jQuery --}}
-                                        <input type="text" class="form-control h_50" placeholder="Search events..."
-                                            id="event-search-input" />
+                                <div class="col-lg-3 col-md-6">
+                                    <div class="form-group">
+                                        <select class="form-select h_50" name="city" id="event-city-select">
+                                            <option value="">All Cities</option>
+                                            @foreach (($cities ?? collect()) as $city)
+                                                <option value="{{ $city }}" @selected(request('city') === $city)>{{ $city }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="col-lg-2 col-md-12">
-                                    {{-- Change to a button type="submit" to also allow pressing Enter --}}
                                     <button type="submit" class="main-btn btn-hover w-100">Find</button>
                                 </div>
                             </div>
-                        </form>
 
+                            <div class="row g-3 mt-2">
+                                <div class="col-lg-3 col-md-6">
+                                    <select class="form-select h_50" name="date_filter" id="event-date-filter">
+                                        <option value="all" @selected(request('date_filter', 'all') === 'all')>Any Date</option>
+                                        <option value="today" @selected(request('date_filter') === 'today')>Today</option>
+                                        <option value="tomorrow" @selected(request('date_filter') === 'tomorrow')>Tomorrow</option>
+                                        <option value="this_week" @selected(request('date_filter') === 'this_week')>This Week</option>
+                                        <option value="this_month" @selected(request('date_filter') === 'this_month')>This Month</option>
+                                        <option value="upcoming" @selected(request('date_filter') === 'upcoming')>Upcoming</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <select class="form-select h_50" name="price" id="event-price-filter">
+                                        <option value="all" @selected(request('price', 'all') === 'all')>Any Price</option>
+                                        <option value="free" @selected(request('price') === 'free')>Free</option>
+                                        <option value="paid" @selected(request('price') === 'paid')>Paid</option>
+                                        <option value="donation" @selected(request('price') === 'donation')>Donation</option>
+                                        <option value="invite_only" @selected(request('price') === 'invite_only')>Invite Only</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <select class="form-select h_50" name="format" id="event-format-filter">
+                                        <option value="all" @selected(request('format', 'all') === 'all')>Any Format</option>
+                                        <option value="physical" @selected(request('format') === 'physical')>Physical</option>
+                                        <option value="online" @selected(request('format') === 'online')>Online</option>
+                                        <option value="hybrid" @selected(request('format') === 'hybrid')>Hybrid</option>
+                                    </select>
+                                </div>
+                                <div class="col-lg-3 col-md-6">
+                                    <a href="{{ route('all.events') }}" class="main-btn btn-hover w-100 text-center">Clear Filters</a>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
     <div class="explore-events p-80">
         <div class="container">
             <div class="row">
                 <div class="col-xl-12 col-lg-12 col-md-12">
                     <div class="event-filter-items">
                         <div class="featured-controls">
-                            <div class="filter-tag">
-                                <a href="#" class="date-filter active" data-value="all">All</a>
-                                <a href="#" class="date-filter" data-value="today">Today</a>
-                                <a href="#" class="date-filter" data-value="tomorrow">Tomorrow</a>
-                                <a href="#" class="date-filter" data-value="this_week">This Week</a>
-                                <a href="#" class="date-filter" data-value="this_weekend">This Weekend</a>
-                                <a href="#" class="date-filter" data-value="next_week">Next Week</a>
-                                <a href="#" class="date-filter" data-value="this_month">This Month</a>
-                                {{-- Add the rest of your date filters here --}}
-                            </div>
-
                             @if ($event_types->isNotEmpty())
-                                <div class="controls">
-                                    <button type="button" class="control" data-filter="all">
-                                        All
-                                    </button>
+                                <div class="controls mb-4">
+                                    <a href="{{ route('all.events', request()->except(['category_slug', 'event_type_id', 'page'])) }}" class="control {{ !request('category_slug') && !request('event_type_id') ? 'active' : '' }}">All</a>
                                     @foreach ($event_types as $type)
-                                        <button type="button" class="control" data-filter=".{{ $type->slug }}">
+                                        <a href="{{ route('all.events', array_merge(request()->except(['page', 'event_type_id']), ['category_slug' => $type->slug])) }}" class="control {{ request('category_slug') === $type->slug ? 'active' : '' }}">
                                             {{ $type->name }}
-                                        </button>
+                                        </a>
                                     @endforeach
                                 </div>
                             @endif
+
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="mb-0">Available Events</h3>
+                                <span class="text-muted">{{ $events->total() }} result{{ $events->total() === 1 ? '' : 's' }}</span>
+                            </div>
+
                             <div class="row" data-ref="event-filter-content">
                                 @include('frontend.layouts.event_grid', compact('events'))
                             </div>
-                            <div class="browse-btn">
-                                <a href="javascript:void(0);" id="see-more-btn" class="main-btn btn-hover">See More</a>
+
+                            <div class="mt-4 d-flex justify-content-center">
+                                {{ $events->links() }}
                             </div>
                         </div>
                     </div>
@@ -81,101 +113,4 @@
             </div>
         </div>
     </div>
-
-    {{-- Push the jQuery script to your layout's 'scripts' stack --}}
-    @push('scripts')
-        <script>
-            $(document).ready(function() {
-                // --- CSRF Token Setup ---
-                $.ajaxSetup({
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    }
-                });
-                let currentCategorySlug = 'all';
-                // --- The Main AJAX Function ---
-                function fetchEvents(page, append = false) {
-                    let search = $('#event-search-input').val() || '';
-                    let event_type_id = $('#event-type-select').val() || '0';
-                    let date_filter = $('.date-filter.active').data('value') || 'all';
-
-
-                    $('#loading-spinner').show();
-                    $('#see-more-btn').hide();
-
-                    $.ajax({
-                        url: "{{ route('events.fetch') }}",
-                        type: 'GET',
-                        data: {
-                            page: page,
-                            search: search,
-                            event_type_id: event_type_id,
-                            date_filter: date_filter,
-                            category_slug: currentCategorySlug
-                        },
-                        success: function(response) {
-                            if (!append) {
-                                $('[data-ref="event-filter-content"]').html(response.html);
-                            } else {
-                                $('[data-ref="event-filter-content"]').append(response.html);
-                            }
-
-                            // Update pagination
-                            $('#see-more-btn').data('page', page);
-
-                            if (response.hasMorePages) {
-                                $('#see-more-btn').show();
-                            } else {
-                                $('#see-more-btn').hide();
-                            }
-                        },
-                        error: function(xhr) {
-                            console.error("Error: ", xhr.responseText);
-                        },
-                        complete: function() {
-                            $('#loading-spinner').hide();
-                        }
-                    });
-                }
-
-
-                // --- Event Handlers ---
-
-                // 1. Filter Form Submission (Search + Dropdown)
-                $('#event-filter-form').on('submit', function(e) {
-                    e.preventDefault(); // Stop form from submitting normally
-                    fetchEvents(1, false); // Fetch page 1, replace content
-                });
-
-                // 2. Date Filter Clicks
-                $('.date-filter').on('click', function(e) {
-                    e.preventDefault();
-                    $('.date-filter').removeClass('active');
-                    $(this).addClass('active');
-                    fetchEvents(1, false); // Fetch page 1, replace content
-                });
-
-                // 3. Category Filter Clicks
-                $('.control').on('click', function(e) {
-                    e.preventDefault();
-                    $('.control').removeClass('active');
-                    $(this).addClass('active');
-                    currentCategorySlug = $(this).data('filter').replace('.', '');
-                    // alert(currentCategorySlug);
-                    fetchEvents(1, false);
-                });
-
-                // 4. "See More" Button Click
-                $('#see-more-btn').on('click', function() {
-                    let nextPage = $(this).data('page') + 1;
-                    fetchEvents(nextPage, true); // Fetch next page, append content
-                });
-
-                // Optional: Trigger search on dropdown change automatically
-                $('#event-type-select').on('change', function() {
-                    fetchEvents(1, false);
-                });
-            });
-        </script>
-    @endpush
 </x-frontend-app-layout>
