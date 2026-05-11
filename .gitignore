@@ -21,3 +21,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+# zip files
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
