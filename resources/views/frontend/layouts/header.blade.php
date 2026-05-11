@@ -46,22 +46,26 @@
                                 <a class="nav-link active" aria-current="page" href="{{ route('homepage') }}">Home</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" role="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
                                     Explore Events
                                 </a>
                                 <ul class="dropdown-menu dropdown-submenu">
-                                    <li><a class="dropdown-item" href="{{ route('all.events') }}">Explore Events</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('venue.event.create') }}">Venue Event Detail View</a></li>
-                                    <li><a class="dropdown-item" href="{{ route('online.event.create') }}">Online Event Detail View</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('all.events') }}">Explore Events</a>
+                                    </li>
+                                    <li><a class="dropdown-item" href="{{ route('venue.event.create') }}">Venue Event
+                                            Detail View</a></li>
+                                    <li><a class="dropdown-item" href="{{ route('online.event.create') }}">Online Event
+                                            Detail View</a></li>
                                 </ul>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{route('blog')}}">
+                                <a class="nav-link" href="{{ route('blog') }}">
                                     Blog
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="{{route('about')}}">
+                                <a class="nav-link" href="{{ route('about') }}">
                                     About Us
                                 </a>
                             </li>
@@ -100,52 +104,62 @@
                             </a>
                         </li>
                         @auth
-                        <li class="dropdown account-dropdown">
-                            <a href="{{ route('user.my.profile') }}" class="account-link" role="button" id="accountClick"
-                                data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
-                                    alt="" />
-                                <i class="fas fa-caret-down arrow-icon"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
-                                aria-labelledby="accountClick">
-                                <li>
-                                    <div class="dropdown-account-header">
-                                        <div class="account-holder-avatar">
-                                            <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
-                                                alt="" />
+                            <li class="dropdown account-dropdown">
+                                <a href="{{ route('user.my.profile') }}" class="account-link" role="button"
+                                    id="accountClick" data-bs-auto-close="outside" data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                    <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                        alt="" />
+                                    <i class="fas fa-caret-down arrow-icon"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
+                                    aria-labelledby="accountClick">
+                                    <li>
+                                        <div class="dropdown-account-header">
+                                            <div class="account-holder-avatar">
+                                                <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                                    alt="" />
+                                            </div>
+                                            <h5>{{ Auth::user()->name }}</h5>
+                                            <p>{{ Auth::user()->email }}</p>
                                         </div>
-                                        <h5>{{ Auth::user()->name }}</h5>
-                                        <p>{{ Auth::user()->email }}</p>
-                                    </div>
-                                </li>
-                                <li class="profile-link">
-                                    <a href="{{ route('user.dashboard') }}" class="link-item">My Dashboard</a>
-                                    <a href="{{ route('user.my.profile') }}" class="link-item">My Profile</a>
-                                    <form method="POST" action="{{ route('logout') }}">
-                                        @csrf
-                                        <button onclick="this.form.submit()" class="bg-white border-0 link-item text-start">Sign Out</button>
-                                        {{-- <a href="javascript:void(0)" onclick="this.form.submit(); return false;" class="link-item">Sign Out</a> --}}
-                                    </form>
-                                </li>
-                            </ul>
-                        </li>
+                                    </li>
+                                    <li class="profile-link">
+                                        <a href="{{ route('user.dashboard') }}" class="link-item">My Dashboard</a>
+                                        <a href="{{ route('user.my.profile') }}" class="link-item">My Profile</a>
+                                        <form method="POST" action="{{ route('logout') }}">
+                                            @csrf
+                                            <button onclick="this.form.submit()"
+                                                class="bg-white border-0 link-item text-start">Sign Out</button>
+                                            {{-- <a href="javascript:void(0)" onclick="this.form.submit(); return false;" class="link-item">Sign Out</a> --}}
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
                         @else
-                        <li class="dropdown account-dropdown"
-                            style="vertical-align: middle; background: #eee; border-radius: 50%;padding: 12px 8px;">
-                            <a href="#" class="account-link" role="button" id="accountClick"
-                                data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user"></i>
-                                <i class="fas fa-caret-down arrow-icon"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
-                                aria-labelledby="accountClick">
-                                <li class="profile-link">
-                                    <a href="{{ route('login') }}" class="link-item">Sign In</a>
-                                    <a href="{{ route('register') }}" class="link-item">Sign Up</a>
-                                </li>
-                            </ul>
-                        </li>
+                            <li class="dropdown account-dropdown"
+                                style="vertical-align: middle; background: #eee; border-radius: 50%;padding: 12px 8px;">
+                                <a href="#" class="account-link" role="button" id="accountClick"
+                                    data-bs-auto-close="outside" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user"></i>
+                                    <i class="fas fa-caret-down arrow-icon"></i>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
+                                    aria-labelledby="accountClick">
+                                    <li class="profile-link">
+                                        <a href="{{ route('login') }}" class="link-item">User Sign In</a>
+                                    </li>
+                                    <li class="profile-link">
+                                        <a href="{{ route('register') }}" class="link-item">User Sign Up</a>
+                                    </li>
+                                    <li class="profile-link">
+                                        <a href="{{ route('organizer.login') }}" class="link-item">Organizer Sign In</a>
+                                    </li>
+                                    <li class="profile-link">
+                                        <a href="{{ route('organizer.register') }}" class="link-item">Organizer Sign Up</a>
+                                    </li>
+                                </ul>
+                            </li>
                         @endauth
                         <li>
                             <div class="night_mode_switch__btn">
