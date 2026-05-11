@@ -104,38 +104,74 @@
                             </a>
                         </li>
                         @auth
-                            <li class="dropdown account-dropdown">
-                                <a href="{{ route('user.my.profile') }}" class="account-link" role="button"
-                                    id="accountClick" data-bs-auto-close="outside" data-bs-toggle="dropdown"
-                                    aria-expanded="false">
-                                    <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
-                                        alt="" />
-                                    <i class="fas fa-caret-down arrow-icon"></i>
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
-                                    aria-labelledby="accountClick">
-                                    <li>
-                                        <div class="dropdown-account-header">
-                                            <div class="account-holder-avatar">
-                                                <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
-                                                    alt="" />
+                        {{-- Check  --}}
+                            @if (auth()->user()->organizerProfile)
+                                <li class="dropdown account-dropdown">
+                                    <a href="{{ route('organizer.profile') }}" class="account-link" role="button"
+                                        id="accountClick" data-bs-auto-close="outside" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                            alt="" />
+                                        <i class="fas fa-caret-down arrow-icon"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
+                                        aria-labelledby="accountClick">
+                                        <li>
+                                            <div class="dropdown-account-header">
+                                                <div class="account-holder-avatar">
+                                                    <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                                        alt="" />
+                                                </div>
+                                                <h5>{{ Auth::user()->name }}</h5>
+                                                <p>{{ Auth::user()->email }}</p>
                                             </div>
-                                            <h5>{{ Auth::user()->name }}</h5>
-                                            <p>{{ Auth::user()->email }}</p>
-                                        </div>
-                                    </li>
-                                    <li class="profile-link">
-                                        <a href="{{ route('user.dashboard') }}" class="link-item">My Dashboard</a>
-                                        <a href="{{ route('user.my.profile') }}" class="link-item">My Profile</a>
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button onclick="this.form.submit()"
-                                                class="bg-white border-0 link-item text-start">Sign Out</button>
-                                            {{-- <a href="javascript:void(0)" onclick="this.form.submit(); return false;" class="link-item">Sign Out</a> --}}
-                                        </form>
-                                    </li>
-                                </ul>
-                            </li>
+                                        </li>
+                                        <li class="profile-link">
+                                            <a href="{{ route('organizer.dashboard') }}" class="link-item">My Dashboard</a>
+                                            <a href="{{ route('organizer.profile') }}" class="link-item">My Profile</a>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <button onclick="this.form.submit()"
+                                                    class="bg-white border-0 link-item text-start">Sign Out</button>
+                                                {{-- <a href="javascript:void(0)" onclick="this.form.submit(); return false;" class="link-item">Sign Out</a> --}}
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @else
+                                <li class="dropdown account-dropdown">
+                                    <a href="{{ route('user.my.profile') }}" class="account-link" role="button"
+                                        id="accountClick" data-bs-auto-close="outside" data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                            alt="" />
+                                        <i class="fas fa-caret-down arrow-icon"></i>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-account dropdown-menu-end"
+                                        aria-labelledby="accountClick">
+                                        <li>
+                                            <div class="dropdown-account-header">
+                                                <div class="account-holder-avatar">
+                                                    <img src="{{ !empty(Auth::user()->profile_image) && file_exists(public_path('storage/' . Auth::user()->profile_image)) ? asset('storage/' . Auth::user()->profile_image) : asset('https://ui-avatars.com/api/?name=' . urlencode(Auth::user()->name)) }}"
+                                                        alt="" />
+                                                </div>
+                                                <h5>{{ Auth::user()->name }}</h5>
+                                                <p>{{ Auth::user()->email }}</p>
+                                            </div>
+                                        </li>
+                                        <li class="profile-link">
+                                            <a href="{{ route('user.dashboard') }}" class="link-item">My Dashboard</a>
+                                            <a href="{{ route('user.my.profile') }}" class="link-item">My Profile</a>
+                                            <form method="POST" action="{{ route('logout') }}">
+                                                @csrf
+                                                <button onclick="this.form.submit()"
+                                                    class="bg-white border-0 link-item text-start">Sign Out</button>
+                                                {{-- <a href="javascript:void(0)" onclick="this.form.submit(); return false;" class="link-item">Sign Out</a> --}}
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endif
                         @else
                             <li class="dropdown account-dropdown"
                                 style="vertical-align: middle; background: #eee; border-radius: 50%;padding: 12px 8px;">
