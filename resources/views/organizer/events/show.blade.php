@@ -14,6 +14,7 @@
     @endif
     <div style="display:flex;gap:8px;flex-wrap:wrap">
         <a class="btn btn-light" href="{{ route('organizer.events.index') }}">Back</a>
+        <a class="btn btn-primary" href="{{ route('organizer.events.control', $event) }}">Open Event Control Panel</a>
         <a class="btn btn-primary" href="{{ route('organizer.events.ticket-types.index', $event) }}">Manage Ticket Types</a>
         @if($event->canBeEditedByOrganizer())
             <a class="btn btn-primary" href="{{ route('organizer.events.edit', $event) }}">Edit</a>

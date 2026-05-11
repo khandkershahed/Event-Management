@@ -1,4 +1,5 @@
 @csrf
+<div class="card" style="box-shadow:none;border:1px solid #e5e7eb;background:#f8fafc"><strong>Simple seating plan setup</strong><p style="margin-bottom:0;color:#64748b">First save the plan details. Then open the Visual Seat Map Designer to draw sections, general admission areas, tables, and seats.</p></div>
 <div class="mb-3">
     <label>Seating Plan Name *</label>
     <input class="form-control" type="text" name="name" value="{{ old('name', $plan->name ?? '') }}" required>

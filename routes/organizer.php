@@ -5,6 +5,9 @@ use App\Http\Controllers\Organizer\CheckInController;
 use App\Http\Controllers\Organizer\DashboardController;
 use App\Http\Controllers\Organizer\EventCancellationController;
 use App\Http\Controllers\Organizer\EventController;
+use App\Http\Controllers\Organizer\EventControlPanelController;
+use App\Http\Controllers\Organizer\Auth\OrganizerAuthenticatedSessionController;
+use App\Http\Controllers\Organizer\Auth\OrganizerRegisteredUserController;
 use App\Http\Controllers\Organizer\EventTicketController;
 use App\Http\Controllers\Organizer\FinanceProfileController;
 use App\Http\Controllers\Organizer\NotificationController;
@@ -18,6 +21,17 @@ use App\Http\Controllers\Organizer\SupportTicketController;
 use App\Http\Controllers\Organizer\TeamMemberController;
 use App\Http\Controllers\Organizer\VenueController;
 use Illuminate\Support\Facades\Route;
+
+
+Route::middleware('guest:web')
+    ->prefix('organizer')
+    ->as('organizer.')
+    ->group(function () {
+        Route::get('/login', [OrganizerAuthenticatedSessionController::class, 'create'])->name('login');
+        Route::post('/login', [OrganizerAuthenticatedSessionController::class, 'store'])->name('login.store');
+        Route::get('/register', [OrganizerRegisteredUserController::class, 'create'])->name('register');
+        Route::post('/register', [OrganizerRegisteredUserController::class, 'store'])->name('register.store');
+    });
 
 Route::middleware(['auth:web', 'organizer.approved'])
     ->prefix('organizer')
@@ -36,6 +50,7 @@ Route::middleware(['auth:web', 'organizer.approved'])
             Route::get('/approved-profile', [ProfileController::class, 'show'])->name('approved-profile');
             Route::get('/orders', [DashboardController::class, 'orders'])->name('orders.index');
 
+            Route::get('events/{event}/control', [EventControlPanelController::class, 'show'])->name('events.control');
             Route::get('events/{event}/attendees', [AttendeeController::class, 'index'])->name('events.attendees.index');
             Route::get('events/{event}/attendees/export', [AttendeeController::class, 'export'])->name('events.attendees.export');
             Route::get('events/{event}/cancellation', [EventCancellationController::class, 'create'])->name('events.cancellation.create');

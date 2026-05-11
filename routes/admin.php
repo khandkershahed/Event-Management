@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\EventApprovalController;
 use App\Http\Controllers\Admin\EventCancellationController;
 use App\Http\Controllers\Admin\EventController;
+use App\Http\Controllers\Admin\EventControlPanelController;
 use App\Http\Controllers\Admin\EventTicketTypeController;
 use App\Http\Controllers\Admin\EventTypeController;
 use App\Http\Controllers\Admin\NotificationController;
@@ -76,6 +77,7 @@ Route::group(['middleware' => 'auth:admin', 'prefix' => 'admin', 'as' => 'admin.
     Route::resource('categories', CategoryController::class);
     Route::resource('event-type', EventTypeController::class);
     Route::resource('event', EventController::class);
+    Route::get('events/{event}/control', [EventControlPanelController::class, 'show'])->name('events.control');
 
     Route::get('event-approvals', [EventApprovalController::class, 'index'])->name('event-approvals.index');
     Route::get('event-approvals/{event}', [EventApprovalController::class, 'show'])->name('event-approvals.show');

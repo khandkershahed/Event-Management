@@ -15,6 +15,7 @@
                 <td>{{ $event->start_date ? $event->start_date->format('Y-m-d') : '-' }}</td>
                 <td>{{ ucwords(str_replace('_', ' ', $event->status)) }}</td>
                 <td>
+                    <a class="btn btn-primary" href="{{ route('organizer.events.control', $event) }}">Control Panel</a>
                     <a class="btn btn-light" href="{{ route('organizer.events.show', $event) }}">View</a>
                     <a class="btn btn-light" href="{{ route('organizer.events.ticket-types.index', $event) }}">Tickets</a>
                     @if($event->canBeEditedByOrganizer())

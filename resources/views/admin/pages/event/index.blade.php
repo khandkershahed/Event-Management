@@ -65,6 +65,11 @@
 
                             <td class="text-center">
 
+                                <!-- Event Control Panel -->
+                                <a href="{{ route('admin.events.control', $event->id) }}" class="me-2" title="Event Control Panel">
+                                    <i class="fa-solid fa-gauge-high text-success fs-4"></i>
+                                </a>
+
                                 <!-- Assign Seating Plan -->
                                 <a href="{{ route('admin.seating-plans.index') }}" class="me-2"
                                     title="Assign Seating Plan">

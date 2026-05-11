@@ -67,7 +67,7 @@ class EventController extends Controller
             'added_by' => $request->user()->name,
         ]));
 
-        return redirect()->route('organizer.events.show', $event)->with('success', 'Draft event created successfully.');
+        return redirect()->route('organizer.events.control', $event)->with('success', 'Draft event created successfully. Continue setup from this control panel.');
     }
 
     public function show(Request $request, Event $event): View
@@ -111,7 +111,7 @@ class EventController extends Controller
             'updated_by' => $request->user()->name,
         ]));
 
-        return redirect()->route('organizer.events.show', $event)->with('success', 'Event updated successfully.');
+        return redirect()->route('organizer.events.control', $event)->with('success', 'Event updated successfully.');
     }
 
     public function destroy(Request $request, Event $event): RedirectResponse
@@ -178,12 +178,14 @@ class EventController extends Controller
 
     private function payload(Request $request): array
     {
-        return [
+        $payload = [
             'event_type_id' => $request->input('event_type_id'),
             'name' => $request->input('name'),
             'slug' => Str::slug($request->input('name')),
             'tagline' => $request->input('tagline'),
             'description' => $request->input('description'),
+            'video_teaser_url' => $request->input('video_teaser_url'),
+            'location_map_url' => $request->input('location_map_url'),
             'start_date' => $request->input('start_date'),
             'end_date' => $request->input('end_date'),
             'start_time' => $request->input('start_time'),
@@ -191,8 +193,24 @@ class EventController extends Controller
             'purchase_deadline' => $request->input('purchase_deadline'),
             'total_capacity' => $request->input('total_capacity'),
             'age_restriction' => $request->input('age_restriction'),
+            'organizer_name' => $request->input('organizer_name'),
+            'organizer_brand' => $request->input('organizer_brand'),
             'terms_and_conditions' => $request->input('terms_and_conditions'),
         ];
+
+        foreach (['logo', 'image', 'banner_image', 'organizer_logo', 'venue_image'] as $field) {
+            if ($request->hasFile($field)) {
+                $upload = customUpload($request->file($field), 'events/' . $field);
+
+                if (($upload['status'] ?? 0) === 0) {
+                    abort(422, $upload['error_message'] ?? 'File upload failed.');
+                }
+
+                $payload[$field] = $upload['file_path'];
+            }
+        }
+
+        return $payload;
     }
 
     private function ensureOwnEvent(Request $request, Event $event): void

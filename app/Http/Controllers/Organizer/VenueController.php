@@ -35,7 +35,15 @@ class VenueController extends Controller
     {
         $profile = $request->user()->organizerProfile;
 
-        Venue::create(array_merge($request->validated(), [
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $upload = customUpload($request->file('image'), 'venues');
+            abort_if(($upload['status'] ?? 0) === 0, 422, $upload['error_message'] ?? 'Venue image upload failed.');
+            $data['image'] = $upload['file_path'];
+        }
+
+        Venue::create(array_merge($data, [
             'organizer_profile_id' => $profile->id,
             'organizer_id' => $request->user()->id,
         ]));
@@ -61,7 +69,15 @@ class VenueController extends Controller
 
     public function update(VenueUpdateRequest $request, Venue $venue): RedirectResponse
     {
-        $venue->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $upload = customUpload($request->file('image'), 'venues');
+            abort_if(($upload['status'] ?? 0) === 0, 422, $upload['error_message'] ?? 'Venue image upload failed.');
+            $data['image'] = $upload['file_path'];
+        }
+
+        $venue->update($data);
 
         return redirect()
             ->route('organizer.venues.index')

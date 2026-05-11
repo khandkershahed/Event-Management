@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
             AdvancedTicketSectionMatrixSeeder::class,
             AdvancedDynamicDashboardSeeder::class,
             AdvancedDashboardOperationsSeeder::class,
+            AdvancedOrganizerAuthEventPanelSeeder::class,
         ]);
     }
 }
